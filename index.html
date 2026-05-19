@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人生操作系统 · 现状看板</title>
+<style>
+/* ========== 基础重置 & 变量 ========== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --c-primary: #2d6a4f;
+  --c-primary-light: #40916c;
+  --c-primary-lighter: #95d5b2;
+  --c-primary-bg: #d8f3dc;
+  --c-bg: #f8faf8;
+  --c-card: #ffffff;
+  --c-text: #1f2937;
+  --c-text-2: #6b7280;
+  --c-text-3: #9ca3af;
+  --c-border: #e5e7eb;
+  --c-shadow: rgba(0,0,0,0.04);
+  --c-red: #dc2626;
+  --c-red-bg: #fef2f2;
+  --c-red-border: #fecaca;
+  --c-orange: #ea580c;
+  --c-orange-bg: #fff7ed;
+  --c-orange-border: #fed7aa;
+  --c-yellow: #ca8a04;
+  --c-yellow-bg: #fefce8;
+  --c-yellow-border: #fde68a;
+  --c-green: #16a34a;
+  --c-green-bg: #f0fdf4;
+  --c-green-border: #bbf7d0;
+  --c-blue: #2563eb;
+  --c-blue-bg: #eff6ff;
+  --c-blue-border: #bfdbfe;
+  --c-purple: #7c3aed;
+  --c-purple-bg: #f5f3ff;
+  --c-purple-border: #c4b5fd;
+  --radius: 16px;
+  --radius-sm: 12px;
+  --radius-xs: 8px;
+  --max-w: 800px;
+  --font: -apple-system, "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+}
+
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--font);
+  color: var(--c-text);
+  background: var(--c-bg);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--c-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.container { max-width: var(--max-w); margin: 0 auto; padding: 0 20px; }
+
+/* ========== 导航栏 ========== */
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--c-border);
+  padding: 12px 0;
+}
+.topnav-inner {
+  max-width: var(--max-w); margin: 0 auto; padding: 0 20px;
+  display: flex; align-items: center; gap: 8px; overflow-x: auto;
+  scrollbar-width: none;
+}
+.topnav-inner::-webkit-scrollbar { display: none; }
+.topnav-logo { font-weight: 700; font-size: 0.9rem; white-space: nowrap; margin-right: 12px; }
+.topnav-link {
+  font-size: 0.8rem; color: var(--c-text-2); white-space: nowrap;
+  padding: 4px 12px; border-radius: 100px; border: 1px solid var(--c-border);
+  transition: all 0.2s; cursor: pointer;
+}
+.topnav-link:hover { background: var(--c-primary-bg); color: var(--c-primary); border-color: var(--c-primary-lighter); text-decoration: none; }
+
+/* ========== 阅读进度条 ========== */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; z-index: 200;
+  background: linear-gradient(90deg, var(--c-primary), var(--c-primary-lighter));
+  width: 0%; transition: width 0.1s;
+}
+
+/* ========== Hero ========== */
+.hero {
+  text-align: center;
+  padding: 80px 24px 60px;
+  background: linear-gradient(180deg, var(--c-primary-bg) 0%, var(--c-bg) 100%);
+}
+.hero-date {
+  display: inline-block; font-size: 0.8rem; color: var(--c-primary);
+  background: var(--c-card); border: 1px solid var(--c-primary-lighter);
+  padding: 4px 16px; border-radius: 100px; margin-bottom: 24px;
+}
+.hero h1 { font-size: clamp(1.6rem, 5vw, 2.4rem); font-weight: 800; margin-bottom: 12px; }
+.hero .tagline { font-size: 1rem; color: var(--c-text-2); max-width: 500px; margin: 0 auto; }
+.scroll-hint { margin-top: 40px; font-size: 0.8rem; color: var(--c-text-3); animation: bounce 2s infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+/* ========== 通用 Section ========== */
+section { padding: 64px 0; }
+.section-label { text-align:center; font-size:0.8rem; color:var(--c-primary); margin-bottom:8px; letter-spacing:0.5px; }
+.section-title { text-align:center; font-size:clamp(1.3rem,3.5vw,1.7rem); font-weight:700; margin-bottom:40px; }
+.section-alt { background: var(--c-primary-bg); }
+
+/* ========== 状态卡片网格 ========== */
+.status-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;
+}
+.status-card {
+  background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius);
+  padding: 24px 20px; transition: box-shadow 0.3s, transform 0.2s;
+}
+.status-card:hover { box-shadow: 0 8px 24px var(--c-shadow); transform: translateY(-2px); }
+.status-card .icon { font-size: 1.5rem; margin-bottom: 10px; }
+.status-card .label { font-size: 0.8rem; color: var(--c-text-2); margin-bottom: 4px; }
+.status-card .name { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+
+/* 状态标签 */
+.tag { display:inline-block; font-size:0.75rem; font-weight:600; padding:3px 10px; border-radius:100px; }
+.tag-red { color:var(--c-red); background:var(--c-red-bg); border:1px solid var(--c-red-border); }
+.tag-orange { color:var(--c-orange); background:var(--c-orange-bg); border:1px solid var(--c-orange-border); }
+.tag-yellow { color:var(--c-yellow); background:var(--c-yellow-bg); border:1px solid var(--c-yellow-border); }
+.tag-green { color:var(--c-green); background:var(--c-green-bg); border:1px solid var(--c-green-border); }
+
+.status-card .desc { font-size:0.82rem; color:var(--c-text-2); margin-top:10px; line-height:1.6; }
+
+/* ========== 紧急度排名 ========== */
+.urgency-table {
+  background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius);
+  overflow: hidden;
+}
+.urgency-row {
+  display: grid; grid-template-columns: 44px 1fr 1fr 1.2fr; align-items: center;
+  padding: 16px 20px; border-bottom: 1px solid var(--c-border);
+}
+.urgency-row:last-child { border-bottom: none; }
+.urgency-row.header { font-size:0.75rem; color:var(--c-text-3); font-weight:600; background:var(--c-bg); text-transform:uppercase; }
+.urgency-num {
+  width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700;
+}
+.urgency-num-1 { background:var(--c-red-bg); color:var(--c-red); }
+.urgency-num-2 { background:var(--c-orange-bg); color:var(--c-orange); }
+.urgency-num-3 { background:var(--c-yellow-bg); color:var(--c-yellow); }
+.urgency-field { font-weight:600; font-size:0.9rem; }
+.urgency-status { font-size:0.82rem; color:var(--c-text-2); }
+.urgency-action { font-size:0.82rem; color:var(--c-text-2); }
+
+/* ========== 隐患预警 ========== */
+.risk-section { margin-bottom: 32px; }
+.risk-section:last-child { margin-bottom: 0; }
+.risk-section-title {
+  font-size: 0.85rem; font-weight: 700; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.risk-card {
+  background: var(--c-card); border-radius: var(--radius-sm); margin-bottom: 12px;
+  border: 1px solid var(--c-border); overflow: hidden;
+}
+.risk-card-header {
+  padding: 14px 18px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+  font-weight: 600; font-size: 0.9rem; transition: background 0.2s;
+}
+.risk-card-header:hover { background: #f9fafb; }
+.risk-card-header .risk-tag { font-size: 0.7rem; }
+.risk-card-header .arrow { font-size: 0.7rem; color: var(--c-text-3); transition: transform 0.3s; }
+.risk-card.open .risk-card-header .arrow { transform: rotate(90deg); }
+
+.risk-card-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+.risk-card-body-inner { padding: 0 18px 16px; }
+.risk-detail-title { font-size: 0.8rem; color: var(--c-text-3); font-weight: 600; margin: 12px 0 6px; text-transform: uppercase; }
+.risk-detail-title:first-child { margin-top: 0; }
+.risk-detail-list { list-style: none; padding: 0; }
+.risk-detail-list li { font-size: 0.85rem; color: var(--c-text-2); padding: 3px 0; padding-left: 16px; position: relative; }
+.risk-detail-list li::before { content: ''; position: absolute; left: 0; top: 12px; width: 6px; height: 6px; border-radius: 50%; }
+.risk-detail-list.consequence li::before { background: var(--c-red); }
+.risk-detail-list.desc li::before { background: var(--c-orange); }
+
+/* 死循环 */
+.death-loop {
+  background: var(--c-red-bg); border: 1px solid var(--c-red-border); border-radius: var(--radius);
+  padding: 28px 24px; margin: 32px 0;
+}
+.death-loop-title { font-weight: 700; font-size: 1rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.loop-visual {
+  display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;
+  font-size: 0.85rem; font-weight: 600; color: var(--c-red); padding: 16px 0;
+}
+.loop-node {
+  background: var(--c-card); border: 2px solid var(--c-red-border); border-radius: var(--radius-xs);
+  padding: 8px 14px; text-align: center; min-width: 80px;
+}
+.loop-arrow { font-size: 1.2rem; color: var(--c-red); }
+.loop-note {
+  font-size: 0.82rem; color: var(--c-text-2); margin-top: 12px;
+  padding: 10px 14px; background: rgba(255,255,255,0.6); border-radius: var(--radius-xs);
+}
+.loop-note strong { color: var(--c-red); }
+
+/* 防线表格 */
+.defense-grid {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.defense-row {
+  display: flex; align-items: center; gap: 16px; background: var(--c-card);
+  border: 1px solid var(--c-border); border-radius: var(--radius-xs); padding: 14px 18px;
+}
+.defense-label { font-weight: 600; font-size: 0.85rem; min-width: 90px; flex-shrink: 0; }
+.defense-value { font-size: 0.85rem; color: var(--c-text-2); }
+
+/* ========== 四大模块 ========== */
+.module { margin-bottom: 20px; }
+.module:last-child { margin-bottom: 0; }
+.module-card {
+  background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius);
+  overflow: hidden;
+}
+.module-header {
+  padding: 20px 24px; display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: background 0.2s;
+}
+.module-header:hover { background: #f9fafb; }
+.module-header .module-icon { font-size: 1.3rem; }
+.module-header .module-title { font-weight: 700; font-size: 1rem; flex: 1; }
+.module-header .module-tag { font-size: 0.75rem; }
+.module-header .module-arrow { font-size: 0.7rem; color: var(--c-text-3); transition: transform 0.3s; }
+.module-card.open .module-header .module-arrow { transform: rotate(180deg); }
+
+.module-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+.module-body-inner { padding: 0 24px 24px; }
+
+/* 子内容样式 */
+.sub-block { margin-bottom: 24px; }
+.sub-block:last-child { margin-bottom: 0; }
+.sub-block h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 8px; color: var(--c-text); }
+.sub-block p { font-size: 0.85rem; color: var(--c-text-2); line-height: 1.7; }
+
+/* 进展列表 */
+.progress-list { list-style: none; padding: 0; }
+.progress-list li {
+  font-size: 0.85rem; color: var(--c-text-2); padding: 5px 0; padding-left: 24px; position: relative;
+}
+.progress-list li::before { position:absolute; left:0; font-size:0.8rem; }
+
+/* 数据表格 */
+.data-table {
+  width: 100%; border-collapse: collapse; font-size: 0.85rem;
+}
+.data-table th {
+  text-align: left; font-weight: 600; color: var(--c-text-3); font-size: 0.78rem;
+  padding: 8px 12px; border-bottom: 1px solid var(--c-border); background: var(--c-bg);
+}
+.data-table td { padding: 8px 12px; border-bottom: 1px solid var(--c-border); color: var(--c-text-2); }
+.data-table tr:last-child td { border-bottom: none; }
+
+/* 破局方向 */
+.direction-list { list-style: none; padding: 0; counter-reset: dir; }
+.direction-list li {
+  counter-increment: dir; font-size: 0.88rem; color: var(--c-text-2);
+  padding: 8px 0 8px 36px; position: relative;
+}
+.direction-list li::before {
+  content: counter(dir); position: absolute; left: 0; top: 8px;
+  width: 24px; height: 24px; background: var(--c-primary); color: #fff;
+  border-radius: 6px; font-size: 0.75rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* 模型展示 */
+.model-box {
+  background: var(--c-purple-bg); border: 1px solid var(--c-purple-border); border-radius: var(--radius-sm);
+  padding: 20px; margin: 12px 0;
+}
+.model-box .model-name { font-weight: 700; font-size: 0.95rem; color: var(--c-purple); margin-bottom: 10px; }
+.model-box p { font-size: 0.85rem; color: var(--c-text-2); line-height: 1.7; }
+.model-box .principle {
+  font-size: 0.82rem; color: var(--c-text-2); margin-top: 12px; padding: 10px;
+  background: rgba(255,255,255,0.7); border-radius: var(--radius-xs); font-style: italic;
+}
+
+/* 超能力条 */
+.power-list { display: flex; flex-direction: column; gap: 12px; }
+.power-item { }
+.power-label { display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 4px; }
+.power-label span:first-child { font-weight: 600; }
+.power-label span:last-child { color: var(--c-text-3); }
+.power-bar { height: 8px; background: var(--c-bg); border-radius: 100px; overflow: hidden; }
+.power-fill { height: 100%; border-radius: 100px; transition: width 1s ease; }
+.power-fill-8 { width: 80%; background: linear-gradient(90deg, var(--c-primary), var(--c-primary-lighter)); }
+.power-fill-7 { width: 70%; background: linear-gradient(90deg, var(--c-blue), #93c5fd); }
+.power-fill-3 { width: 30%; background: linear-gradient(90deg, var(--c-orange), var(--c-orange-border)); }
+
+.shortcut-list { list-style: none; padding: 0; }
+.shortcut-list li { font-size: 0.85rem; color: var(--c-text-2); padding: 4px 0; padding-left: 20px; position: relative; }
+.shortcut-list li::before { content: '⚠️'; position: absolute; left: 0; font-size: 0.75rem; }
+
+/* ========== 里程碑时间线 ========== */
+.timeline { position: relative; padding-left: 36px; }
+.timeline::before {
+  content: ''; position: absolute; left: 11px; top: 8px; bottom: 8px;
+  width: 2px; background: var(--c-primary-lighter); border-radius: 2px;
+}
+.timeline-item { position: relative; margin-bottom: 32px; }
+.timeline-item:last-child { margin-bottom: 0; }
+.timeline-dot {
+  position: absolute; left: -36px; top: 6px;
+  width: 24px; height: 24px; background: var(--c-card); border: 3px solid var(--c-primary); border-radius: 50%;
+}
+.timeline-date { font-size: 0.78rem; color: var(--c-text-3); margin-bottom: 4px; }
+.timeline-item h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 6px; }
+.timeline-sub { list-style: none; padding: 0; }
+.timeline-sub li {
+  font-size: 0.82rem; color: var(--c-text-2); padding: 2px 0 2px 16px; position: relative;
+}
+.timeline-sub li::before { content: ''; position: absolute; left: 0; top: 11px; width: 6px; height: 6px; border-radius: 50%; background: var(--c-primary-lighter); }
+
+/* ========== 行动清单 ========== */
+.action-group { margin-bottom: 24px; }
+.action-group:last-child { margin-bottom: 0; }
+.action-group-title {
+  font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+.action-checklist { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.action-checklist li {
+  font-size: 0.85rem; color: var(--c-text-2); padding: 10px 14px 10px 40px;
+  background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-xs);
+  position: relative; cursor: pointer; transition: all 0.2s;
+}
+.action-checklist li:hover { background: #f9fafb; }
+.action-checklist li::before {
+  content: ''; position: absolute; left: 14px; top: 14px;
+  width: 18px; height: 18px; border: 2px solid var(--c-border); border-radius: 4px;
+  transition: all 0.2s;
+}
+.action-checklist li.done { color: var(--c-text-3); text-decoration: line-through; }
+.action-checklist li.done::before {
+  background: var(--c-primary); border-color: var(--c-primary);
+  content: '✓'; color: #fff; font-size: 0.65rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ========== 哇塞时刻 ========== */
+.wow-list { display: flex; flex-direction: column; gap: 16px; }
+.wow-card {
+  background: var(--c-card); border: 1px solid var(--c-green-border); border-radius: var(--radius);
+  padding: 20px 22px; border-left: 4px solid var(--c-green);
+}
+.wow-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; }
+.wow-card p { font-size: 0.85rem; color: var(--c-text-2); line-height: 1.7; }
+
+/* ========== Footer ========== */
+.footer {
+  text-align: center; padding: 40px 24px; font-size: 0.78rem; color: var(--c-text-3);
+  border-top: 1px solid var(--c-border);
+}
+
+/* ========== 回到顶部 ========== */
+.back-top {
+  position: fixed; bottom: 28px; right: 28px; z-index: 100;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--c-primary); color: #fff; border: none;
+  font-size: 1.1rem; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  opacity: 0; transform: translateY(10px); transition: all 0.3s;
+  display: flex; align-items: center; justify-content: center;
+}
+.back-top.visible { opacity: 1; transform: translateY(0); }
+.back-top:hover { background: var(--c-primary-light); }
+
+/* ========== 响应式 ========== */
+@media (max-width: 600px) {
+  section { padding: 48px 0; }
+  .status-grid { grid-template-columns: 1fr; }
+  .urgency-row { grid-template-columns: 36px 1fr; }
+  .urgency-row .urgency-action { grid-column: 1 / -1; padding-top: 6px; }
+  .urgency-row.header .urgency-action { display: none; }
+  .defense-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .module-header { padding: 16px 18px; }
+  .module-body-inner { padding: 0 18px 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 阅读进度条 -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- 顶部导航 -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <span class="topnav-logo">🎯 人生看板</span>
+    <a class="topnav-link" href="#status">状态</a>
+    <a class="topnav-link" href="#urgency">紧急</a>
+    <a class="topnav-link" href="#risk">隐患</a>
+    <a class="topnav-link" href="#health">健康</a>
+    <a class="topnav-link" href="#finance">财务</a>
+    <a class="topnav-link" href="#love">关系</a>
+    <a class="topnav-link" href="#career">事业</a>
+    <a class="topnav-link" href="#growth">认知</a>
+    <a class="topnav-link" href="#actions">行动</a>
+  </div>
+</nav>
+
+<!-- ==================== Hero ==================== -->
+<div class="hero">
+  <div class="hero-date">📊 2026年5月 · 现状总览</div>
+  <h1>人生操作系统</h1>
+  <p class="tagline">看见自己，是一切改变的起点。</p>
+  <div class="scroll-hint">↓ 向下滚动，查看你的全貌</div>
+</div>
+
+<!-- ==================== 生命状态仪表盘 ==================== -->
+<section id="status">
+  <div class="container">
+    <div class="section-label">🧭 当前状态</div>
+    <h2 class="section-title">生命状态仪表盘</h2>
+    <div class="status-grid">
+      <div class="status-card">
+        <div class="icon">😊</div>
+        <div class="label">情绪状态</div>
+        <div class="name">内耗减少，能量提升</div>
+        <span class="tag tag-green">🟢 上升中</span>
+        <div class="desc">整体向好，保持觉察。</div>
+      </div>
+      <div class="status-card">
+        <div class="icon">💪</div>
+        <div class="label">健康状态</div>
+        <div class="name">颈椎/肩颈持续关注</div>
+        <span class="tag tag-yellow">🟡 改善中</span>
+        <div class="desc">底层短板，仍需持续康复。</div>
+      </div>
+      <div class="status-card">
+        <div class="icon">💰</div>
+        <div class="label">财务状态</div>
+        <div class="name">零收入 + 欠债5万</div>
+        <span class="tag tag-red">🔴 危机</span>
+        <div class="desc">最紧迫的底层风险，亟待突破。</div>
+      </div>
+      <div class="status-card">
+        <div class="icon">💕</div>
+        <div class="label">亲密关系</div>
+        <div class="name">定期沟通中</div>
+        <span class="tag tag-yellow">🟡 进行中</span>
+        <div class="desc">保持觉察与对话。</div>
+      </div>
+      <div class="status-card">
+        <div class="icon">🚀</div>
+        <div class="label">事业方向</div>
+        <div class="name">社群参与，寻找发力点</div>
+        <span class="tag tag-yellow">🟡 探索中</div>
+        <div class="desc">方向待收敛，需要聚焦。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 紧急度排名 ==================== -->
+<section id="urgency" class="section-alt">
+  <div class="container">
+    <div class="section-label">🔴 优先级</div>
+    <h2 class="section-title">紧急度排序</h2>
+    <div class="urgency-table">
+      <div class="urgency-row header">
+        <div></div>
+        <div>领域</div>
+        <div>现状</div>
+        <div>行动方向</div>
+      </div>
+      <div class="urgency-row">
+        <div class="urgency-num urgency-num-1">1</div>
+        <div class="urgency-field">💰 财务</div>
+        <div class="urgency-status">零收入，欠债5万</div>
+        <div class="urgency-action">寻找变现机会</div>
+      </div>
+      <div class="urgency-row">
+        <div class="urgency-num urgency-num-2">2</div>
+        <div class="urgency-field">💪 健康</div>
+        <div class="urgency-status">颈椎/肩颈/上背部问题</div>
+        <div class="urgency-action">坚持每日拉伸+运动</div>
+      </div>
+      <div class="urgency-row">
+        <div class="urgency-num urgency-num-3">3</div>
+        <div class="urgency-field">💕 亲密关系</div>
+        <div class="urgency-status">沟通模式探索中</div>
+        <div class="urgency-action">保持开放沟通</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 隐患预警 ==================== -->
+<section id="risk">
+  <div class="container">
+    <div class="section-label">⚠️ 风险地图</div>
+    <h2 class="section-title">未来隐患预警</h2>
+
+    <!-- 第一梯队 -->
+    <div class="risk-section">
+      <div class="risk-section-title"><span class="tag tag-red">第一梯队</span> 最高风险</div>
+      <div class="risk-card">
+        <div class="risk-card-header" onclick="toggleRisk(this)">
+          <span>1. 财务危机恶化 <span class="risk-tag tag tag-red">🔴</span></span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="risk-card-body">
+          <div class="risk-card-body-inner">
+            <div class="risk-detail-title">风险描述</div>
+            <ul class="risk-detail-list desc">
+              <li>零收入+欠债5万，决策空间极度受限</li>
+              <li>「急着赚钱」的焦虑挤压「慢慢探索」的空间</li>
+              <li>可能被迫接受不适合的机会</li>
+            </ul>
+            <div class="risk-detail-title">触发后果</div>
+            <ul class="risk-detail-list consequence">
+              <li>焦虑驱动完美主义比例上升</li>
+              <li>健康消耗加速</li>
+              <li>关系质量下降</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="risk-card">
+        <div class="risk-card-header" onclick="toggleRisk(this)">
+          <span>2. 健康崩溃触发熔断 <span class="risk-tag tag tag-red">🔴</span></span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="risk-card-body">
+          <div class="risk-card-body-inner">
+            <div class="risk-detail-title">风险描述</div>
+            <ul class="risk-detail-list desc">
+              <li>颈椎/肩颈问题持续存在</li>
+              <li>高体重+久坐+强迫性完美主义 = 身体长期高压</li>
+              <li>运动康复执行中断</li>
+            </ul>
+            <div class="risk-detail-title">触发后果</div>
+            <ul class="risk-detail-list consequence">
+              <li>身心能量站熔断</li>
+              <li>所有其他系统运转受影响</li>
+              <li>无法维持社群参与和内容输出</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第二梯队 -->
+    <div class="risk-section">
+      <div class="risk-section-title"><span class="tag tag-orange">第二梯队</span> 中高风险</div>
+      <div class="risk-card">
+        <div class="risk-card-header" onclick="toggleRisk(this)">
+          <span>3. 方向探索迷失 <span class="risk-tag tag tag-orange">🟠</span></span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="risk-card-body">
+          <div class="risk-card-body-inner">
+            <div class="risk-detail-title">风险描述</div>
+            <ul class="risk-detail-list desc">
+              <li>「内容+社群」方向太宽泛，尚未明确发力点</li>
+              <li>可能花费大量时间在错误方向</li>
+            </ul>
+            <div class="risk-detail-title">触发后果</div>
+            <ul class="risk-detail-list consequence">
+              <li>财务状况持续恶化</li>
+              <li>动力下降，形成负向循环</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="risk-card">
+        <div class="risk-card-header" onclick="toggleRisk(this)">
+          <span>4. 亲密关系回退 <span class="risk-tag tag tag-orange">🟠</span></span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="risk-card-body">
+          <div class="risk-card-body-inner">
+            <div class="risk-detail-title">风险描述</div>
+            <ul class="risk-detail-list desc">
+              <li>沟通模式尚未稳定</li>
+              <li>防御模式容易被旧习惯拉回</li>
+              <li>财务压力可能转移到关系冲突</li>
+            </ul>
+            <div class="risk-detail-title">触发后果</div>
+            <ul class="risk-detail-list consequence">
+              <li>回到「猜测和误解」模式</li>
+              <li>隔离感/距离感再次出现</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="risk-card">
+        <div class="risk-card-header" onclick="toggleRisk(this)">
+          <span>5. 过度消耗循环 <span class="risk-tag tag tag-orange">🟠</span></span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="risk-card-body">
+          <div class="risk-card-body-inner">
+            <div class="risk-detail-title">风险描述</div>
+            <ul class="risk-detail-list desc">
+              <li>热爱+焦虑双引擎驱动</li>
+              <li>财务焦虑放大完美主义</li>
+              <li>做事停不下来</li>
+            </ul>
+            <div class="risk-detail-title">触发后果</div>
+            <ul class="risk-detail-list consequence">
+              <li>情绪覆盖而非调节</li>
+              <li>身心能量持续低位</li>
+              <li>最终崩溃式休息</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 核心死循环 -->
+    <div class="death-loop">
+      <div class="death-loop-title">💀 核心死循环</div>
+      <div class="loop-visual">
+        <div class="loop-node">财务焦虑</div>
+        <span class="loop-arrow">→</span>
+        <div class="loop-node">放大焦虑引擎</div>
+        <span class="loop-arrow">→</span>
+        <div class="loop-node">加速健康消耗</div>
+        <span class="loop-arrow">→</span>
+        <div class="loop-node">身心熔断</div>
+        <span class="loop-arrow">→</span>
+        <div class="loop-node">无法探索方向</div>
+        <span class="loop-arrow">→</span>
+        <div class="loop-node">财务焦虑</div>
+      </div>
+      <div class="loop-note">
+        最大的隐患是陷入负向死循环。<br>需要主动干预的节点：<strong>健康底线</strong> 和 <strong>决策质量</strong>
+      </div>
+    </div>
+
+    <!-- 防线措施 -->
+    <div class="risk-section" style="margin-top: 32px;">
+      <div class="risk-section-title">🛡️ 防线措施</div>
+      <div class="defense-grid">
+        <div class="defense-row">
+          <span class="defense-label tag tag-red">财务危机</span>
+          <span class="defense-value">设定止损线，不接受伤害长期方向的短期机会</span>
+        </div>
+        <div class="defense-row">
+          <span class="defense-label tag tag-red">健康崩溃</span>
+          <span class="defense-value">每日康复练习必须执行，设为不可妥协的底线</span>
+        </div>
+        <div class="defense-row">
+          <span class="defense-label tag tag-orange">方向迷失</span>
+          <span class="defense-value">每2周复盘一次探索进展，及时调整</span>
+        </div>
+        <div class="defense-row">
+          <span class="defense-label tag tag-orange">关系回退</span>
+          <span class="defense-value">保持定期深度沟通，不让问题积累</span>
+        </div>
+        <div class="defense-row">
+          <span class="defense-label tag tag-orange">过度消耗</span>
+          <span class="defense-value">建立「停止信号」机制，到点强制休息</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 四大模块 ==================== -->
+<section id="health" class="section-alt">
+  <div class="container">
+    <div class="section-label">🏥 底层系统</div>
+    <h2 class="section-title">健康 · 财务 · 关系 · 事业</h2>
+
+    <!-- 健康 -->
+    <div class="module">
+      <div class="module-card">
+        <div class="module-header" onclick="toggleModule(this)">
+          <span class="module-icon">💪</span>
+          <span class="module-title">健康状态 — 底层 OS</span>
+          <span class="module-tag tag tag-yellow">🟡 改善中</span>
+          <span class="module-arrow">▼</span>
+        </div>
+        <div class="module-body">
+          <div class="module-body-inner">
+            <div class="sub-block">
+              <h4>当前状态</h4>
+              <p>主要问题：颈椎病、上交叉综合症、肩颈背疼痛、视频终端综合症。高体重带来运动损伤风险。</p>
+            </div>
+            <div class="sub-block">
+              <h4>近期进展</h4>
+              <ul class="progress-list">
+                <li style="--icon:'✅'">✅ 情绪状态稳步上升，内耗显著减少</li>
+                <li>✅ 开始有意识地关注身心能量状态</li>
+                <li>✅ 每晚简单拉伸已形成习惯</li>
+                <li>⏳ 八段锦等更多运动待加入</li>
+              </ul>
+            </div>
+            <div class="sub-block">
+              <h4>康复方案</h4>
+              <table class="data-table">
+                <thead><tr><th>项目</th><th>频率</th><th>状态</th></tr></thead>
+                <tbody>
+                  <tr><td>简单拉伸</td><td>每晚</td><td><span class="tag tag-green">✅ 已执行</span></td></tr>
+                  <tr><td>八段锦</td><td>计划中</td><td><span class="tag tag-yellow">⏳ 待加入</span></td></tr>
+                  <tr><td>游泳/瑜伽</td><td>推荐</td><td><span class="tag tag-green">💡 待启动</span></td></tr>
+                  <tr><td>上背部康复</td><td>重点关注</td><td><span class="tag tag-green">💡 长期进行</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="sub-block">
+              <h4>饮食管理</h4>
+              <table class="data-table">
+                <thead><tr><th>餐次</th><th>执行情况</th><th>评价</th></tr></thead>
+                <tbody>
+                  <tr><td>晚餐</td><td>鸡胸肉+蔬菜+少量米饭</td><td><span class="tag tag-green">✅ 搭配合理</span></td></tr>
+                  <tr><td>午餐</td><td>沙县小吃（炒河粉等）</td><td><span class="tag tag-yellow">⚠️ 偶尔</span></td></tr>
+                  <tr><td>高热量</td><td>汉堡/甜饮料</td><td><span class="tag tag-yellow">⚠️ 需控制</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 财务 -->
+    <div class="module" id="finance">
+      <div class="module-card">
+        <div class="module-header" onclick="toggleModule(this)">
+          <span class="module-icon">💰</span>
+          <span class="module-title">财务状态 — 最紧迫</span>
+          <span class="module-tag tag tag-red">🔴 危机</span>
+          <span class="module-arrow">▼</span>
+        </div>
+        <div class="module-body">
+          <div class="module-body-inner">
+            <div class="sub-block">
+              <h4>核心数据</h4>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:8px 0;">
+                <div style="text-align:center;padding:16px;background:var(--c-red-bg);border-radius:var(--radius-xs);">
+                  <div style="font-size:1.4rem;font-weight:800;color:var(--c-red);">0</div>
+                  <div style="font-size:0.78rem;color:var(--c-text-2);">月收入</div>
+                </div>
+                <div style="text-align:center;padding:16px;background:var(--c-red-bg);border-radius:var(--radius-xs);">
+                  <div style="font-size:1.4rem;font-weight:800;color:var(--c-red);">-5万</div>
+                  <div style="font-size:0.78rem;color:var(--c-text-2);">负债</div>
+                </div>
+                <div style="text-align:center;padding:16px;background:var(--c-red-bg);border-radius:var(--radius-xs);">
+                  <div style="font-size:1.4rem;font-weight:800;color:var(--c-red);">0</div>
+                  <div style="font-size:0.78rem;color:var(--c-text-2);">可支撑月数</div>
+                </div>
+              </div>
+            </div>
+            <div class="sub-block">
+              <h4>核心洞察</h4>
+              <div style="background:var(--c-red-bg);border:1px solid var(--c-red-border);border-radius:var(--radius-xs);padding:14px;font-size:0.85rem;color:var(--c-text-2);line-height:1.7;">
+                财务危机是最紧迫的底层风险，正在放大焦虑驱动的完美主义比例。
+              </div>
+            </div>
+            <div class="sub-block">
+              <h4>破局方向</h4>
+              <ol class="direction-list">
+                <li>在社群中寻找变现机会</li>
+                <li>形成1个最小商业闭环</li>
+                <li>借用「内容创作+场域力」优势寻找合作伙伴</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 亲密关系 -->
+    <div class="module" id="love">
+      <div class="module-card">
+        <div class="module-header" onclick="toggleModule(this)">
+          <span class="module-icon">💕</span>
+          <span class="module-title">亲密关系</span>
+          <span class="module-tag tag tag-yellow">🟡 进行中</span>
+          <span class="module-arrow">▼</span>
+        </div>
+        <div class="module-body">
+          <div class="module-body-inner">
+            <div class="sub-block">
+              <h4>关系概况</h4>
+              <p>恋人/伴侣关系，近两年。<br>近期：有了一次关于防御模式的深度沟通。</p>
+            </div>
+            <div class="sub-block">
+              <div class="model-box">
+                <div class="model-name">🧠 原创思维模型：「逻辑是线，情绪是点」</div>
+                <p><strong>逻辑 = 串联的长线</strong> — 梳理因果、身份、过往经验、行为规律、利弊风险。用来理清"这是谁、发生过什么、安不安全"。</p>
+                <p><strong>情绪 = 线上的感受节点</strong> — 安心、害怕、抵触、放松、压抑、亲近、疏离。同步共生，一体出现。</p>
+                <div class="principle">
+                  长线看逻辑更稳，当下本心看情绪更真。<br>
+                  对外防骗靠逻辑，对内自洽靠情绪。<br>
+                  <strong>感性入心，理性立身。</strong>
+                </div>
+              </div>
+            </div>
+            <div class="sub-block">
+              <h4>防御模式沟通</h4>
+              <ul class="progress-list">
+                <li>📝 女友分享了关于关系被稀释的不安</li>
+                <li>📝 你感受到的「隔离感、距离感」被讨论</li>
+                <li>📝 双方的防御模式被识别：她是「佯装模式」，你是「高情绪卷入」</li>
+              </ul>
+            </div>
+            <div class="sub-block">
+              <h4>依恋光谱认知</h4>
+              <div style="background:var(--c-blue-bg);border:1px solid var(--c-blue-border);border-radius:var(--radius-xs);padding:14px;font-size:0.85rem;color:var(--c-text-2);line-height:1.7;">
+                你们的防御模式刚好是同一个依恋创伤光谱的两端。<br><br>
+                <strong>她的模式</strong>：表达脆弱=被拒绝，必须装没事 → 佯装+隔离<br>
+                <strong>你的模式</strong>：过度共情+边界松散 → 高情绪卷入
+              </div>
+            </div>
+            <div class="sub-block">
+              <h4>未来方向</h4>
+              <ul class="progress-list">
+                <li>🔄 继续直接讨论防御模式，不再猜测和误解</li>
+                <li>🔄 逐步切换到更真实的沟通模式</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 事业 -->
+    <div class="module" id="career">
+      <div class="module-card">
+        <div class="module-header" onclick="toggleModule(this)">
+          <span class="module-icon">🚀</span>
+          <span class="module-title">事业方向 — 探索中</span>
+          <span class="module-tag tag tag-yellow">🟡 探索中</span>
+          <span class="module-arrow">▼</span>
+        </div>
+        <div class="module-body">
+          <div class="module-body-inner">
+            <div class="sub-block">
+              <h4>核心方向</h4>
+              <p style="font-weight:700;color:var(--c-text);font-size:1rem;">「内容+社群」商业成长创作者</p>
+            </div>
+            <div class="sub-block">
+              <h4>心愿时间线</h4>
+              <table class="data-table">
+                <thead><tr><th>周期</th><th>心愿</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="tag tag-blue">短期 3个月</span></td><td>找到发力位置，可能赚取收入</td></tr>
+                  <tr><td><span class="tag tag-green">中期 1年</span></td><td>至少1个滋养自己的小生意+有收入</td></tr>
+                  <tr><td><span class="tag tag-purple">长期 3-5年</span></td><td>2个滋养自己的小生意+核心合作伙伴</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="sub-block">
+              <h4>超能力雷达</h4>
+              <div class="power-list">
+                <div class="power-item">
+                  <div class="power-label"><span>表达力</span><span>8级 · 前5%</span></div>
+                  <div class="power-bar"><div class="power-fill power-fill-8"></div></div>
+                </div>
+                <div class="power-item">
+                  <div class="power-label"><span>场域力</span><span>高</span></div>
+                  <div class="power-bar"><div class="power-fill power-fill-7"></div></div>
+                </div>
+                <div class="power-item">
+                  <div class="power-label"><span>情绪调节</span><span>3-4级</span></div>
+                  <div class="power-bar"><div class="power-fill power-fill-3"></div></div>
+                </div>
+              </div>
+              <div style="margin-top:12px;padding:12px;background:var(--c-primary-bg);border-radius:var(--radius-xs);font-size:0.85rem;font-weight:600;color:var(--c-primary);text-align:center;">
+                内容创作（8级）× 场域力 = 感染力极强
+              </div>
+            </div>
+            <div class="sub-block">
+              <h4>短板识别</h4>
+              <ul class="shortcut-list">
+                <li>没有形成商业闭环</li>
+                <li>表达散漫，需要结构化</li>
+                <li>情绪调节能力弱（3-4级）</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 认知成长 ==================== -->
+<section id="growth">
+  <div class="container">
+    <div class="section-label">🧠 原创模型</div>
+    <h2 class="section-title">认知成长</h2>
+
+    <div class="model-box" style="margin-bottom:24px;">
+      <div class="model-name">2026年5月原创：「逻辑是线，情绪是点」</div>
+      <table class="data-table" style="margin-top:12px;">
+        <thead><tr><th>场景</th><th>靠什么</th></tr></thead>
+        <tbody>
+          <tr><td>分辨伪装、演戏</td><td>🎯 逻辑</td></tr>
+          <tr><td>长远规划、风险预判</td><td>🎯 逻辑</td></tr>
+          <tr><td>识人避坑</td><td>🎯 逻辑</td></tr>
+          <tr><td>认清真实喜恶</td><td>💫 情绪</td></tr>
+          <tr><td>感知本能预警</td><td>💫 情绪</td></tr>
+          <tr><td>判断关系能否长久</td><td>💫 情绪</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--radius);padding:20px;">
+      <h4 style="margin-bottom:12px;">自我反思</h4>
+      <ul class="progress-list">
+        <li>❌ 过去过于沉迷情绪节点，忽略整条长线</li>
+        <li>❌ 过度执着于当下的感受、共情、心软</li>
+        <li>✅ 未来：情绪定心意，逻辑定行为</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 里程碑 ==================== -->
+<section class="section-alt">
+  <div class="container">
+    <div class="section-label">📅 成长轨迹</div>
+    <h2 class="section-title">里程碑时间线</h2>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">2026-04-27</div>
+        <h3>🎯 首次建档完成</h3>
+        <ul class="timeline-sub">
+          <li>11系统初始数据录入</li>
+          <li>能力连续轴确认（传播者→深入者）</li>
+          <li>核心挑战识别（健康+财务）</li>
+        </ul>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">2026-05-18</div>
+        <h3>🚀 档案体系升级</h3>
+        <ul class="timeline-sub">
+          <li>亲密关系进行了一次深度沟通</li>
+          <li>原创思维模型诞生</li>
+          <li>身心健康开始关注</li>
+          <li>看板生成</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 下一步行动 ==================== -->
+<section id="actions">
+  <div class="container">
+    <div class="section-label">✅ 行动清单</div>
+    <h2 class="section-title">下一步行动</h2>
+
+    <div class="action-group">
+      <div class="action-group-title">⏰ 即时行动（本周）</div>
+      <ul class="action-checklist" onclick="toggleCheck(event)">
+        <li>坚持每晚简单拉伸</li>
+        <li>在社群中寻找1个变现机会</li>
+        <li>保持与女友的开放沟通</li>
+      </ul>
+    </div>
+    <div class="action-group">
+      <div class="action-group-title">📅 短期行动（本月）</div>
+      <ul class="action-checklist" onclick="toggleCheck(event)">
+        <li>添加八段锦或其他运动</li>
+        <li>控制高热量食品摄入</li>
+        <li>尝试输出1条高质量内容</li>
+      </ul>
+    </div>
+    <div class="action-group">
+      <div class="action-group-title">🎯 中期目标（本季度）</div>
+      <ul class="action-checklist" onclick="toggleCheck(event)">
+        <li>形成1个最小商业闭环</li>
+        <li>深度连接1-3个合作伙伴</li>
+        <li>健康状态明显改善</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 哇塞时刻 ==================== -->
+<section class="section-alt">
+  <div class="container">
+    <div class="section-label">🏆 高光时刻</div>
+    <h2 class="section-title">近期哇塞时刻</h2>
+    <div class="wow-list">
+      <div class="wow-card">
+        <h3>🧠 「逻辑是线，情绪是点」模型诞生</h3>
+        <p>完美解释与女友的思维差异，整合了依恋理论的实际应用。一个真正属于你自己的思维工具。</p>
+      </div>
+      <div class="wow-card">
+        <h3>💕 亲密关系防御模式沟通</h3>
+        <p>进行了一次关于防御模式的深度对话。双方开始看见各自的防御模式：佯装 vs 高情绪卷入。</p>
+      </div>
+      <div class="wow-card">
+        <h3>🌱 身心状态整体向好</h3>
+        <p>内耗显著减少，能量提升。开始主动关注健康，从被动承受转向主动经营。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Footer ==================== -->
+<div class="footer">
+  🎯 人生操作系统 · 看见自己，是一切改变的起点<br>
+  <span style="margin-top:6px;display:inline-block;">下次更新：每月定期盘点 或 重大变化后</span>
+</div>
+
+<!-- 回到顶部 -->
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0})">↑</button>
+
+<script>
+// 阅读进度
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('backTop').classList.toggle('visible', h.scrollTop > 400);
+});
+
+// 风险卡片折叠
+function toggleRisk(header) {
+  const card = header.parentElement;
+  const body = card.querySelector('.risk-card-body');
+  const isOpen = card.classList.contains('open');
+  card.classList.toggle('open');
+  body.style.maxHeight = isOpen ? null : body.scrollHeight + 'px';
+}
+
+// 模块折叠
+function toggleModule(header) {
+  const card = header.parentElement;
+  const body = card.querySelector('.module-body');
+  const isOpen = card.classList.contains('open');
+  card.classList.toggle('open');
+  body.style.maxHeight = isOpen ? null : body.scrollHeight + 'px';
+}
+
+// 复选框
+function toggleCheck(e) {
+  if (e.target.tagName === 'LI') {
+    e.target.classList.toggle('done');
+  }
+}
+</script>
+</body>
+</html>
