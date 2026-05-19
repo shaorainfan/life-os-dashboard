@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>关系协同看板 · 参考原型</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --c-primary: #2d6a4f;
+  --c-primary-light: #40916c;
+  --c-primary-lighter: #95d5b2;
+  --c-primary-bg: #d8f3dc;
+  --c-bg: #f8faf8;
+  --c-card: #ffffff;
+  --c-text: #1f2937;
+  --c-text-2: #6b7280;
+  --c-text-3: #9ca3af;
+  --c-border: #e5e7eb;
+  --c-red: #dc2626;
+  --c-orange: #ea580c;
+  --c-yellow: #ca8a04;
+  --c-green: #16a34a;
+  --c-blue: #2563eb;
+  --c-purple: #7c3aed;
+  --radius: 16px;
+  --radius-sm: 12px;
+  --radius-xs: 8px;
+  --max-w: 900px;
+  --font: -apple-system, "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+}
+html { scroll-behavior: smooth; font-size: 16px; }
+body { font-family: var(--font); color: var(--c-text); background: var(--c-bg); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+.container { max-width: var(--max-w); margin: 0 auto; padding: 0 20px; }
+
+/* ========== Hero ========== */
+.hero {
+  text-align: center; padding: 60px 24px 48px;
+  background: linear-gradient(180deg, var(--c-primary-bg) 0%, var(--c-bg) 100%);
+}
+.hero-badge {
+  display: inline-block; font-size: 0.8rem; color: var(--c-primary);
+  background: var(--c-card); border: 1px solid var(--c-primary-lighter);
+  padding: 4px 16px; border-radius: 100px; margin-bottom: 20px;
+}
+.hero h1 { font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 800; margin-bottom: 10px; }
+.hero .subtitle { font-size: 0.95rem; color: var(--c-text-2); }
+.hero-note {
+  margin-top: 16px; display: inline-block;
+  font-size: 0.78rem; color: var(--c-orange); background: #fff7ed;
+  border: 1px solid var(--c-orange-border, #fed7aa); padding: 6px 14px; border-radius: 100px;
+}
+
+/* ========== Tabs ========== */
+.tabs {
+  display: flex; gap: 8px; justify-content: center;
+  padding: 20px 20px 0; max-width: var(--max-w); margin: 0 auto;
+}
+.tab-btn {
+  padding: 8px 20px; border-radius: 100px; border: 1px solid var(--c-border);
+  background: var(--c-card); font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  transition: all 0.2s; font-family: var(--font);
+}
+.tab-btn.active { background: var(--c-primary); color: #fff; border-color: var(--c-primary); }
+.tab-btn:hover:not(.active) { background: var(--c-primary-bg); }
+
+/* ========== Calendar ========== */
+.tab-panel { display: none; padding: 24px 0 64px; }
+.tab-panel.active { display: block; }
+
+.cal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px; padding: 0 4px;
+}
+.cal-header h2 { font-size: 1.1rem; font-weight: 700; }
+.cal-nav { display: flex; gap: 8px; }
+.cal-nav button {
+  width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--c-border);
+  background: var(--c-card); cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.cal-nav button:hover { background: var(--c-primary-bg); border-color: var(--c-primary-lighter); }
+
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+  background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius);
+  padding: 12px;
+}
+.cal-dow {
+  text-align: center; font-size: 0.75rem; font-weight: 600; color: var(--c-text-3);
+  padding: 8px 0; text-transform: uppercase;
+}
+.cal-day {
+  aspect-ratio: 1; padding: 6px; border-radius: var(--radius-xs);
+  font-size: 0.82rem; cursor: pointer; position: relative;
+  display: flex; flex-direction: column; transition: background 0.15s;
+  min-height: 72px;
+}
+.cal-day:hover { background: var(--c-primary-bg); }
+.cal-day.today { background: var(--c-primary-bg); font-weight: 700; }
+.cal-day.other-month { color: var(--c-text-3); opacity: 0.4; }
+.cal-day-num { font-weight: 600; margin-bottom: 2px; }
+.cal-dot {
+  width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 2px;
+}
+.cal-dot-blue { background: var(--c-blue); }
+.cal-dot-red { background: var(--c-red); }
+.cal-dot-green { background: var(--c-green); }
+.cal-dot-orange { background: var(--c-orange); }
+.cal-dot-purple { background: var(--c-purple); }
+
+/* ========== Event Modal ========== */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  z-index: 200; align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--c-card); border-radius: var(--radius); padding: 28px;
+  width: 90%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.modal h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; }
+.modal label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--c-text-2); margin-bottom: 4px; margin-top: 12px; }
+.modal input, .modal select, .modal textarea {
+  width: 100%; padding: 8px 12px; border: 1px solid var(--c-border); border-radius: var(--radius-xs);
+  font-size: 0.85rem; font-family: var(--font); resize: vertical;
+}
+.modal input:focus, .modal select:focus, .modal textarea:focus { outline: none; border-color: var(--c-primary); }
+.modal-actions { display: flex; gap: 8px; margin-top: 20px; }
+.btn {
+  padding: 8px 20px; border-radius: var(--radius-xs); border: none;
+  font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  font-family: var(--font);
+}
+.btn-primary { background: var(--c-primary); color: #fff; }
+.btn-primary:hover { background: var(--c-primary-light); }
+.btn-ghost { background: transparent; color: var(--c-text-2); border: 1px solid var(--c-border); }
+.btn-ghost:hover { background: var(--c-bg); }
+.btn-danger { background: var(--c-red); color: #fff; }
+.btn-danger:hover { background: #b91c1c; }
+
+/* ========== Day Detail ========== */
+.day-detail {
+  background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius);
+  padding: 20px; margin-top: 16px;
+}
+.day-detail h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; }
+.event-item {
+  display: flex; align-items: flex-start; gap: 10px; padding: 10px 0;
+  border-bottom: 1px solid var(--c-border); font-size: 0.85rem;
+}
+.event-item:last-child { border-bottom: none; }
+.event-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.event-time { color: var(--c-text-3); font-size: 0.78rem; min-width: 90px; }
+.event-info { flex: 1; }
+.event-title { font-weight: 600; }
+.event-desc { color: var(--c-text-2); font-size: 0.8rem; margin-top: 2px; }
+.event-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 100px; margin-left: 6px; }
+.tag-work { background: #eff6ff; color: var(--c-blue); }
+.tag-study { background: #f0fdf4; color: var(--c-green); }
+.tag-life { background: #fdf4ff; color: var(--c-purple); }
+.tag-other { background: var(--c-bg); color: var(--c-text-2); }
+
+/* ========== Task List ========== */
+.task-topbar {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 20px;
+}
+.task-topbar h2 { font-size: 1.1rem; font-weight: 700; }
+.task-add-btn {
+  padding: 8px 18px; border-radius: 100px; border: none;
+  background: var(--c-primary); color: #fff; font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; font-family: var(--font);
+}
+.task-add-btn:hover { background: var(--c-primary-light); }
+
+.task-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.filter-btn {
+  padding: 4px 12px; border-radius: 100px; border: 1px solid var(--c-border);
+  background: var(--c-card); font-size: 0.78rem; cursor: pointer; transition: all 0.2s;
+  font-family: var(--font);
+}
+.filter-btn.active { background: var(--c-primary); color: #fff; border-color: var(--c-primary); }
+
+.task-list { display: flex; flex-direction: column; gap: 8px; }
+.task-card {
+  background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-sm);
+  padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px;
+  transition: all 0.2s;
+}
+.task-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+.task-card.done { opacity: 0.55; }
+.task-check {
+  width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--c-border);
+  flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; margin-top: 1px;
+}
+.task-card.done .task-check { background: var(--c-primary); border-color: var(--c-primary); }
+.task-card.done .task-check::after { content: '✓'; color: #fff; font-size: 0.65rem; font-weight: 700; }
+.task-body { flex: 1; }
+.task-title { font-size: 0.9rem; font-weight: 600; }
+.task-card.done .task-title { text-decoration: line-through; color: var(--c-text-3); }
+.task-meta { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+.task-meta-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 100px; }
+.task-person { font-size: 0.75rem; color: var(--c-text-3); }
+.task-delete {
+  background: none; border: none; cursor: pointer; color: var(--c-text-3);
+  font-size: 1rem; padding: 0 4px; transition: color 0.2s;
+}
+.task-delete:hover { color: var(--c-red); }
+
+/* ========== Task Modal ========== */
+.task-modal {
+  background: var(--c-card); border-radius: var(--radius); padding: 28px;
+  width: 90%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.task-modal h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; }
+
+/* ========== Legend ========== */
+.legend {
+  display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.78rem; color: var(--c-text-2);
+  margin-top: 12px;
+}
+.legend-item { display: flex; align-items: center; gap: 4px; }
+
+/* ========== Responsive ========== */
+@media (max-width: 600px) {
+  .cal-day { min-height: 52px; padding: 3px; font-size: 0.75rem; }
+  .cal-grid { gap: 2px; padding: 8px; }
+  .tabs { gap: 4px; }
+  .tab-btn { padding: 6px 14px; font-size: 0.8rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">💕 关系协同看板 · 参考原型</div>
+  <h1>我们的日程 & 任务</h1>
+  <p class="subtitle">看见彼此的安排，协同更顺畅</p>
+  <div class="hero-note">⚠️ 当前为参考原型，数据仅保存在本设备浏览器中</div>
+</div>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('calendar')">📅 日历</button>
+    <button class="tab-btn" onclick="switchTab('tasks')">✅ 任务清单</button>
+  </div>
+</div>
+
+<!-- ==================== 日历面板 ==================== -->
+<div class="tab-panel active" id="panel-calendar">
+  <div class="container">
+    <div class="cal-header">
+      <h2 id="calTitle">2026年5月</h2>
+      <div class="cal-nav">
+        <button onclick="changeMonth(-1)">‹</button>
+        <button onclick="goToday()">今</button>
+        <button onclick="changeMonth(1)">›</button>
+      </div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="legend">
+      <div class="legend-item"><span class="cal-dot cal-dot-blue"></span> 工作</div>
+      <div class="legend-item"><span class="cal-dot cal-dot-green"></span> 学习</div>
+      <div class="legend-item"><span class="cal-dot cal-dot-red"></span> 重要</div>
+      <div class="legend-item"><span class="cal-dot cal-dot-purple"></span> 生活</div>
+      <div class="legend-item"><span class="cal-dot cal-dot-orange"></span> 其他</div>
+    </div>
+    <div class="day-detail" id="dayDetail" style="display:none;">
+      <h4 id="dayDetailTitle">今日安排</h4>
+      <div id="dayDetailBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 任务面板 ==================== -->
+<div class="tab-panel" id="panel-tasks">
+  <div class="container">
+    <div class="task-topbar">
+      <h2>任务清单</h2>
+      <button class="task-add-btn" onclick="openTaskModal()">＋ 新建任务</button>
+    </div>
+    <div class="task-filters" id="taskFilters"></div>
+    <div class="task-list" id="taskList"></div>
+    <div id="taskEmpty" style="text-align:center;padding:40px 0;color:var(--c-text-3);font-size:0.85rem;display:none;">
+      暂无任务，点击上方「新建任务」开始
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 日历事件弹窗 ==================== -->
+<div class="modal-overlay" id="eventModal">
+  <div class="modal">
+    <h3 id="eventModalTitle">新建事件</h3>
+    <label>标题</label>
+    <input type="text" id="evTitle" placeholder="事件名称">
+    <label>日期</label>
+    <input type="date" id="evDate">
+    <label>时间</label>
+    <input type="time" id="evTime" value="09:00">
+    <label>类型</label>
+    <select id="evType">
+      <option value="blue">工作</option>
+      <option value="green">学习</option>
+      <option value="red">重要</option>
+      <option value="purple">生活</option>
+      <option value="orange">其他</option>
+    </select>
+    <label>备注（可选）</label>
+    <textarea id="evDesc" rows="2" placeholder="补充说明"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveEvent()">保存</button>
+      <button class="btn btn-ghost" onclick="closeEventModal()">取消</button>
+      <button class="btn btn-danger" id="evDeleteBtn" style="display:none;" onclick="deleteEvent()">删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 任务弹窗 ==================== -->
+<div class="modal-overlay" id="taskModal">
+  <div class="task-modal">
+    <h3 id="taskModalTitle">新建任务</h3>
+    <label>任务内容</label>
+    <input type="text" id="tkTitle" placeholder="输入任务内容">
+    <label>所属分类</label>
+    <select id="tkCategory">
+      <option value="work">工作</option>
+      <option value="study">学习</option>
+      <option value="life">生活</option>
+      <option value="fitness">运动健康</option>
+      <option value="relation">关系</option>
+      <option value="other">其他</option>
+    </select>
+    <label>自定义分类（可选，覆盖上方选择）</label>
+    <input type="text" id="tkCustomCat" placeholder="输入自定义分类名">
+    <label>负责人</label>
+    <select id="tkPerson">
+      <option value="me">我</option>
+      <option value="partner">对方</option>
+      <option value="both">共同</option>
+    </select>
+    <label>截止日期（可选）</label>
+    <input type="date" id="tkDue">
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveTask()">保存</button>
+      <button class="btn btn-ghost" onclick="closeTaskModal()">取消</button>
+      <button class="btn btn-danger" id="tkDeleteBtn" style="display:none;" onclick="deleteTask()">删除</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =============== 数据层 ===============
+const STORAGE_KEY_EVENTS = 'relation_calendar_events';
+const STORAGE_KEY_TASKS = 'relation_tasks';
+
+function loadEvents() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY_EVENTS)) || []; } catch { return []; }
+}
+function saveEvents(evs) { localStorage.setItem(STORAGE_KEY_EVENTS, JSON.stringify(evs)); }
+function loadTasks() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY_TASKS)) || []; } catch { return []; }
+}
+function saveTasks(tks) { localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(tks)); }
+
+let events = loadEvents();
+let tasks = loadTasks();
+
+// =============== Tab 切换 ===============
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+  if (tab === 'tasks') renderTasks();
+}
+
+// =============== 日历 ===============
+let calYear, calMonth, selectedDate = null;
+const TYPE_COLORS = { blue:'#2563eb', green:'#16a34a', red:'#dc2626', purple:'#7c3aed', orange:'#ea580c' };
+const TYPE_LABELS = { blue:'工作', green:'学习', red:'重要', purple:'生活', orange:'其他' };
+const CAT_LABELS = { work:'工作', study:'学习', life:'生活', fitness:'运动健康', relation:'关系', other:'其他' };
+const CAT_COLORS = { work:'tag-work', study:'tag-study', life:'tag-life', fitness:'tag-life', relation:'tag-life', other:'tag-other' };
+const PERSON_LABELS = { me:'我', partner:'对方', both:'共同' };
+
+function initCalendar() {
+  const now = new Date();
+  calYear = now.getFullYear();
+  calMonth = now.getMonth();
+  renderCalendar();
+}
+
+function changeMonth(delta) {
+  calMonth += delta;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+  selectedDate = null;
+  document.getElementById('dayDetail').style.display = 'none';
+}
+
+function goToday() {
+  const now = new Date();
+  calYear = now.getFullYear();
+  calMonth = now.getMonth();
+  renderCalendar();
+  selectDate(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+function renderCalendar() {
+  const dow = ['一','二','三','四','五','六','日'];
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  dow.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-dow'; el.textContent = '周' + d;
+    grid.appendChild(el);
+  });
+
+  document.getElementById('calTitle').textContent = calYear + '年' + (calMonth + 1) + '月';
+
+  const firstDay = new Date(calYear, calMonth, 1);
+  let startIdx = firstDay.getDay() - 1; // Monday=0
+  if (startIdx < 0) startIdx = 6;
+
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const prevMonthDays = new Date(calYear, calMonth, 0).getDate();
+
+  const today = new Date();
+  const evMap = {};
+  events.forEach(ev => {
+    if (!evMap[ev.date]) evMap[ev.date] = [];
+    evMap[ev.date].push(ev);
+  });
+
+  // previous month padding
+  for (let i = startIdx - 1; i >= 0; i--) {
+    const d = document.createElement('div');
+    d.className = 'cal-day other-month';
+    d.innerHTML = '<div class="cal-day-num">' + (prevMonthDays - i) + '</div>';
+    grid.appendChild(d);
+  }
+
+  // current month
+  for (let d = 1; d <= daysInMonth; d++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    const isToday = calYear === today.getFullYear() && calMonth === today.getMonth() && d === today.getDate();
+    if (isToday) el.classList.add('today');
+    if (selectedDate && selectedDate.y === calYear && selectedDate.m === calMonth && selectedDate.d === d) {
+      el.style.background = 'var(--c-primary)'; el.style.color = '#fff';
+    }
+    const dateStr = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const dayEvents = evMap[dateStr] || [];
+    let dotsHtml = '';
+    const shownTypes = {};
+    dayEvents.forEach(ev => {
+      if (!shownTypes[ev.type]) { dotsHtml += '<span class="cal-dot cal-dot-' + ev.type + '"></span>'; shownTypes[ev.type] = true; }
+    });
+    el.innerHTML = '<div class="cal-day-num">' + d + '</div>' + dotsHtml;
+    el.onclick = () => selectDate(calYear, calMonth, d);
+    grid.appendChild(el);
+  }
+
+  // next month padding
+  const totalCells = startIdx + daysInMonth;
+  const remain = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+  for (let i = 1; i <= remain; i++) {
+    const d = document.createElement('div');
+    d.className = 'cal-day other-month';
+    d.innerHTML = '<div class="cal-day-num">' + i + '</div>';
+    grid.appendChild(d);
+  }
+}
+
+function selectDate(y, m, d) {
+  selectedDate = { y, m, d };
+  renderCalendar();
+  const dateStr = y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+  const dayEvents = events.filter(ev => ev.date === dateStr);
+  const detail = document.getElementById('dayDetail');
+  const title = document.getElementById('dayDetailTitle');
+  const body = document.getElementById('dayDetailBody');
+
+  const weekDays = ['周日','周一','周二','周三','周四','周五','周六'];
+  const dt = new Date(y, m, d);
+  title.textContent = y + '年' + (m+1) + '月' + d + '日 ' + weekDays[dt.getDay()];
+
+  if (dayEvents.length === 0) {
+    body.innerHTML = '<div style="color:var(--c-text-3);font-size:0.85rem;padding:8px 0;">暂无安排，<a href="#" onclick="event.preventDefault();openEventModalForDate(\''+dateStr+'\')">＋ 添加事件</a></div>';
+  } else {
+    body.innerHTML = dayEvents.map((ev, i) => {
+      const color = TYPE_COLORS[ev.type] || '#9ca3af';
+      const typeLabel = TYPE_LABELS[ev.type] || '其他';
+      const timeStr = ev.time || '';
+      return '<div class="event-item">' +
+        '<div class="event-dot" style="background:'+color+'"></div>' +
+        '<div class="event-time">' + timeStr + '</div>' +
+        '<div class="event-info">' +
+          '<div class="event-title">' + escHtml(ev.title) + ' <span class="event-tag tag-' + ev.type + '">' + typeLabel + '</span></div>' +
+          (ev.desc ? '<div class="event-desc">' + escHtml(ev.desc) + '</div>' : '') +
+        '</div>' +
+        '<button class="task-delete" title="删除" onclick="editEvent('+events.indexOf(ev)+')">✎</button>' +
+      '</div>';
+    }).join('');
+  }
+  detail.style.display = '';
+}
+
+function openEventModalForDate(dateStr) {
+  document.getElementById('eventModalTitle').textContent = '新建事件';
+  document.getElementById('evTitle').value = '';
+  document.getElementById('evDate').value = dateStr;
+  document.getElementById('evTime').value = '09:00';
+  document.getElementById('evType').value = 'blue';
+  document.getElementById('evDesc').value = '';
+  document.getElementById('evDeleteBtn').style.display = 'none';
+  document.getElementById('eventModal').classList.add('open');
+  editEventIdx = -1;
+}
+
+function openEventModal() {
+  const today = new Date();
+  const dateStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  openEventModalForDate(dateStr);
+}
+
+function closeEventModal() { document.getElementById('eventModal').classList.remove('open'); }
+
+let editEventIdx = -1;
+function editEvent(idx) {
+  const ev = events[idx];
+  document.getElementById('eventModalTitle').textContent = '编辑事件';
+  document.getElementById('evTitle').value = ev.title;
+  document.getElementById('evDate').value = ev.date;
+  document.getElementById('evTime').value = ev.time || '';
+  document.getElementById('evType').value = ev.type || 'blue';
+  document.getElementById('evDesc').value = ev.desc || '';
+  document.getElementById('evDeleteBtn').style.display = '';
+  document.getElementById('eventModal').classList.add('open');
+  editEventIdx = idx;
+}
+
+function saveEvent() {
+  const title = document.getElementById('evTitle').value.trim();
+  const date = document.getElementById('evDate').value;
+  if (!title || !date) return alert('请填写标题和日期');
+  const ev = {
+    title, date,
+    time: document.getElementById('evTime').value,
+    type: document.getElementById('evType').value,
+    desc: document.getElementById('evDesc').value.trim()
+  };
+  if (editEventIdx >= 0) { events[editEventIdx] = ev; }
+  else { events.push(ev); }
+  saveEvents(events);
+  closeEventModal();
+  renderCalendar();
+  if (selectedDate) selectDate(selectedDate.y, selectedDate.m, selectedDate.d);
+}
+
+function deleteEvent() {
+  if (editEventIdx >= 0 && confirm('确定删除此事件？')) {
+    events.splice(editEventIdx, 1);
+    saveEvents(events);
+    closeEventModal();
+    renderCalendar();
+    if (selectedDate) selectDate(selectedDate.y, selectedDate.m, selectedDate.d);
+  }
+}
+
+// =============== 任务清单 ===============
+let currentFilter = 'all';
+
+const FILTERS = [
+  { key:'all', label:'全部' },
+  { key:'work', label:'工作' },
+  { key:'study', label:'学习' },
+  { key:'life', label:'生活' },
+  { key:'fitness', label:'运动' },
+  { key:'relation', label:'关系' },
+  { key:'other', label:'其他' },
+];
+
+function renderTaskFilters() {
+  const wrap = document.getElementById('taskFilters');
+  wrap.innerHTML = FILTERS.map(f => {
+    const active = currentFilter === f.key ? ' active' : '';
+    return '<button class="filter-btn' + active + '" onclick="setFilter(\'' + f.key + '\')">' + f.label + '</button>';
+  }).join('');
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  renderTaskFilters();
+  renderTasks();
+}
+
+function renderTasks() {
+  let list = tasks;
+  if (currentFilter !== 'all') list = list.filter(t => t.category === currentFilter);
+  const wrap = document.getElementById('taskList');
+  const empty = document.getElementById('taskEmpty');
+  if (list.length === 0) { wrap.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  wrap.innerHTML = list.map((t, i) => {
+    const globalIdx = tasks.indexOf(t);
+    const done = t.done ? ' done' : '';
+    const catLabel = CAT_LABELS[t.category] || t.category;
+    const catClass = CAT_COLORS[t.category] || 'tag-other';
+    const personLabel = PERSON_LABELS[t.person] || '';
+    const dueStr = t.due ? '截止: ' + t.due : '';
+    return '<div class="task-card' + done + '">' +
+      '<div class="task-check" onclick="toggleTask(' + globalIdx + ')"></div>' +
+      '<div class="task-body">' +
+        '<div class="task-title">' + escHtml(t.title) + '</div>' +
+        '<div class="task-meta">' +
+          '<span class="task-meta-tag ' + catClass + '">' + catLabel + '</span>' +
+          (personLabel ? '<span class="task-person">👤 ' + personLabel + '</span>' : '') +
+          (dueStr ? '<span class="task-person">📅 ' + dueStr + '</span>' : '') +
+        '</div>' +
+      '</div>' +
+      '<button class="task-delete" title="删除" onclick="event.stopPropagation();deleteTaskByIdx(' + globalIdx + ')">🗑</button>' +
+      '<button class="task-delete" title="编辑" onclick="event.stopPropagation();editTask(' + globalIdx + ')">✎</button>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleTask(idx) {
+  tasks[idx].done = !tasks[idx].done;
+  saveTasks(tasks);
+  renderTasks();
+}
+
+function openTaskModal() {
+  document.getElementById('taskModalTitle').textContent = '新建任务';
+  document.getElementById('tkTitle').value = '';
+  document.getElementById('tkCategory').value = 'work';
+  document.getElementById('tkCustomCat').value = '';
+  document.getElementById('tkPerson').value = 'me';
+  document.getElementById('tkDue').value = '';
+  document.getElementById('tkDeleteBtn').style.display = 'none';
+  document.getElementById('taskModal').classList.add('open');
+  editTaskIdx = -1;
+}
+
+function closeTaskModal() { document.getElementById('taskModal').classList.remove('open'); }
+
+let editTaskIdx = -1;
+function editTask(idx) {
+  const t = tasks[idx];
+  document.getElementById('taskModalTitle').textContent = '编辑任务';
+  document.getElementById('tkTitle').value = t.title;
+  document.getElementById('tkCategory').value = t.category;
+  document.getElementById('tkCustomCat').value = t.customCat || '';
+  document.getElementById('tkPerson').value = t.person || 'me';
+  document.getElementById('tkDue').value = t.due || '';
+  document.getElementById('tkDeleteBtn').style.display = '';
+  document.getElementById('taskModal').classList.add('open');
+  editTaskIdx = idx;
+}
+
+function saveTask() {
+  const title = document.getElementById('tkTitle').value.trim();
+  if (!title) return alert('请填写任务内容');
+  let category = document.getElementById('tkCategory').value;
+  const customCat = document.getElementById('tkCustomCat').value.trim();
+  if (customCat) category = 'custom:' + customCat;
+  const task = {
+    title,
+    category,
+    person: document.getElementById('tkPerson').value,
+    due: document.getElementById('tkDue').value,
+    done: false,
+    created: new Date().toISOString()
+  };
+  if (editTaskIdx >= 0) {
+    task.done = tasks[editTaskIdx].done;
+    tasks[editTaskIdx] = task;
+  } else {
+    tasks.push(task);
+  }
+  saveTasks(tasks);
+  closeTaskModal();
+  renderTaskFilters();
+  renderTasks();
+}
+
+function deleteTaskByIdx(idx) {
+  if (confirm('确定删除此任务？')) { tasks.splice(idx, 1); saveTasks(tasks); renderTasks(); }
+}
+function deleteTask() {
+  if (editTaskIdx >= 0 && confirm('确定删除此任务？')) {
+    tasks.splice(editTaskIdx, 1); saveTasks(tasks); closeTaskModal(); renderTasks();
+  }
+}
+
+// =============== 工具 ===============
+function escHtml(s) {
+  const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+}
+
+// =============== 初始化 ===============
+initCalendar();
+renderTaskFilters();
+renderTasks();
+
+// 点击遮罩关闭弹窗
+document.getElementById('eventModal').addEventListener('click', function(e) {
+  if (e.target === this) closeEventModal();
+});
+document.getElementById('taskModal').addEventListener('click', function(e) {
+  if (e.target === this) closeTaskModal();
+});
+</script>
+</body>
+</html>
