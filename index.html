@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人生操作系统 · 现状看板</title>
 <style>
-/* ========== 基础重置 & 变量 ========== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -58,6 +57,54 @@ a:hover { text-decoration: underline; }
 
 .container { max-width: var(--max-w); margin: 0 auto; padding: 0 20px; }
 
+/* ========== 编辑顶层栏 ========== */
+.edit-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 2px solid var(--c-primary);
+  padding: 8px 0;
+  display: none;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.edit-bar.active { display: block; }
+.edit-bar-inner {
+  max-width: var(--max-w); margin: 0 auto; padding: 0 20px;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.edit-bar .hint { font-size: 0.78rem; color: var(--c-primary); font-weight: 600; margin-right: auto; }
+.edit-bar .btn {
+  padding: 5px 14px; border-radius: 100px; border: 1px solid var(--c-border);
+  background: #fff; cursor: pointer; font-size: 0.78rem; font-weight: 600;
+  font-family: var(--font); transition: all 0.2s;
+}
+.edit-bar .btn-save { background: var(--c-primary); color: #fff; border-color: var(--c-primary); }
+.edit-bar .btn-save:hover { background: var(--c-primary-light); }
+.edit-bar .btn-cancel { color: var(--c-text-2); }
+.edit-bar .btn-cancel:hover { background: var(--c-bg); }
+.edit-bar .btn-preview { color: var(--c-blue); border-color: var(--c-blue-border); }
+.edit-bar .btn-preview:hover { background: var(--c-blue-bg); }
+.edit-bar .status-msg { font-size: 0.75rem; }
+.edit-bar .status-msg.ok { color: var(--c-green); }
+.edit-bar .status-msg.err { color: var(--c-red); }
+.edit-bar .status-msg.working { color: var(--c-orange); }
+
+/* Token 面板 */
+.token-panel {
+  display: none; background: var(--c-card); border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm); padding: 16px; margin: 0 auto 16px;
+  max-width: var(--max-w);
+}
+.token-panel.active { display: block; }
+.token-panel label { font-size: 0.8rem; font-weight: 600; color: var(--c-text-2); display: block; margin-bottom: 4px; }
+.token-panel input {
+  width: 100%; padding: 7px 12px; border: 1px solid var(--c-border); border-radius: var(--radius-xs);
+  font-size: 0.85rem; font-family: var(--font); margin-bottom: 8px;
+}
+.token-panel input:focus { outline: none; border-color: var(--c-primary); }
+.token-panel .token-hint { font-size: 0.72rem; color: var(--c-text-3); }
+.token-panel .token-hint a { color: var(--c-primary); }
+
 /* ========== 导航栏 ========== */
 .topnav {
   position: sticky; top: 0; z-index: 100;
@@ -65,7 +112,9 @@ a:hover { text-decoration: underline; }
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--c-border);
   padding: 12px 0;
+  transition: top 0.3s;
 }
+.topnav.editing { top: 44px; }
 .topnav-inner {
   max-width: var(--max-w); margin: 0 auto; padding: 0 20px;
   display: flex; align-items: center; gap: 8px; overflow-x: auto;
@@ -79,6 +128,14 @@ a:hover { text-decoration: underline; }
   transition: all 0.2s; cursor: pointer;
 }
 .topnav-link:hover { background: var(--c-primary-bg); color: var(--c-primary); border-color: var(--c-primary-lighter); text-decoration: none; }
+.edit-toggle-btn {
+  margin-left: auto; padding: 4px 14px; border-radius: 100px;
+  border: 1px solid var(--c-primary-lighter); background: var(--c-primary-bg);
+  color: var(--c-primary); font-size: 0.78rem; font-weight: 600; cursor: pointer;
+  font-family: var(--font); transition: all 0.2s; white-space: nowrap;
+}
+.edit-toggle-btn:hover { background: var(--c-primary); color: #fff; }
+.edit-toggle-btn.active { background: var(--c-primary); color: #fff; }
 
 /* ========== 阅读进度条 ========== */
 .progress-bar {
@@ -116,13 +173,13 @@ section { padding: 64px 0; }
 .status-card {
   background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius);
   padding: 24px 20px; transition: box-shadow 0.3s, transform 0.2s;
+  position: relative;
 }
 .status-card:hover { box-shadow: 0 8px 24px var(--c-shadow); transform: translateY(-2px); }
 .status-card .icon { font-size: 1.5rem; margin-bottom: 10px; }
 .status-card .label { font-size: 0.8rem; color: var(--c-text-2); margin-bottom: 4px; }
 .status-card .name { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
 
-/* 状态标签 */
 .tag { display:inline-block; font-size:0.75rem; font-weight:600; padding:3px 10px; border-radius:100px; }
 .tag-red { color:var(--c-red); background:var(--c-red-bg); border:1px solid var(--c-red-border); }
 .tag-orange { color:var(--c-orange); background:var(--c-orange-bg); border:1px solid var(--c-orange-border); }
@@ -130,6 +187,29 @@ section { padding: 64px 0; }
 .tag-green { color:var(--c-green); background:var(--c-green-bg); border:1px solid var(--c-green-border); }
 
 .status-card .desc { font-size:0.82rem; color:var(--c-text-2); margin-top:10px; line-height:1.6; }
+
+/* 编辑态：按钮 */
+body.editing .edit-btn { display: inline-flex !important; }
+.edit-btn {
+  display: none; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--c-primary-lighter);
+  background: var(--c-primary-bg); color: var(--c-primary); font-size: 0.7rem;
+  cursor: pointer; font-family: var(--font); transition: all 0.2s;
+}
+.edit-btn:hover { background: var(--c-primary); color: #fff; }
+
+.section-edit-header {
+  display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 40px;
+}
+.section-edit-header .section-title { margin-bottom: 0; }
+
+.card-edit-btn {
+  display: none; position: absolute; top: 8px; right: 8px;
+  padding: 3px 8px; border-radius: 6px; border: 1px solid var(--c-primary-lighter);
+  background: rgba(255,255,255,0.95); color: var(--c-primary); font-size: 0.7rem;
+  cursor: pointer; font-family: var(--font); transition: all 0.2s; z-index: 10;
+}
+.card-edit-btn:hover { background: var(--c-primary); color: #fff; }
+body.editing .card-edit-btn { display: block; }
 
 /* ========== 紧急度排名 ========== */
 .urgency-table {
@@ -163,7 +243,7 @@ section { padding: 64px 0; }
 
 .risk-card {
   background: var(--c-card); border-radius: var(--radius-sm); margin-bottom: 12px;
-  border: 1px solid var(--c-border); overflow: hidden;
+  border: 1px solid var(--c-border); overflow: hidden; position: relative;
 }
 .risk-card-header {
   padding: 14px 18px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
@@ -203,7 +283,6 @@ section { padding: 64px 0; }
   font-size: 0.82rem; color: var(--c-text-2); margin-top: 12px;
   padding: 10px 14px; background: rgba(255,255,255,0.6); border-radius: var(--radius-xs);
 }
-.loop-note strong { color: var(--c-red); }
 
 /* 防线表格 */
 .defense-grid {
@@ -221,7 +300,7 @@ section { padding: 64px 0; }
 .module:last-child { margin-bottom: 0; }
 .module-card {
   background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius);
-  overflow: hidden;
+  overflow: hidden; position: relative;
 }
 .module-header {
   padding: 20px 24px; display: flex; align-items: center; gap: 12px;
@@ -237,20 +316,16 @@ section { padding: 64px 0; }
 .module-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
 .module-body-inner { padding: 0 24px 24px; }
 
-/* 子内容样式 */
 .sub-block { margin-bottom: 24px; }
 .sub-block:last-child { margin-bottom: 0; }
 .sub-block h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 8px; color: var(--c-text); }
 .sub-block p { font-size: 0.85rem; color: var(--c-text-2); line-height: 1.7; }
 
-/* 进展列表 */
 .progress-list { list-style: none; padding: 0; }
 .progress-list li {
   font-size: 0.85rem; color: var(--c-text-2); padding: 5px 0; padding-left: 24px; position: relative;
 }
-.progress-list li::before { position:absolute; left:0; font-size:0.8rem; }
 
-/* 数据表格 */
 .data-table {
   width: 100%; border-collapse: collapse; font-size: 0.85rem;
 }
@@ -375,6 +450,51 @@ section { padding: 64px 0; }
 .back-top.visible { opacity: 1; transform: translateY(0); }
 .back-top:hover { background: var(--c-primary-light); }
 
+/* ========== 编辑弹窗 ========== */
+.edit-modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  z-index: 500; align-items: center; justify-content: center;
+}
+.edit-modal-overlay.open { display: flex; }
+.edit-modal {
+  background: var(--c-card); border-radius: var(--radius); padding: 28px;
+  width: 92%; max-width: 520px; max-height: 85vh; overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+}
+.edit-modal h3 { font-size: 1rem; font-weight: 700; margin-bottom: 18px; }
+.edit-modal label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--c-text-2); margin-bottom: 3px; margin-top: 12px; }
+.edit-modal input, .edit-modal textarea, .edit-modal select {
+  width: 100%; padding: 8px 12px; border: 1px solid var(--c-border); border-radius: var(--radius-xs);
+  font-size: 0.85rem; font-family: var(--font); resize: vertical;
+}
+.edit-modal input:focus, .edit-modal textarea:focus, .edit-modal select:focus { outline: none; border-color: var(--c-primary); }
+.edit-modal .field-hint { font-size: 0.7rem; color: var(--c-text-3); margin-top: 2px; }
+.edit-modal-actions { display: flex; gap: 8px; margin-top: 20px; }
+.edit-modal-actions .btn {
+  padding: 8px 20px; border-radius: var(--radius-xs); border: none;
+  font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  font-family: var(--font);
+}
+.edit-modal-actions .btn-primary { background: var(--c-primary); color: #fff; }
+.edit-modal-actions .btn-primary:hover { background: var(--c-primary-light); }
+.edit-modal-actions .btn-ghost { background: transparent; color: var(--c-text-2); border: 1px solid var(--c-border); }
+.edit-modal-actions .btn-ghost:hover { background: var(--c-bg); }
+.edit-modal .list-editor { margin-top: 6px; }
+.edit-modal .list-item-row {
+  display: flex; gap: 6px; align-items: center; margin-bottom: 6px;
+}
+.edit-modal .list-item-row input { flex: 1; }
+.edit-modal .list-item-row button {
+  padding: 4px 8px; border-radius: 6px; border: 1px solid var(--c-border);
+  background: #fff; cursor: pointer; font-size: 0.75rem; color: var(--c-text-2);
+}
+.edit-modal .add-list-btn {
+  padding: 4px 10px; border-radius: 6px; border: 1px dashed var(--c-border);
+  background: transparent; cursor: pointer; font-size: 0.75rem; color: var(--c-primary);
+  font-family: var(--font); margin-top: 4px;
+}
+.edit-modal .tag-select { margin-top: 4px; }
+
 /* ========== 响应式 ========== */
 @media (max-width: 600px) {
   section { padding: 48px 0; }
@@ -393,8 +513,26 @@ section { padding: 64px 0; }
 <!-- 阅读进度条 -->
 <div class="progress-bar" id="progressBar"></div>
 
+<!-- 顶部编辑操作栏 -->
+<div class="edit-bar" id="editBar">
+  <div class="edit-bar-inner">
+    <span class="hint">✏️ 编辑模式</span>
+    <button class="btn btn-preview" onclick="previewChanges()">👁 预览</button>
+    <button class="btn btn-cancel" onclick="cancelEdit()">取消</button>
+    <button class="btn btn-save" onclick="saveChanges()">💾 保存并推送</button>
+    <span class="status-msg" id="editStatus"></span>
+  </div>
+</div>
+
+<!-- Token 设置面板 -->
+<div class="token-panel" id="tokenPanel">
+  <label>🔑 GitHub Token（需要 repo 权限）</label>
+  <input type="password" id="githubTokenInput" placeholder="ghp_xxxxxxxxxxxx">
+  <div class="token-hint">Token 仅保存在你的浏览器本地，不会上传。<a href="https://github.com/settings/tokens/new?scopes=repo&description=life-os-dashboard-edit" target="_blank">点此创建 Token →</a></div>
+</div>
+
 <!-- 顶部导航 -->
-<nav class="topnav">
+<nav class="topnav" id="topNav">
   <div class="topnav-inner">
     <span class="topnav-logo">🎯 人生看板</span>
     <a class="topnav-link" href="#status">状态</a>
@@ -406,627 +544,242 @@ section { padding: 64px 0; }
     <a class="topnav-link" href="#career">事业</a>
     <a class="topnav-link" href="#growth">认知</a>
     <a class="topnav-link" href="#actions">行动</a>
+    <button class="edit-toggle-btn" id="editToggleBtn" onclick="toggleEditMode()">✏️ 编辑</button>
   </div>
 </nav>
 
 <!-- ==================== Hero ==================== -->
-<div class="hero">
-  <div class="hero-date">📊 2026年5月 · 现状总览</div>
-  <h1>人生操作系统</h1>
-  <p class="tagline">看见自己，是一切改变的起点。</p>
+<div class="hero" id="heroSection">
+  <div class="hero-date" data-field="hero.date"></div>
+  <h1 data-field="hero.title"></h1>
+  <p class="tagline" data-field="hero.tagline"></p>
   <div class="scroll-hint">↓ 向下滚动，查看你的全貌</div>
+  <span class="card-edit-btn" onclick="openEditModal('hero')">✏️ 编辑</span>
 </div>
 
 <!-- ==================== 生命状态仪表盘 ==================== -->
 <section id="status">
   <div class="container">
-    <div class="section-label">🧭 当前状态</div>
-    <h2 class="section-title">生命状态仪表盘</h2>
-    <div class="status-grid">
-      <div class="status-card">
-        <div class="icon">😊</div>
-        <div class="label">情绪状态</div>
-        <div class="name">内耗减少，能量提升</div>
-        <span class="tag tag-green">🟢 上升中</span>
-        <div class="desc">整体向好，保持觉察。</div>
-      </div>
-      <div class="status-card">
-        <div class="icon">💪</div>
-        <div class="label">健康状态</div>
-        <div class="name">颈椎/肩颈持续关注</div>
-        <span class="tag tag-yellow">🟡 改善中</span>
-        <div class="desc">底层短板，仍需持续康复。</div>
-      </div>
-      <div class="status-card">
-        <div class="icon">💰</div>
-        <div class="label">财务状态</div>
-        <div class="name">零收入 + 欠债5万</div>
-        <span class="tag tag-red">🔴 危机</span>
-        <div class="desc">最紧迫的底层风险，亟待突破。</div>
-      </div>
-      <div class="status-card">
-        <div class="icon">💕</div>
-        <div class="label">亲密关系</div>
-        <div class="name">定期沟通中</div>
-        <span class="tag tag-yellow">🟡 进行中</span>
-        <div class="desc">保持觉察与对话。</div>
-      </div>
-      <div class="status-card">
-        <div class="icon">🚀</div>
-        <div class="label">事业方向</div>
-        <div class="name">社群参与，寻找发力点</div>
-        <span class="tag tag-yellow">🟡 探索中</div>
-        <div class="desc">方向待收敛，需要聚焦。</div>
-      </div>
+    <div class="section-edit-header">
+      <div class="section-label">🧭 当前状态</div>
+      <h2 class="section-title">生命状态仪表盘</h2>
+      <button class="edit-btn" onclick="openEditModal('statusCards')">✏️ 编辑卡片</button>
     </div>
+    <div class="status-grid" id="statusGrid"></div>
   </div>
 </section>
 
 <!-- ==================== 紧急度排名 ==================== -->
 <section id="urgency" class="section-alt">
   <div class="container">
-    <div class="section-label">🔴 优先级</div>
-    <h2 class="section-title">紧急度排序</h2>
-    <div class="urgency-table">
-      <div class="urgency-row header">
-        <div></div>
-        <div>领域</div>
-        <div>现状</div>
-        <div>行动方向</div>
-      </div>
-      <div class="urgency-row">
-        <div class="urgency-num urgency-num-1">1</div>
-        <div class="urgency-field">💰 财务</div>
-        <div class="urgency-status">零收入，欠债5万</div>
-        <div class="urgency-action">寻找变现机会</div>
-      </div>
-      <div class="urgency-row">
-        <div class="urgency-num urgency-num-2">2</div>
-        <div class="urgency-field">💪 健康</div>
-        <div class="urgency-status">颈椎/肩颈/上背部问题</div>
-        <div class="urgency-action">坚持每日拉伸+运动</div>
-      </div>
-      <div class="urgency-row">
-        <div class="urgency-num urgency-num-3">3</div>
-        <div class="urgency-field">💕 亲密关系</div>
-        <div class="urgency-status">沟通模式探索中</div>
-        <div class="urgency-action">保持开放沟通</div>
-      </div>
+    <div class="section-edit-header">
+      <div class="section-label">🔴 优先级</div>
+      <h2 class="section-title">紧急度排序</h2>
+      <button class="edit-btn" onclick="openEditModal('urgency')">✏️ 编辑</button>
     </div>
+    <div class="urgency-table" id="urgencyTable"></div>
   </div>
 </section>
 
 <!-- ==================== 隐患预警 ==================== -->
 <section id="risk">
   <div class="container">
-    <div class="section-label">⚠️ 风险地图</div>
-    <h2 class="section-title">未来隐患预警</h2>
-
-    <!-- 第一梯队 -->
-    <div class="risk-section">
-      <div class="risk-section-title"><span class="tag tag-red">第一梯队</span> 最高风险</div>
-      <div class="risk-card">
-        <div class="risk-card-header" onclick="toggleRisk(this)">
-          <span>1. 财务危机恶化 <span class="risk-tag tag tag-red">🔴</span></span>
-          <span class="arrow">▶</span>
-        </div>
-        <div class="risk-card-body">
-          <div class="risk-card-body-inner">
-            <div class="risk-detail-title">风险描述</div>
-            <ul class="risk-detail-list desc">
-              <li>零收入+欠债5万，决策空间极度受限</li>
-              <li>「急着赚钱」的焦虑挤压「慢慢探索」的空间</li>
-              <li>可能被迫接受不适合的机会</li>
-            </ul>
-            <div class="risk-detail-title">触发后果</div>
-            <ul class="risk-detail-list consequence">
-              <li>焦虑驱动完美主义比例上升</li>
-              <li>健康消耗加速</li>
-              <li>关系质量下降</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="risk-card">
-        <div class="risk-card-header" onclick="toggleRisk(this)">
-          <span>2. 健康崩溃触发熔断 <span class="risk-tag tag tag-red">🔴</span></span>
-          <span class="arrow">▶</span>
-        </div>
-        <div class="risk-card-body">
-          <div class="risk-card-body-inner">
-            <div class="risk-detail-title">风险描述</div>
-            <ul class="risk-detail-list desc">
-              <li>颈椎/肩颈问题持续存在</li>
-              <li>高体重+久坐+强迫性完美主义 = 身体长期高压</li>
-              <li>运动康复执行中断</li>
-            </ul>
-            <div class="risk-detail-title">触发后果</div>
-            <ul class="risk-detail-list consequence">
-              <li>身心能量站熔断</li>
-              <li>所有其他系统运转受影响</li>
-              <li>无法维持社群参与和内容输出</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+    <div class="section-edit-header">
+      <div class="section-label">⚠️ 风险地图</div>
+      <h2 class="section-title">未来隐患预警</h2>
+      <button class="edit-btn" onclick="openEditModal('risk')">✏️ 编辑</button>
     </div>
-
-    <!-- 第二梯队 -->
-    <div class="risk-section">
-      <div class="risk-section-title"><span class="tag tag-orange">第二梯队</span> 中高风险</div>
-      <div class="risk-card">
-        <div class="risk-card-header" onclick="toggleRisk(this)">
-          <span>3. 方向探索迷失 <span class="risk-tag tag tag-orange">🟠</span></span>
-          <span class="arrow">▶</span>
-        </div>
-        <div class="risk-card-body">
-          <div class="risk-card-body-inner">
-            <div class="risk-detail-title">风险描述</div>
-            <ul class="risk-detail-list desc">
-              <li>「内容+社群」方向太宽泛，尚未明确发力点</li>
-              <li>可能花费大量时间在错误方向</li>
-            </ul>
-            <div class="risk-detail-title">触发后果</div>
-            <ul class="risk-detail-list consequence">
-              <li>财务状况持续恶化</li>
-              <li>动力下降，形成负向循环</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="risk-card">
-        <div class="risk-card-header" onclick="toggleRisk(this)">
-          <span>4. 亲密关系回退 <span class="risk-tag tag tag-orange">🟠</span></span>
-          <span class="arrow">▶</span>
-        </div>
-        <div class="risk-card-body">
-          <div class="risk-card-body-inner">
-            <div class="risk-detail-title">风险描述</div>
-            <ul class="risk-detail-list desc">
-              <li>沟通模式尚未稳定</li>
-              <li>防御模式容易被旧习惯拉回</li>
-              <li>财务压力可能转移到关系冲突</li>
-            </ul>
-            <div class="risk-detail-title">触发后果</div>
-            <ul class="risk-detail-list consequence">
-              <li>回到「猜测和误解」模式</li>
-              <li>隔离感/距离感再次出现</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="risk-card">
-        <div class="risk-card-header" onclick="toggleRisk(this)">
-          <span>5. 过度消耗循环 <span class="risk-tag tag tag-orange">🟠</span></span>
-          <span class="arrow">▶</span>
-        </div>
-        <div class="risk-card-body">
-          <div class="risk-card-body-inner">
-            <div class="risk-detail-title">风险描述</div>
-            <ul class="risk-detail-list desc">
-              <li>热爱+焦虑双引擎驱动</li>
-              <li>财务焦虑放大完美主义</li>
-              <li>做事停不下来</li>
-            </ul>
-            <div class="risk-detail-title">触发后果</div>
-            <ul class="risk-detail-list consequence">
-              <li>情绪覆盖而非调节</li>
-              <li>身心能量持续低位</li>
-              <li>最终崩溃式休息</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 核心死循环 -->
-    <div class="death-loop">
-      <div class="death-loop-title">💀 核心死循环</div>
-      <div class="loop-visual">
-        <div class="loop-node">财务焦虑</div>
-        <span class="loop-arrow">→</span>
-        <div class="loop-node">放大焦虑引擎</div>
-        <span class="loop-arrow">→</span>
-        <div class="loop-node">加速健康消耗</div>
-        <span class="loop-arrow">→</span>
-        <div class="loop-node">身心熔断</div>
-        <span class="loop-arrow">→</span>
-        <div class="loop-node">无法探索方向</div>
-        <span class="loop-arrow">→</span>
-        <div class="loop-node">财务焦虑</div>
-      </div>
-      <div class="loop-note">
-        最大的隐患是陷入负向死循环。<br>需要主动干预的节点：<strong>健康底线</strong> 和 <strong>决策质量</strong>
-      </div>
-    </div>
-
-    <!-- 防线措施 -->
-    <div class="risk-section" style="margin-top: 32px;">
-      <div class="risk-section-title">🛡️ 防线措施</div>
-      <div class="defense-grid">
-        <div class="defense-row">
-          <span class="defense-label tag tag-red">财务危机</span>
-          <span class="defense-value">设定止损线，不接受伤害长期方向的短期机会</span>
-        </div>
-        <div class="defense-row">
-          <span class="defense-label tag tag-red">健康崩溃</span>
-          <span class="defense-value">每日康复练习必须执行，设为不可妥协的底线</span>
-        </div>
-        <div class="defense-row">
-          <span class="defense-label tag tag-orange">方向迷失</span>
-          <span class="defense-value">每2周复盘一次探索进展，及时调整</span>
-        </div>
-        <div class="defense-row">
-          <span class="defense-label tag tag-orange">关系回退</span>
-          <span class="defense-value">保持定期深度沟通，不让问题积累</span>
-        </div>
-        <div class="defense-row">
-          <span class="defense-label tag tag-orange">过度消耗</span>
-          <span class="defense-value">建立「停止信号」机制，到点强制休息</span>
-        </div>
-      </div>
-    </div>
+    <div id="riskContent"></div>
   </div>
 </section>
 
 <!-- ==================== 四大模块 ==================== -->
 <section id="health" class="section-alt">
   <div class="container">
-    <div class="section-label">🏥 底层系统</div>
-    <h2 class="section-title">健康 · 财务 · 关系 · 事业</h2>
-
-    <!-- 健康 -->
-    <div class="module">
-      <div class="module-card">
-        <div class="module-header" onclick="toggleModule(this)">
-          <span class="module-icon">💪</span>
-          <span class="module-title">健康状态 — 底层 OS</span>
-          <span class="module-tag tag tag-yellow">🟡 改善中</span>
-          <span class="module-arrow">▼</span>
-        </div>
-        <div class="module-body">
-          <div class="module-body-inner">
-            <div class="sub-block">
-              <h4>当前状态</h4>
-              <p>主要问题：颈椎病、上交叉综合症、肩颈背疼痛、视频终端综合症。高体重带来运动损伤风险。</p>
-            </div>
-            <div class="sub-block">
-              <h4>近期进展</h4>
-              <ul class="progress-list">
-                <li style="--icon:'✅'">✅ 情绪状态稳步上升，内耗显著减少</li>
-                <li>✅ 开始有意识地关注身心能量状态</li>
-                <li>✅ 每晚简单拉伸已形成习惯</li>
-                <li>⏳ 八段锦等更多运动待加入</li>
-              </ul>
-            </div>
-            <div class="sub-block">
-              <h4>康复方案</h4>
-              <table class="data-table">
-                <thead><tr><th>项目</th><th>频率</th><th>状态</th></tr></thead>
-                <tbody>
-                  <tr><td>简单拉伸</td><td>每晚</td><td><span class="tag tag-green">✅ 已执行</span></td></tr>
-                  <tr><td>八段锦</td><td>计划中</td><td><span class="tag tag-yellow">⏳ 待加入</span></td></tr>
-                  <tr><td>游泳/瑜伽</td><td>推荐</td><td><span class="tag tag-green">💡 待启动</span></td></tr>
-                  <tr><td>上背部康复</td><td>重点关注</td><td><span class="tag tag-green">💡 长期进行</span></td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="sub-block">
-              <h4>饮食管理</h4>
-              <table class="data-table">
-                <thead><tr><th>餐次</th><th>执行情况</th><th>评价</th></tr></thead>
-                <tbody>
-                  <tr><td>晚餐</td><td>鸡胸肉+蔬菜+少量米饭</td><td><span class="tag tag-green">✅ 搭配合理</span></td></tr>
-                  <tr><td>午餐</td><td>沙县小吃（炒河粉等）</td><td><span class="tag tag-yellow">⚠️ 偶尔</span></td></tr>
-                  <tr><td>高热量</td><td>汉堡/甜饮料</td><td><span class="tag tag-yellow">⚠️ 需控制</span></td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="section-edit-header">
+      <div class="section-label">🏥 底层系统</div>
+      <h2 class="section-title">健康 · 财务 · 关系 · 事业</h2>
+      <button class="edit-btn" onclick="openEditModal('modules')">✏️ 编辑模块</button>
     </div>
-
-    <!-- 财务 -->
-    <div class="module" id="finance">
-      <div class="module-card">
-        <div class="module-header" onclick="toggleModule(this)">
-          <span class="module-icon">💰</span>
-          <span class="module-title">财务状态 — 最紧迫</span>
-          <span class="module-tag tag tag-red">🔴 危机</span>
-          <span class="module-arrow">▼</span>
-        </div>
-        <div class="module-body">
-          <div class="module-body-inner">
-            <div class="sub-block">
-              <h4>核心数据</h4>
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:8px 0;">
-                <div style="text-align:center;padding:16px;background:var(--c-red-bg);border-radius:var(--radius-xs);">
-                  <div style="font-size:1.4rem;font-weight:800;color:var(--c-red);">0</div>
-                  <div style="font-size:0.78rem;color:var(--c-text-2);">月收入</div>
-                </div>
-                <div style="text-align:center;padding:16px;background:var(--c-red-bg);border-radius:var(--radius-xs);">
-                  <div style="font-size:1.4rem;font-weight:800;color:var(--c-red);">-5万</div>
-                  <div style="font-size:0.78rem;color:var(--c-text-2);">负债</div>
-                </div>
-                <div style="text-align:center;padding:16px;background:var(--c-red-bg);border-radius:var(--radius-xs);">
-                  <div style="font-size:1.4rem;font-weight:800;color:var(--c-red);">0</div>
-                  <div style="font-size:0.78rem;color:var(--c-text-2);">可支撑月数</div>
-                </div>
-              </div>
-            </div>
-            <div class="sub-block">
-              <h4>核心洞察</h4>
-              <div style="background:var(--c-red-bg);border:1px solid var(--c-red-border);border-radius:var(--radius-xs);padding:14px;font-size:0.85rem;color:var(--c-text-2);line-height:1.7;">
-                财务危机是最紧迫的底层风险，正在放大焦虑驱动的完美主义比例。
-              </div>
-            </div>
-            <div class="sub-block">
-              <h4>破局方向</h4>
-              <ol class="direction-list">
-                <li>在社群中寻找变现机会</li>
-                <li>形成1个最小商业闭环</li>
-                <li>借用「内容创作+场域力」优势寻找合作伙伴</li>
-              </ol>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 亲密关系 -->
-    <div class="module" id="love">
-      <div class="module-card">
-        <div class="module-header" onclick="toggleModule(this)">
-          <span class="module-icon">💕</span>
-          <span class="module-title">亲密关系</span>
-          <span class="module-tag tag tag-yellow">🟡 进行中</span>
-          <span class="module-arrow">▼</span>
-        </div>
-        <div class="module-body">
-          <div class="module-body-inner">
-            <div class="sub-block">
-              <h4>关系概况</h4>
-              <p>恋人/伴侣关系，近两年。<br>近期：有了一次关于防御模式的深度沟通。</p>
-            </div>
-            <div class="sub-block">
-              <div class="model-box">
-                <div class="model-name">🧠 原创思维模型：「逻辑是线，情绪是点」</div>
-                <p><strong>逻辑 = 串联的长线</strong> — 梳理因果、身份、过往经验、行为规律、利弊风险。用来理清"这是谁、发生过什么、安不安全"。</p>
-                <p><strong>情绪 = 线上的感受节点</strong> — 安心、害怕、抵触、放松、压抑、亲近、疏离。同步共生，一体出现。</p>
-                <div class="principle">
-                  长线看逻辑更稳，当下本心看情绪更真。<br>
-                  对外防骗靠逻辑，对内自洽靠情绪。<br>
-                  <strong>感性入心，理性立身。</strong>
-                </div>
-              </div>
-            </div>
-            <div class="sub-block">
-              <h4>防御模式沟通</h4>
-              <ul class="progress-list">
-                <li>📝 女友分享了关于关系被稀释的不安</li>
-                <li>📝 你感受到的「隔离感、距离感」被讨论</li>
-                <li>📝 双方的防御模式被识别：她是「佯装模式」，你是「高情绪卷入」</li>
-              </ul>
-            </div>
-            <div class="sub-block">
-              <h4>依恋光谱认知</h4>
-              <div style="background:var(--c-blue-bg);border:1px solid var(--c-blue-border);border-radius:var(--radius-xs);padding:14px;font-size:0.85rem;color:var(--c-text-2);line-height:1.7;">
-                你们的防御模式刚好是同一个依恋创伤光谱的两端。<br><br>
-                <strong>她的模式</strong>：表达脆弱=被拒绝，必须装没事 → 佯装+隔离<br>
-                <strong>你的模式</strong>：过度共情+边界松散 → 高情绪卷入
-              </div>
-            </div>
-            <div class="sub-block">
-              <h4>未来方向</h4>
-              <ul class="progress-list">
-                <li>🔄 继续直接讨论防御模式，不再猜测和误解</li>
-                <li>🔄 逐步切换到更真实的沟通模式</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 事业 -->
-    <div class="module" id="career">
-      <div class="module-card">
-        <div class="module-header" onclick="toggleModule(this)">
-          <span class="module-icon">🚀</span>
-          <span class="module-title">事业方向 — 探索中</span>
-          <span class="module-tag tag tag-yellow">🟡 探索中</span>
-          <span class="module-arrow">▼</span>
-        </div>
-        <div class="module-body">
-          <div class="module-body-inner">
-            <div class="sub-block">
-              <h4>核心方向</h4>
-              <p style="font-weight:700;color:var(--c-text);font-size:1rem;">「内容+社群」商业成长创作者</p>
-            </div>
-            <div class="sub-block">
-              <h4>心愿时间线</h4>
-              <table class="data-table">
-                <thead><tr><th>周期</th><th>心愿</th></tr></thead>
-                <tbody>
-                  <tr><td><span class="tag tag-blue">短期 3个月</span></td><td>找到发力位置，可能赚取收入</td></tr>
-                  <tr><td><span class="tag tag-green">中期 1年</span></td><td>至少1个滋养自己的小生意+有收入</td></tr>
-                  <tr><td><span class="tag tag-purple">长期 3-5年</span></td><td>2个滋养自己的小生意+核心合作伙伴</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="sub-block">
-              <h4>超能力雷达</h4>
-              <div class="power-list">
-                <div class="power-item">
-                  <div class="power-label"><span>表达力</span><span>8级 · 前5%</span></div>
-                  <div class="power-bar"><div class="power-fill power-fill-8"></div></div>
-                </div>
-                <div class="power-item">
-                  <div class="power-label"><span>场域力</span><span>高</span></div>
-                  <div class="power-bar"><div class="power-fill power-fill-7"></div></div>
-                </div>
-                <div class="power-item">
-                  <div class="power-label"><span>情绪调节</span><span>3-4级</span></div>
-                  <div class="power-bar"><div class="power-fill power-fill-3"></div></div>
-                </div>
-              </div>
-              <div style="margin-top:12px;padding:12px;background:var(--c-primary-bg);border-radius:var(--radius-xs);font-size:0.85rem;font-weight:600;color:var(--c-primary);text-align:center;">
-                内容创作（8级）× 场域力 = 感染力极强
-              </div>
-            </div>
-            <div class="sub-block">
-              <h4>短板识别</h4>
-              <ul class="shortcut-list">
-                <li>没有形成商业闭环</li>
-                <li>表达散漫，需要结构化</li>
-                <li>情绪调节能力弱（3-4级）</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div id="modulesContainer"></div>
   </div>
 </section>
 
 <!-- ==================== 认知成长 ==================== -->
 <section id="growth">
   <div class="container">
-    <div class="section-label">🧠 原创模型</div>
-    <h2 class="section-title">认知成长</h2>
-
-    <div class="model-box" style="margin-bottom:24px;">
-      <div class="model-name">2026年5月原创：「逻辑是线，情绪是点」</div>
-      <table class="data-table" style="margin-top:12px;">
-        <thead><tr><th>场景</th><th>靠什么</th></tr></thead>
-        <tbody>
-          <tr><td>分辨伪装、演戏</td><td>🎯 逻辑</td></tr>
-          <tr><td>长远规划、风险预判</td><td>🎯 逻辑</td></tr>
-          <tr><td>识人避坑</td><td>🎯 逻辑</td></tr>
-          <tr><td>认清真实喜恶</td><td>💫 情绪</td></tr>
-          <tr><td>感知本能预警</td><td>💫 情绪</td></tr>
-          <tr><td>判断关系能否长久</td><td>💫 情绪</td></tr>
-        </tbody>
-      </table>
+    <div class="section-edit-header">
+      <div class="section-label">🧠 原创模型</div>
+      <h2 class="section-title">认知成长</h2>
+      <button class="edit-btn" onclick="openEditModal('growth')">✏️ 编辑</button>
     </div>
-
-    <div style="background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--radius);padding:20px;">
-      <h4 style="margin-bottom:12px;">自我反思</h4>
-      <ul class="progress-list">
-        <li>❌ 过去过于沉迷情绪节点，忽略整条长线</li>
-        <li>❌ 过度执着于当下的感受、共情、心软</li>
-        <li>✅ 未来：情绪定心意，逻辑定行为</li>
-      </ul>
-    </div>
+    <div id="growthContent"></div>
   </div>
 </section>
 
 <!-- ==================== 里程碑 ==================== -->
 <section class="section-alt">
   <div class="container">
-    <div class="section-label">📅 成长轨迹</div>
-    <h2 class="section-title">里程碑时间线</h2>
-    <div class="timeline">
-      <div class="timeline-item">
-        <div class="timeline-dot"></div>
-        <div class="timeline-date">2026-04-27</div>
-        <h3>🎯 首次建档完成</h3>
-        <ul class="timeline-sub">
-          <li>11系统初始数据录入</li>
-          <li>能力连续轴确认（传播者→深入者）</li>
-          <li>核心挑战识别（健康+财务）</li>
-        </ul>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-dot"></div>
-        <div class="timeline-date">2026-05-18</div>
-        <h3>🚀 档案体系升级</h3>
-        <ul class="timeline-sub">
-          <li>亲密关系进行了一次深度沟通</li>
-          <li>原创思维模型诞生</li>
-          <li>身心健康开始关注</li>
-          <li>看板生成</li>
-        </ul>
-      </div>
+    <div class="section-edit-header">
+      <div class="section-label">📅 成长轨迹</div>
+      <h2 class="section-title">里程碑时间线</h2>
+      <button class="edit-btn" onclick="openEditModal('milestones')">✏️ 编辑</button>
     </div>
+    <div class="timeline" id="timelineContent"></div>
   </div>
 </section>
 
 <!-- ==================== 下一步行动 ==================== -->
 <section id="actions">
   <div class="container">
-    <div class="section-label">✅ 行动清单</div>
-    <h2 class="section-title">下一步行动</h2>
-
-    <div class="action-group">
-      <div class="action-group-title">⏰ 即时行动（本周）</div>
-      <ul class="action-checklist" onclick="toggleCheck(event)">
-        <li>坚持每晚简单拉伸</li>
-        <li>在社群中寻找1个变现机会</li>
-        <li>保持与女友的开放沟通</li>
-      </ul>
+    <div class="section-edit-header">
+      <div class="section-label">✅ 行动清单</div>
+      <h2 class="section-title">下一步行动</h2>
+      <button class="edit-btn" onclick="openEditModal('actions')">✏️ 编辑</button>
     </div>
-    <div class="action-group">
-      <div class="action-group-title">📅 短期行动（本月）</div>
-      <ul class="action-checklist" onclick="toggleCheck(event)">
-        <li>添加八段锦或其他运动</li>
-        <li>控制高热量食品摄入</li>
-        <li>尝试输出1条高质量内容</li>
-      </ul>
-    </div>
-    <div class="action-group">
-      <div class="action-group-title">🎯 中期目标（本季度）</div>
-      <ul class="action-checklist" onclick="toggleCheck(event)">
-        <li>形成1个最小商业闭环</li>
-        <li>深度连接1-3个合作伙伴</li>
-        <li>健康状态明显改善</li>
-      </ul>
-    </div>
+    <div id="actionsContent"></div>
   </div>
 </section>
 
 <!-- ==================== 哇塞时刻 ==================== -->
 <section class="section-alt">
   <div class="container">
-    <div class="section-label">🏆 高光时刻</div>
-    <h2 class="section-title">近期哇塞时刻</h2>
-    <div class="wow-list">
-      <div class="wow-card">
-        <h3>🧠 「逻辑是线，情绪是点」模型诞生</h3>
-        <p>完美解释与女友的思维差异，整合了依恋理论的实际应用。一个真正属于你自己的思维工具。</p>
-      </div>
-      <div class="wow-card">
-        <h3>💕 亲密关系防御模式沟通</h3>
-        <p>进行了一次关于防御模式的深度对话。双方开始看见各自的防御模式：佯装 vs 高情绪卷入。</p>
-      </div>
-      <div class="wow-card">
-        <h3>🌱 身心状态整体向好</h3>
-        <p>内耗显著减少，能量提升。开始主动关注健康，从被动承受转向主动经营。</p>
-      </div>
+    <div class="section-edit-header">
+      <div class="section-label">🏆 高光时刻</div>
+      <h2 class="section-title">近期哇塞时刻</h2>
+      <button class="edit-btn" onclick="openEditModal('wow')">✏️ 编辑</button>
     </div>
+    <div class="wow-list" id="wowContent"></div>
   </div>
 </section>
 
 <!-- ==================== Footer ==================== -->
-<div class="footer">
+<div class="footer" id="footerSection">
   🎯 人生操作系统 · 看见自己，是一切改变的起点<br>
-  <span style="margin-top:6px;display:inline-block;">下次更新：每月定期盘点 或 重大变化后</span>
+  <span data-field="hero.footerUpdate"></span>
 </div>
 
 <!-- 回到顶部 -->
 <button class="back-top" id="backTop" onclick="window.scrollTo({top:0})">↑</button>
 
-<script>
-// 阅读进度
-window.addEventListener('scroll', () => {
-  const h = document.documentElement;
-  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
-  document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('backTop').classList.toggle('visible', h.scrollTop > 400);
-});
+<!-- ==================== 编辑弹窗 ==================== -->
+<div class="edit-modal-overlay" id="editModal">
+  <div class="edit-modal" id="editModalContent"></div>
+</div>
 
-// 风险卡片折叠
+<script src="data.js"></script>
+<script>
+/* =============== 渲染函数 =============== */
+function renderAll() {
+  renderHero();
+  renderStatusCards();
+  renderUrgency();
+  renderRisk();
+  renderModules();
+  renderGrowth();
+  renderTimeline();
+  renderActions();
+  renderWow();
+}
+
+function renderHero() {
+  setField('hero.date');
+  setField('hero.title');
+  setField('hero.tagline');
+  setField('hero.footerUpdate');
+}
+
+function setField(key) {
+  const el = document.querySelector('[data-field="' + key + '"]');
+  if (!el) return;
+  const keys = key.split('.');
+  let v = DATA;
+  keys.forEach(k => v = v ? v[k] : '');
+  el.textContent = v || '';
+}
+
+function renderStatusCards() {
+  const grid = document.getElementById('statusGrid');
+  grid.innerHTML = '';
+  DATA.statusCards.forEach((c, i) => {
+    const btn = document.createElement('span');
+    btn.className = 'card-edit-btn';
+    btn.textContent = '✏️';
+    btn.onclick = () => openEditModal('statusCardItem', i);
+    const card = document.createElement('div');
+    card.className = 'status-card';
+    card.innerHTML =
+      '<div class="icon">' + esc(c.icon) + '</div>' +
+      '<div class="label">' + esc(c.label) + '</div>' +
+      '<div class="name">' + esc(c.name) + '</div>' +
+      '<span class="tag tag-' + esc(c.tag) + '">' + esc(c.tagText) + '</span>' +
+      '<div class="desc">' + esc(c.desc) + '</div>';
+    card.appendChild(btn);
+    grid.appendChild(card);
+  });
+}
+
+function renderUrgency() {
+  const el = document.getElementById('urgencyTable');
+  let h = '<div class="urgency-row header"><div></div><div>领域</div><div>现状</div><div>行动方向</div></div>';
+  DATA.urgency.forEach(u => {
+    h += '<div class="urgency-row">' +
+      '<div class="urgency-num ' + u.rankClass + '">' + u.rank + '</div>' +
+      '<div class="urgency-field">' + esc(u.field) + '</div>' +
+      '<div class="urgency-status">' + esc(u.status) + '</div>' +
+      '<div class="urgency-action">' + esc(u.action) + '</div>' +
+      '</div>';
+  });
+  el.innerHTML = h;
+}
+
+function renderRisk() {
+  const el = document.getElementById('riskContent');
+  let h = '';
+
+  h += '<div class="risk-section"><div class="risk-section-title"><span class="tag tag-red">第一梯队</span> 最高风险</div>';
+  DATA.risk.tier1.forEach((r, i) => { h += buildRiskCard(r, i); });
+  h += '</div>';
+
+  h += '<div class="risk-section"><div class="risk-section-title"><span class="tag tag-orange">第二梯队</span> 中高风险</div>';
+  DATA.risk.tier2.forEach((r, i) => { h += buildRiskCard(r, i, 'tier2'); });
+  h += '</div>';
+
+  h += '<div class="death-loop"><div class="death-loop-title">💀 核心死循环</div>';
+  h += '<div class="loop-visual">';
+  DATA.risk.deathLoop.forEach((node, i) => {
+    h += '<div class="loop-node">' + esc(node) + '</div>';
+    if (i < DATA.risk.deathLoop.length - 1) h += '<span class="loop-arrow">→</span>';
+  });
+  h += '</div>';
+  h += '<div class="loop-note">最大的隐患是陷入负向死循环。<br>需要主动干预的节点：<strong>健康底线</strong> 和 <strong>决策质量</strong></div></div>';
+
+  h += '<div class="risk-section" style="margin-top:32px;"><div class="risk-section-title">🛡️ 防线措施</div><div class="defense-grid">';
+  DATA.risk.defenses.forEach(d => {
+    h += '<div class="defense-row"><span class="defense-label tag tag-red">' + esc(d.label) + '</span>' +
+      '<span class="defense-value">' + esc(d.text) + '</span></div>';
+  });
+  h += '</div></div>';
+
+  el.innerHTML = h;
+  el.querySelectorAll('.risk-card-header').forEach(hdr => { hdr.onclick = function() { toggleRisk(this); }; });
+}
+
+function buildRiskCard(r) {
+  let h = '<div class="risk-card">';
+  h += '<div class="risk-card-header" onclick="toggleRisk(this)">' +
+    '<span>' + esc(r.title) + ' <span class="risk-tag tag tag-' + r.tag + '">' + r.tagText + '</span></span>' +
+    '<span class="arrow">▶</span></div>';
+  h += '<div class="risk-card-body"><div class="risk-card-body-inner">';
+  h += '<div class="risk-detail-title">风险描述</div><ul class="risk-detail-list desc">';
+  (r.desc||[]).forEach(d => { h += '<li>' + esc(d) + '</li>'; });
+  h += '</ul>';
+  h += '<div class="risk-detail-title">触发后果</div><ul class="risk-detail-list consequence">';
+  (r.consequence||[]).forEach(c => { h += '<li>' + esc(c) + '</li>'; });
+  h += '</ul></div></div></div>';
+  return h;
+}
+
 function toggleRisk(header) {
   const card = header.parentElement;
   const body = card.querySelector('.risk-card-body');
@@ -1035,7 +788,87 @@ function toggleRisk(header) {
   body.style.maxHeight = isOpen ? null : body.scrollHeight + 'px';
 }
 
-// 模块折叠
+function renderModules() {
+  const el = document.getElementById('modulesContainer');
+  el.innerHTML = '';
+  DATA.modules.forEach((mod, mi) => {
+    const card = document.createElement('div');
+    card.className = 'module';
+    const tagClass = 'tag-' + mod.tag;
+    let inner = '<div class="module-card">' +
+      '<div class="module-header" onclick="toggleModule(this)">' +
+      '<span class="module-icon">' + mod.icon + '</span>' +
+      '<span class="module-title">' + esc(mod.title) + '</span>' +
+      '<span class="module-tag ' + tagClass + '">' + mod.tagText + '</span>' +
+      '<span class="module-arrow">▼</span></div>' +
+      '<div class="module-body"><div class="module-body-inner">';
+
+    (mod.blocks||[]).forEach(block => {
+      inner += '<div class="sub-block">';
+      if (block.h4) inner += '<h4>' + block.h4 + '</h4>';
+      if (block.p) inner += '<p style="' + (block.pClass||'') + '">' + block.p + '</p>';
+      if (block.list) {
+        inner += '<ul class="progress-list">';
+        block.list.forEach(item => { inner += '<li>' + item + '</li>'; });
+        inner += '</ul>';
+      }
+      if (block.table) {
+        inner += '<table class="data-table"><thead><tr>';
+        block.table.head.forEach(h => { inner += '<th>' + h + '</th>'; });
+        inner += '</tr></thead><tbody>';
+        (block.table.rows||[]).forEach(row => {
+          inner += '<tr>';
+          row.forEach(cell => { inner += '<td>' + cell + '</td>'; });
+          inner += '</tr>';
+        });
+        inner += '</tbody></table>';
+      }
+      if (block.dataCards) {
+        inner += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:8px 0;">';
+        block.dataCards.forEach(dc => {
+          inner += '<div style="text-align:center;padding:16px;background:var(--c-' + dc.color + '-bg);border-radius:var(--radius-xs);">' +
+            '<div style="font-size:1.4rem;font-weight:800;color:var(--c-' + dc.color + ');">' + esc(dc.value) + '</div>' +
+            '<div style="font-size:0.78rem;color:var(--c-text-2);">' + esc(dc.label) + '</div></div>';
+        });
+        inner += '</div>';
+      }
+      if (block.directions) {
+        inner += '<ol class="direction-list">';
+        block.directions.forEach(d => { inner += '<li>' + esc(d) + '</li>'; });
+        inner += '</ol>';
+      }
+      if (block.model) {
+        inner += '<div class="model-box">' +
+          '<div class="model-name">' + block.model.name + '</div>';
+        (block.model.ps||[]).forEach(p => { inner += '<p>' + p + '</p>'; });
+        if (block.model.principle) inner += '<div class="principle">' + block.model.principle + '</div>';
+        inner += '</div>';
+      }
+      if (block.powers) {
+        inner += '<div class="power-list">';
+        block.powers.forEach(pw => {
+          inner += '<div class="power-item"><div class="power-label"><span>' + esc(pw.label) + '</span><span>' + esc(pw.level) + '</span></div>' +
+            '<div class="power-bar"><div class="power-fill" style="width:' + pw.pct + '%"></div></div></div>';
+        });
+        if (block.note) inner += '<div style="margin-top:12px;padding:12px;background:var(--c-primary-bg);border-radius:var(--radius-xs);font-size:0.85rem;font-weight:600;color:var(--c-primary);text-align:center;">' + block.note + '</div>';
+        inner += '</div>';
+      }
+      inner += '</div>';
+    });
+
+    inner += '</div></div></div>';
+    card.innerHTML = inner;
+
+    const hdr = card.querySelector('.module-header');
+    const eBtn = document.createElement('span');
+    eBtn.className = 'card-edit-btn';
+    eBtn.textContent = '✏️';
+    eBtn.onclick = (ev) => { ev.stopPropagation(); openEditModal('moduleItem', mi); };
+    hdr.appendChild(eBtn);
+    el.appendChild(card);
+  });
+}
+
 function toggleModule(header) {
   const card = header.parentElement;
   const body = card.querySelector('.module-body');
@@ -1044,12 +877,442 @@ function toggleModule(header) {
   body.style.maxHeight = isOpen ? null : body.scrollHeight + 'px';
 }
 
-// 复选框
+function renderGrowth() {
+  const el = document.getElementById('growthContent');
+  let h = '<div class="model-box" style="margin-bottom:24px;">' +
+    '<div class="model-name">' + DATA.growth.modelName + '</div>' +
+    '<table class="data-table" style="margin-top:12px;">';
+  h += '<thead><tr>';
+  DATA.growth.table.head.forEach(hd => { h += '<th>' + hd + '</th>'; });
+  h += '</tr></thead><tbody>';
+  (DATA.growth.table.rows||[]).forEach(row => {
+    h += '<tr>';
+    row.forEach(cell => { h += '<td>' + cell + '</td>'; });
+    h += '</tr>';
+  });
+  h += '</tbody></table></div>';
+  h += '<div style="background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--radius);padding:20px;">' +
+    '<h4 style="margin-bottom:12px;">自我反思</h4><ul class="progress-list">';
+  (DATA.growth.reflections||[]).forEach(r => { h += '<li>' + r + '</li>'; });
+  h += '</ul></div>';
+  el.innerHTML = h;
+}
+
+function renderTimeline() {
+  const el = document.getElementById('timelineContent');
+  let h = '';
+  (DATA.milestones||[]).forEach(m => {
+    h += '<div class="timeline-item"><div class="timeline-dot"></div>' +
+      '<div class="timeline-date">' + esc(m.date) + '</div>' +
+      '<h3>' + esc(m.title) + '</h3><ul class="timeline-sub">';
+    (m.items||[]).forEach(item => { h += '<li>' + esc(item) + '</li>'; });
+    h += '</ul></div>';
+  });
+  el.innerHTML = h;
+}
+
+function renderActions() {
+  const el = document.getElementById('actionsContent');
+  let h = '';
+  (DATA.actions||[]).forEach(group => {
+    h += '<div class="action-group">' +
+      '<div class="action-group-title">' + esc(group.title) + '</div>' +
+      '<ul class="action-checklist" onclick="toggleCheck(event)">';
+    (group.items||[]).forEach(item => { h += '<li>' + esc(item) + '</li>'; });
+    h += '</ul></div>';
+  });
+  el.innerHTML = h;
+}
+
 function toggleCheck(e) {
-  if (e.target.tagName === 'LI') {
-    e.target.classList.toggle('done');
+  if (e.target.tagName === 'LI') e.target.classList.toggle('done');
+}
+
+function renderWow() {
+  const el = document.getElementById('wowContent');
+  let h = '';
+  (DATA.wow||[]).forEach(w => {
+    h += '<div class="wow-card"><h3>' + w.title + '</h3><p>' + w.desc + '</p></div>';
+  });
+  el.innerHTML = h;
+}
+
+/* =============== 编辑模式 =============== */
+let isEditing = false;
+
+function toggleEditMode() {
+  const token = localStorage.getItem('github_token_lifeos');
+  if (!token) {
+    alert('请先设置 GitHub Token（用于保存修改）\n\nToken 需要 repo 权限。');
+    const panel = document.getElementById('tokenPanel');
+    panel.classList.add('active');
+    const input = document.getElementById('githubTokenInput');
+    input.value = '';
+    input.focus();
+    input.onblur = function() {
+      const v = this.value.trim();
+      if (v) localStorage.setItem('github_token_lifeos', v);
+    };
+    input.onkeydown = function(e) { if (e.key === 'Enter') this.blur(); };
+    return;
+  }
+  isEditing = !isEditing;
+  applyEditMode();
+}
+
+function applyEditMode() {
+  document.body.classList.toggle('editing', isEditing);
+  document.getElementById('editBar').classList.toggle('active', isEditing);
+  document.getElementById('topNav').classList.toggle('editing', isEditing);
+  const btn = document.getElementById('editToggleBtn');
+  btn.textContent = isEditing ? '✅ 编辑中' : '✏️ 编辑';
+  btn.classList.toggle('active', isEditing);
+  if (!isEditing) closeEditModal();
+}
+
+function cancelEdit() {
+  if (!confirm('放弃所有未保存的修改？')) return;
+  isEditing = false;
+  applyEditMode();
+  renderAll();
+}
+
+function previewChanges() {
+  alert('预览：当前页面显示的就是编辑后的效果。\n\n保存并推送到 GitHub 后，Netlify 会在约 1 分钟内自动重新部署。');
+}
+
+/* =============== 编辑弹窗 =============== */
+let currentEditType = null;
+let currentEditIndex = null;
+
+function openEditModal(type, index) {
+  if (!isEditing) {
+    alert('请先点击右上角「编辑」按钮进入编辑模式。');
+    return;
+  }
+  currentEditType = type;
+  currentEditIndex = index;
+  const overlay = document.getElementById('editModal');
+  const content = document.getElementById('editModalContent');
+
+  if (type === 'hero') {
+    content.innerHTML =
+      '<h3>编辑 Hero 区域</h3>' +
+      label('日期标签', 'f_heroDate', DATA.hero.date) +
+      label('主标题', 'f_heroTitle', DATA.hero.title) +
+      label('副标题', 'f_heroTagline', DATA.hero.tagline) +
+      label('页脚更新提示', 'f_footer', DATA.hero.footerUpdate || '') +
+      actions();
+  } else if (type === 'statusCards') {
+    let h = '<h3>编辑状态卡片</h3>';
+    (DATA.statusCards||[]).forEach((c, i) => {
+      h += '<div style="border:1px solid var(--c-border);border-radius:8px;padding:10px;margin-bottom:8px;">' +
+        '<div style="font-weight:600;font-size:0.85rem;margin-bottom:6px;">卡片 #' + (i+1) + '</div>' +
+        labelInline('图标', 'f_sc_icon_' + i, c.icon) +
+        labelInline('标签名', 'f_sc_label_' + i, c.label) +
+        labelInline('名称', 'f_sc_name_' + i, c.name) +
+        '<label>状态标签颜色</label><select id="f_sc_tag_' + i + '" class="tag-select">' +
+        '<option value="red"' + (c.tag==='red'?' selected':'') + '>🔴 危机/红色</option>' +
+        '<option value="orange"' + (c.tag==='orange'?' selected':'') + '>🟠 橙色</option>' +
+        '<option value="yellow"' + (c.tag==='yellow'?' selected':'') + '>🟡 改善中/黄色</option>' +
+        '<option value="green"' + (c.tag==='green'?' selected':'') + '>🟢 上升中/绿色</option>' +
+        '</select>' +
+        labelInline('标签文字', 'f_sc_tagText_' + i, c.tagText) +
+        labelInline('描述', 'f_sc_desc_' + i, c.desc) +
+        '<button style="margin-top:6px;padding:4px 8px;cursor:pointer;color:var(--c-red);border:1px solid var(--c-red-border);border-radius:6px;background:#fff;" onclick="deleteStatusCard(' + i + ')">🗑 删除此卡片</button>' +
+        '</div>';
+    });
+    h += '<button class="add-list-btn" onclick="addStatusCard()">＋ 添加卡片</button>';
+    h += actions();
+    content.innerHTML = h;
+  } else if (type === 'statusCardItem') {
+    const c = DATA.statusCards[index];
+    content.innerHTML =
+      '<h3>编辑状态卡片 #' + (index+1) + '</h3>' +
+      label('图标', 'f_icon', c.icon) +
+      label('标签名', 'f_label', c.label) +
+      label('名称', 'f_name', c.name) +
+      '<label>状态标签颜色</label><select id="f_tag">' +
+      '<option value="red"' + (c.tag==='red'?' selected':'') + '>🔴 危机/红色</option>' +
+      '<option value="orange"' + (c.tag==='orange'?' selected':'') + '>🟠 橙色</option>' +
+      '<option value="yellow"' + (c.tag==='yellow'?' selected':'') + '>🟡 改善中/黄色</option>' +
+      '<option value="green"' + (c.tag==='green'?' selected':'') + '>🟢 上升中/绿色</option>' +
+      '</select>' +
+      label('标签文字', 'f_tagText', c.tagText) +
+      label('描述', 'f_desc', c.desc) +
+      '<div style="margin-top:12px;">' +
+      '<button style="padding:4px 8px;cursor:pointer;color:var(--c-red);border:1px solid var(--c-red-border);border-radius:6px;background:#fff;" onclick="deleteStatusCard(' + index + ')">🗑 删除此卡片</button>' +
+      '</div>' +
+      actions();
+  } else if (type === 'urgency') {
+    let h = '<h3>编辑紧急度排名</h3>';
+    (DATA.urgency||[]).forEach((u, i) => {
+      h += '<div style="border:1px solid var(--c-border);border-radius:8px;padding:10px;margin-bottom:8px;">' +
+        '<div style="font-weight:600;font-size:0.85rem;margin-bottom:6px;">#' + (i+1) + '</div>' +
+        labelInline('领域', 'f_u_field_' + i, u.field) +
+        labelInline('现状', 'f_u_status_' + i, u.status) +
+        labelInline('行动', 'f_u_action_' + i, u.action) +
+        '</div>';
+    });
+    h += actions();
+    content.innerHTML = h;
+  } else if (type === 'risk') {
+    let h = '<h3>编辑隐患预警</h3>';
+    h += '<p style="font-size:0.82rem;color:var(--c-text-2);margin-bottom:12px;">死循环节点（用 → 分隔）：</p>';
+    h += label('死循环', 'f_deathLoop', (DATA.risk.deathLoop||[]).join(' → '));
+    h += '<p style="font-size:0.82rem;color:var(--c-text-2);margin-top:12px;margin-bottom:6px;">防线措施：</p>';
+    (DATA.risk.defenses||[]).forEach((d, i) => {
+      h += '<div style="display:flex;gap:6px;margin-bottom:6px;">' +
+        '<input value="' + escAttr(d.label) + '" id="f_def_label_' + i + '" style="width:80px;padding:4px 8px;border:1px solid var(--c-border);border-radius:6px;font-size:0.82rem;">' +
+        '<input value="' + escAttr(d.text) + '" id="f_def_text_' + i + '" style="flex:1;padding:4px 8px;border:1px solid var(--c-border);border-radius:6px;font-size:0.82rem;">' +
+        '</div>';
+    });
+    h += actions();
+    content.innerHTML = h;
+  } else if (type === 'actions') {
+    let h = '<h3>编辑行动清单</h3>';
+    (DATA.actions||[]).forEach((g, gi) => {
+      h += label('分组标题', 'f_act_group_' + gi, g.title);
+      (g.items||[]).forEach((item, ii) => {
+        h += '<div style="display:flex;gap:6px;margin-bottom:4px;">' +
+          '<input value="' + escAttr(item) + '" id="f_act_item_' + gi + '_' + ii + '" style="flex:1;padding:4px 8px;border:1px solid var(--c-border);border-radius:6px;font-size:0.82rem;">' +
+          '<button onclick="deleteActionItem(' + gi + ',' + ii + ')" style="padding:2px 6px;cursor:pointer;color:var(--c-red);border:none;background:none;">✕</button>' +
+          '</div>';
+      });
+      h += '<button class="add-list-btn" onclick="addActionItem(' + gi + ')">＋ 添加条目</button>';
+      h += '<hr style="margin:12px 0;border:none;border-top:1px solid var(--c-border);">';
+    });
+    h += actions();
+    content.innerHTML = h;
+  } else if (type === 'wow') {
+    let h = '<h3>编辑哇塞时刻</h3>';
+    (DATA.wow||[]).forEach((w, i) => {
+      h += '<div style="border:1px solid var(--c-border);border-radius:8px;padding:10px;margin-bottom:8px;">';
+      h += labelInline('标题', 'f_wow_title_' + i, w.title);
+      h += labelInline('描述', 'f_wow_desc_' + i, w.desc);
+      h += '<button style="margin-top:6px;padding:4px 8px;cursor:pointer;color:var(--c-red);border:1px solid var(--c-red-border);border-radius:6px;background:#fff;" onclick="deleteWow(' + i + ')">删除此条</button>';
+      h += '</div>';
+    });
+    h += '<button class="add-list-btn" onclick="addWow()">＋ 添加哇塞时刻</button>';
+    h += actions();
+    content.innerHTML = h;
+  }
+
+  overlay.classList.add('open');
+  overlay.onclick = function(e) { if (e.target === this) closeEditModal(); };
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('open');
+  currentEditType = null;
+  currentEditIndex = null;
+}
+
+function label(text, id, value) {
+  return '<label>' + text + '</label>' +
+    '<input type="text" id="' + id + '" value="' + escAttr(value || '') + '">';
+}
+function labelInline(text, id, value) {
+  return '<label style="font-size:0.75rem;color:var(--c-text-2);">' + text + '</label>' +
+    '<input type="text" id="' + id + '" value="' + escAttr(value || '') + '" style="width:100%;padding:4px 8px;border:1px solid var(--c-border);border-radius:6px;font-size:0.82rem;margin-bottom:6px;">';
+}
+function actions() {
+  return '<div class="edit-modal-actions">' +
+    '<button class="btn btn-primary" id="editModalSaveBtn">保存</button>' +
+    '<button class="btn btn-ghost" onclick="closeEditModal()">取消</button>' +
+    '</div>';
+}
+
+/* =============== 保存编辑 =============== */
+function saveEdit() {
+  if (currentEditType === 'hero') {
+    DATA.hero.date = document.getElementById('f_heroDate').value;
+    DATA.hero.title = document.getElementById('f_heroTitle').value;
+    DATA.hero.tagline = document.getElementById('f_heroTagline').value;
+    DATA.hero.footerUpdate = document.getElementById('f_footer').value;
+    renderHero();
+    closeEditModal();
+  } else if (currentEditType === 'statusCards' || currentEditType === 'statusCardItem') {
+    if (currentEditType === 'statusCardItem') {
+      const c = DATA.statusCards[currentEditIndex];
+      c.icon = document.getElementById('f_icon').value;
+      c.label = document.getElementById('f_label').value;
+      c.name = document.getElementById('f_name').value;
+      c.tag = document.getElementById('f_tag').value;
+      c.tagText = document.getElementById('f_tagText').value;
+      c.desc = document.getElementById('f_desc').value;
+      renderStatusCards();
+      closeEditModal();
+    } else {
+      DATA.statusCards.forEach((c, i) => {
+        c.icon = document.getElementById('f_sc_icon_' + i).value;
+        c.label = document.getElementById('f_sc_label_' + i).value;
+        c.name = document.getElementById('f_sc_name_' + i).value;
+        c.tag = document.getElementById('f_sc_tag_' + i).value;
+        c.tagText = document.getElementById('f_sc_tagText_' + i).value;
+        c.desc = document.getElementById('f_sc_desc_' + i).value;
+      });
+      renderStatusCards();
+      closeEditModal();
+    }
+  } else if (currentEditType === 'urgency') {
+    (DATA.urgency||[]).forEach((u, i) => {
+      u.field = document.getElementById('f_u_field_' + i).value;
+      u.status = document.getElementById('f_u_status_' + i).value;
+      u.action = document.getElementById('f_u_action_' + i).value;
+    });
+    renderUrgency();
+    closeEditModal();
+  } else if (currentEditType === 'risk') {
+    const loopStr = document.getElementById('f_deathLoop').value;
+    DATA.risk.deathLoop = loopStr.split('→').map(s => s.trim()).filter(Boolean);
+    (DATA.risk.defenses||[]).forEach((d, i) => {
+      d.label = document.getElementById('f_def_label_' + i).value;
+      d.text = document.getElementById('f_def_text_' + i).value;
+    });
+    renderRisk();
+    closeEditModal();
+  } else if (currentEditType === 'actions') {
+    (DATA.actions||[]).forEach((g, gi) => {
+      g.title = document.getElementById('f_act_group_' + gi).value;
+      g.items = [];
+      let ii = 0;
+      while (true) {
+        const el = document.getElementById('f_act_item_' + gi + '_' + ii);
+        if (!el) break;
+        g.items.push(el.value);
+        ii++;
+      }
+    });
+    renderActions();
+    closeEditModal();
+  } else if (currentEditType === 'wow') {
+    (DATA.wow||[]).forEach((w, i) => {
+      w.title = document.getElementById('f_wow_title_' + i).value;
+      w.desc = document.getElementById('f_wow_desc_' + i).value;
+    });
+    renderWow();
+    closeEditModal();
   }
 }
+
+// Bind save button
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.id === 'editModalSaveBtn') {
+    saveEdit();
+  }
+});
+
+function addStatusCard() {
+  DATA.statusCards.push({ icon: '⭐', label: '新状态', name: '名称', tag: 'yellow', tagText: '🟡 进行中', desc: '描述' });
+  openEditModal('statusCards');
+}
+function deleteStatusCard(i) {
+  if (!confirm('确定删除此卡片？')) return;
+  DATA.statusCards.splice(i, 1);
+  renderStatusCards();
+  closeEditModal();
+  if (currentEditType === 'statusCards' || currentEditType === 'statusCardItem') {
+    openEditModal('statusCards');
+  }
+}
+function addActionItem(gi) {
+  DATA.actions[gi].items.push('新行动项');
+  openEditModal('actions');
+}
+function deleteActionItem(gi, ii) {
+  DATA.actions[gi].items.splice(ii, 1);
+  openEditModal('actions');
+}
+function addWow() {
+  DATA.wow.push({ title: '新哇塞时刻', desc: '描述' });
+  openEditModal('wow');
+}
+function deleteWow(i) {
+  if (!confirm('确定删除？')) return;
+  DATA.wow.splice(i, 1);
+  openEditModal('wow');
+}
+
+/* =============== 保存并推送 GitHub =============== */
+async function saveChanges() {
+  const token = localStorage.getItem('github_token_lifeos');
+  if (!token) {
+    alert('未找到 GitHub Token，请先点击「编辑」按钮设置。');
+    return;
+  }
+  const statusEl = document.getElementById('editStatus');
+  statusEl.textContent = '正在推送 GitHub...';
+  statusEl.className = 'status-msg working';
+
+  try {
+    // Build new data.js content
+    const dataStr = 'window.DATA = ' + JSON.stringify(DATA, null, 2) + ';\n';
+    const bytes = new TextEncoder().encode(dataStr);
+    const base64 = btoa(String.fromCharCode(...bytes));
+
+    // Get current file SHA
+    const getResp = await fetch('https://api.github.com/repos/shaorainfan/life-os-dashboard/contents/data.js', {
+      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!getResp.ok) throw new Error('获取文件信息失败：' + getResp.status);
+    const fileData = await getResp.json();
+    const sha = fileData.sha;
+
+    // Update file
+    const putResp = await fetch('https://api.github.com/repos/shaorainfan/life-os-dashboard/contents/data.js', {
+      method: 'PUT',
+      headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify({
+        message: 'Update dashboard data via online editor',
+        content: base64,
+        sha: sha,
+        branch: 'main'
+      })
+    });
+    if (!putResp.ok) {
+      const err = await putResp.json();
+      throw new Error(err.message || '推送失败：' + putResp.status);
+    }
+
+    statusEl.textContent = '✅ 推送成功！Netlify 正在部署...';
+    statusEl.className = 'status-msg ok';
+    setTimeout(() => {
+      statusEl.textContent = '';
+      isEditing = false;
+      applyEditMode();
+    }, 3000);
+  } catch (e) {
+    statusEl.textContent = '❌ ' + e.message;
+    statusEl.className = 'status-msg err';
+    console.error(e);
+  }
+}
+
+/* =============== 工具函数 =============== */
+function esc(s) {
+  const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML;
+}
+function escAttr(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* =============== 阅读进度 =============== */
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('backTop').classList.toggle('visible', h.scrollTop > 400);
+});
+
+/* =============== 初始化 =============== */
+(function() {
+  const savedToken = localStorage.getItem('github_token_lifeos');
+  if (savedToken) {
+    document.getElementById('githubTokenInput').value = savedToken;
+  }
+  renderAll();
+})();
 </script>
 </body>
 </html>
