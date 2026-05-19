@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>共享日历 · 关系协同</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --c-primary: #2d6a4f;
+  --c-primary-light: #40916c;
+  --c-primary-lighter: #95d5b2;
+  --c-primary-bg: #d8f3dc;
+  --c-bg: #f8faf8;
+  --c-card: #ffffff;
+  --c-text: #1f2937;
+  --c-text-2: #6b7280;
+  --c-text-3: #9ca3af;
+  --c-border: #e5e7eb;
+  --c-red: #dc2626;
+  --c-orange: #ea580c;
+  --c-green: #16a34a;
+  --c-blue: #2563eb;
+  --c-purple: #7c3aed;
+  --radius: 16px;
+  --radius-sm: 12px;
+  --radius-xs: 8px;
+  --max-w: 520px;
+  --font: -apple-system, "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+}
+/* ===== Sync Panel ===== */
+.sync-panel {
+  background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius);
+  padding: 14px 16px; margin-top: 16px;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+}
+.sync-panel label { font-size: 0.78rem; font-weight: 600; color: var(--c-text-2); }
+.sync-panel input[type="text"] {
+  flex: 1 1 140px; min-width: 0; padding: 6px 10px;
+  border: 1px solid var(--c-border); border-radius: var(--radius-xs);
+  font-size: 0.82rem; font-family: var(--font);
+}
+.sync-panel input[type="text"]:focus { outline: none; border-color: var(--c-primary); }
+.sync-btn {
+  padding: 6px 14px; border-radius: 100px; border: 1px solid var(--c-border);
+  background: var(--c-card); cursor: pointer; font-size: 0.78rem; font-weight: 600;
+  font-family: var(--font); transition: all 0.2s; white-space: nowrap;
+}
+.sync-btn:hover { background: var(--c-primary-bg); border-color: var(--c-primary-lighter); }
+.sync-btn.primary { background: var(--c-primary); color: #fff; border-color: var(--c-primary); }
+.sync-btn.primary:hover { background: var(--c-primary-light); }
+.sync-btn.danger { color: var(--c-red); border-color: #fecaca; }
+.sync-btn.danger:hover { background: #fef2f2; }
+.sync-status { font-size: 0.72rem; color: var(--c-text-3); width: 100%; margin-top: 2px; }
+.sync-status.ok { color: var(--c-green); }
+.sync-status.err { color: var(--c-red); }
+html { font-size: 16px; }
+body { font-family: var(--font); color: var(--c-text); background: var(--c-bg); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+.container { max-width: var(--max-w); margin: 0 auto; padding: 0 16px; }
+
+.hero {
+  text-align: center; padding: 48px 16px 36px;
+  background: linear-gradient(180deg, var(--c-primary-bg) 0%, var(--c-bg) 100%);
+}
+.hero-badge {
+  display: inline-block; font-size: 0.78rem; color: var(--c-primary);
+  background: var(--c-card); border: 1px solid var(--c-primary-lighter);
+  padding: 4px 14px; border-radius: 100px; margin-bottom: 16px;
+}
+.hero h1 { font-size: clamp(1.3rem, 4vw, 1.8rem); font-weight: 800; margin-bottom: 8px; }
+.hero .subtitle { font-size: 0.9rem; color: var(--c-text-2); }
+.hero-note {
+  margin-top: 12px; display: inline-block;
+  font-size: 0.75rem; color: var(--c-orange);
+  background: #fff7ed; border: 1px solid #fed7aa; padding: 5px 12px; border-radius: 100px;
+}
+
+.cal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; padding: 24px 4px 0;
+}
+.cal-header h2 { font-size: 1.05rem; font-weight: 700; }
+.cal-nav { display: flex; gap: 6px; }
+.cal-nav button {
+  width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--c-border);
+  background: var(--c-card); cursor: pointer; font-size: 0.95rem;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+  font-family: var(--font);
+}
+.cal-nav button:hover { background: var(--c-primary-bg); border-color: var(--c-primary-lighter); }
+
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
+  background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius);
+  padding: 10px;
+}
+.cal-dow {
+  text-align: center; font-size: 0.72rem; font-weight: 600; color: var(--c-text-3);
+  padding: 6px 0;
+}
+.cal-day {
+  aspect-ratio: 1; padding: 4px; border-radius: var(--radius-xs);
+  font-size: 0.8rem; cursor: pointer; position: relative;
+  display: flex; flex-direction: column; align-items: flex-start;
+  transition: background 0.15s; min-height: 56px; justify-content: flex-start;
+}
+.cal-day:hover { background: var(--c-primary-bg); }
+.cal-day.today { background: var(--c-primary-bg); font-weight: 700; }
+.cal-day.selected { background: var(--c-primary) !important; color: #fff !important; }
+.cal-day.other-month { color: var(--c-text-3); opacity: 0.35; }
+.cal-day-num { font-weight: 600; font-size: 0.78rem; margin-bottom: 2px; }
+.cal-dots { display: flex; gap: 2px; flex-wrap: wrap; }
+.cal-dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
+
+.legend {
+  display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.75rem; color: var(--c-text-2);
+  margin-top: 12px; padding: 0 4px;
+}
+.legend-item { display: flex; align-items: center; gap: 3px; }
+
+.day-detail {
+  background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius);
+  padding: 18px; margin-top: 16px;
+}
+.day-detail h4 { font-size: 0.92rem; font-weight: 700; margin-bottom: 12px; }
+.event-item {
+  display: flex; align-items: flex-start; gap: 10px; padding: 10px 0;
+  border-bottom: 1px solid var(--c-border); font-size: 0.85rem;
+}
+.event-item:last-child { border-bottom: none; }
+.event-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.event-time { color: var(--c-text-3); font-size: 0.76rem; min-width: 88px; }
+.event-info { flex: 1; }
+.event-title { font-weight: 600; }
+.event-desc { color: var(--c-text-2); font-size: 0.78rem; margin-top: 2px; }
+.event-tag { font-size: 0.68rem; padding: 2px 7px; border-radius: 100px; margin-left: 6px; }
+.tag-work { background: #eff6ff; color: var(--c-blue); }
+.tag-study { background: #f0fdf4; color: var(--c-green); }
+.tag-important { background: #fef2f2; color: var(--c-red); }
+.tag-life { background: #fdf4ff; color: var(--c-purple); }
+.tag-other { background: var(--c-bg); color: var(--c-text-2); }
+.event-actions { display: flex; gap: 6px; margin-left: auto; flex-shrink: 0; }
+.event-actions button { background: none; border: none; cursor: pointer; font-size: 0.85rem; padding: 0 2px; }
+.edit-btn { color: var(--c-text-3); }
+.edit-btn:hover { color: var(--c-primary); }
+.del-btn { color: var(--c-text-3); }
+.del-btn:hover { color: var(--c-red); }
+
+.day-empty { color: var(--c-text-3); font-size: 0.85rem; padding: 8px 0; }
+.day-empty a { color: var(--c-primary); cursor: pointer; text-decoration: underline; }
+
+.add-event-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 14px; padding: 8px 16px; border-radius: 100px; border: none;
+  background: var(--c-primary); color: #fff; font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; font-family: var(--font);
+}
+.add-event-btn:hover { background: var(--c-primary-light); }
+
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  z-index: 200; align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--c-card); border-radius: var(--radius); padding: 24px;
+  width: 92%; max-width: 380px; box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.modal h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 14px; }
+.modal label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--c-text-2); margin-bottom: 3px; margin-top: 10px; }
+.modal input, .modal select, .modal textarea {
+  width: 100%; padding: 7px 10px; border: 1px solid var(--c-border); border-radius: var(--radius-xs);
+  font-size: 0.84rem; font-family: var(--font); resize: vertical;
+}
+.modal input:focus, .modal select:focus, .modal textarea:focus { outline: none; border-color: var(--c-primary); }
+.modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+.btn {
+  padding: 7px 18px; border-radius: var(--radius-xs); border: none;
+  font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  font-family: var(--font);
+}
+.btn-primary { background: var(--c-primary); color: #fff; }
+.btn-primary:hover { background: var(--c-primary-light); }
+.btn-ghost { background: transparent; color: var(--c-text-2); border: 1px solid var(--c-border); }
+.btn-ghost:hover { background: var(--c-bg); }
+.btn-danger { background: var(--c-red); color: #fff; }
+.btn-danger:hover { background: #b91c1c; }
+
+@media (max-width: 480px) {
+  .cal-day { min-height: 44px; padding: 2px; font-size: 0.72rem; }
+  .cal-grid { gap: 2px; padding: 6px; }
+  .cal-dot { width: 4px; height: 4px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">📅 共享日历 · 参考原型</div>
+  <h1>我们的日历</h1>
+  <p class="subtitle">看见彼此的日程安排</p>
+  <div class="hero-note">⚠️ 当前为参考原型，数据仅保存在本设备浏览器中</div>
+</div>
+
+<div class="container">
+  <div class="sync-panel" id="syncPanel">
+    <label>🔑 Token</label>
+    <input type="text" id="githubToken" placeholder="github_pat_..." autocomplete="off">
+    <label>📋 Gist ID</label>
+    <input type="text" id="gistId" placeholder="留空=首次创建">
+    <button class="sync-btn primary" onclick="gistPull()">⬇ 拉取</button>
+    <button class="sync-btn primary" onclick="gistPush()">⬆ 推送</button>
+    <button class="sync-btn" onclick="saveSyncConfig()">💾 保存配置</button>
+    <div class="sync-status" id="syncStatus"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="cal-header">
+    <h2 id="calTitle">2026年5月</h2>
+    <div class="cal-nav">
+      <button onclick="changeMonth(-1)">‹</button>
+      <button onclick="goToday()">今</button>
+      <button onclick="changeMonth(1)">›</button>
+    </div>
+  </div>
+
+  <div class="cal-grid" id="calGrid"></div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="cal-dot" style="background:#2563eb"></span> 工作</div>
+    <div class="legend-item"><span class="cal-dot" style="background:#16a34a"></span> 学习</div>
+    <div class="legend-item"><span class="cal-dot" style="background:#dc2626"></span> 重要</div>
+    <div class="legend-item"><span class="cal-dot" style="background:#7c3aed"></span> 生活</div>
+    <div class="legend-item"><span class="cal-dot" style="background:#ea580c"></span> 其他</div>
+  </div>
+
+  <div class="day-detail" id="dayDetail" style="display:none;">
+    <h4 id="dayDetailTitle">今日安排</h4>
+    <div id="dayDetailBody"></div>
+    <button class="add-event-btn" onclick="openModalForSelected()">＋ 添加事件</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="eventModal">
+  <div class="modal">
+    <h3 id="modalTitle">新建事件</h3>
+    <label>标题</label>
+    <input type="text" id="evTitle" placeholder="事件名称">
+    <label>日期</label>
+    <input type="date" id="evDate">
+    <label>时间</label>
+    <input type="time" id="evTime" value="09:00">
+    <label>类型</label>
+    <select id="evType">
+      <option value="work">工作</option>
+      <option value="study">学习</option>
+      <option value="important">重要</option>
+      <option value="life">生活</option>
+      <option value="other">其他</option>
+    </select>
+    <label>备注（可选）</label>
+    <textarea id="evDesc" rows="2" placeholder="补充说明"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveEvent()">保存</button>
+      <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+      <button class="btn btn-danger" id="evDeleteBtn" style="display:none;" onclick="deleteEvent()">删除</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  const STORAGE_KEY = "shared_calendar_events";
+  const SYNC_CONFIG_KEY = "calendar_sync_config";
+  const GIST_FILENAME = "calendar_events.json";
+
+  function loadEvents() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) { return []; }
+  }
+  function saveEvents(evs) { localStorage.setItem(STORAGE_KEY, JSON.stringify(evs)); }
+
+  let events = loadEvents();
+  let calYear, calMonth;
+  let selectedDate = null;
+
+  // ===== GitHub Gist 同步 =====
+  function getSyncConfig() {
+    try { return JSON.parse(localStorage.getItem(SYNC_CONFIG_KEY)) || {}; } catch(e) { return {}; }
+  }
+  function setSyncConfig(cfg) { localStorage.setItem(SYNC_CONFIG_KEY, JSON.stringify(cfg)); }
+
+  function showSyncStatus(msg, type) {
+    const el = document.getElementById("syncStatus");
+    el.textContent = msg;
+    el.className = "sync-status" + (type ? " " + type : "");
+    if (type !== "ok") setTimeout(function() { el.textContent = ""; el.className = "sync-status"; }, 6000);
+  }
+
+  function getApiHeaders(token) {
+    return {
+      "Authorization": "token " + token,
+      "Accept": "application/vnd.github.v3+json",
+      "Content-Type": "application/json"
+    };
+  }
+
+  // 合并事件：以ID去重，保留updatedAt更新的
+  function mergeEvents(localEvs, remoteEvs) {
+    const map = {};
+    localEvs.forEach(function(ev) { map[ev.id] = ev; });
+    remoteEvs.forEach(function(ev) {
+      if (!map[ev.id] || (ev.updatedAt && map[ev.id].updatedAt && ev.updatedAt > map[ev.id].updatedAt)) {
+        map[ev.id] = ev;
+      } else if (!map[ev.id]) {
+        map[ev.id] = ev;
+      }
+    });
+    return Object.values(map);
+  }
+
+  window.saveSyncConfig = function() {
+    const token = document.getElementById("githubToken").value.trim();
+    const gistId = document.getElementById("gistId").value.trim();
+    if (!token) { alert("请填写 GitHub Token"); return; }
+    setSyncConfig({ token: token, gistId: gistId });
+    showSyncStatus("✅ 配置已保存到本地", "ok");
+  };
+
+  function loadSyncConfigToUI() {
+    const cfg = getSyncConfig();
+    if (cfg.token) document.getElementById("githubToken").value = cfg.token;
+    if (cfg.gistId) document.getElementById("gistId").value = cfg.gistId;
+  }
+
+  window.gistPull = function() {
+    const cfg = getSyncConfig();
+    if (!cfg.token) { alert("请先填写并保存 GitHub Token"); return; }
+    if (!cfg.gistId) { alert("请先填写 Gist ID（或先推送一次创建Gist）"); return; }
+
+    showSyncStatus("⏳ 正在拉取...", "");
+    const url = "https://api.github.com/gists/" + cfg.gistId;
+
+    fetch(url, { headers: getApiHeaders(cfg.token) })
+      .then(function(r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function(gist) {
+        const content = gist.files && gist.files[GIST_FILENAME] && gist.files[GIST_FILENAME].content;
+        if (!content) throw new Error("Gist 中未找到数据文件");
+        const remoteEvs = JSON.parse(content);
+        events = mergeEvents(events, remoteEvs);
+        saveEvents(events);
+        render();
+        if (selectedDate) showDayDetail(selectedDate.y, selectedDate.m, selectedDate.d, false);
+        showSyncStatus("✅ 拉取成功，已合并 " + remoteEvs.length + " 条事件", "ok");
+      })
+      .catch(function(err) {
+        showSyncStatus("❌ 拉取失败：" + err.message, "err");
+      });
+  };
+
+  window.gistPush = function() {
+    const cfg = getSyncConfig();
+    if (!cfg.token) { alert("请先填写并保存 GitHub Token"); return; }
+
+    // 为所有事件添加 updatedAt
+    const now = new Date().toISOString();
+    events.forEach(function(ev) { if (!ev.updatedAt) ev.updatedAt = now; });
+    saveEvents(events);
+
+    const body = JSON.stringify({
+      files: { [GIST_FILENAME]: { content: JSON.stringify(events, null, 2) } },
+      description: "共享日历数据 - 自动同步",
+      public: false
+    });
+
+    showSyncStatus("⏳ 正在推送...", "");
+
+    function doRequest(url, method) {
+      return fetch(url, {
+        method: method,
+        headers: getApiHeaders(cfg.token),
+        body: body
+      }).then(function(r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      });
+    }
+
+    var promise;
+    if (cfg.gistId) {
+      // 更新现有Gist
+      promise = doRequest("https://api.github.com/gists/" + cfg.gistId, "PATCH");
+    } else {
+      // 创建新Gist
+      promise = doRequest("https://api.github.com/gists", "POST").then(function(gist) {
+        // 保存新的Gist ID
+        cfg.gistId = gist.id;
+        setSyncConfig(cfg);
+        document.getElementById("gistId").value = gist.id;
+        return gist;
+      });
+    }
+
+    promise
+      .then(function(gist) {
+        var count = events.length;
+        showSyncStatus("✅ 推送成功！已推送 " + count + " 条事件。Gist ID: " + gist.id, "ok");
+      })
+      .catch(function(err) {
+        showSyncStatus("❌ 推送失败：" + err.message, "err");
+      });
+  };
+
+  // 页面加载时恢复配置
+  loadSyncConfigToUI();
+
+  const TYPE_COLOR = { work:"#2563eb", study:"#16a34a", important:"#dc2626", life:"#7c3aed", other:"#ea580c" };
+  const TYPE_LABEL = { work:"工作", study:"学习", important:"重要", life:"生活", other:"其他" };
+  const TYPE_CLS   = { work:"tag-work", study:"tag-study", important:"tag-important", life:"tag-life", other:"tag-other" };
+
+  // ========== 日历渲染 ==========
+  function init() {
+    const now = new Date();
+    calYear = now.getFullYear();
+    calMonth = now.getMonth();
+    render();
+  }
+
+  function render() {
+    buildCalendarGrid();
+    if (selectedDate) {
+      showDayDetail(selectedDate.y, selectedDate.m, selectedDate.d, false);
+    }
+  }
+
+  function changeMonth(delta) {
+    calMonth += delta;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    if (calMonth < 0) { calMonth = 11; calYear--; }
+    selectedDate = null;
+    hideDayDetail();
+    buildCalendarGrid();
+  }
+
+  function goToday() {
+    const now = new Date();
+    calYear = now.getFullYear();
+    calMonth = now.getMonth();
+    buildCalendarGrid();
+    showDayDetail(now.getFullYear(), now.getMonth(), now.getDate());
+  }
+
+  function pad2(n) { return String(n).padStart(2, "0"); }
+  function dateStr(y, m, d) { return y + "-" + pad2(m+1) + "-" + pad2(d); }
+
+  function buildCalendarGrid() {
+    const dow = ["一","二","三","四","五","六","日"];
+    const grid = document.getElementById("calGrid");
+    grid.innerHTML = "";
+
+    dow.forEach(function(d) {
+      const el = document.createElement("div");
+      el.className = "cal-dow";
+      el.textContent = "周" + d;
+      grid.appendChild(el);
+    });
+
+    document.getElementById("calTitle").textContent = calYear + "年" + (calMonth+1) + "月";
+
+    const firstDay = new Date(calYear, calMonth, 1);
+    let startIdx = firstDay.getDay() - 1;
+    if (startIdx < 0) startIdx = 6;
+
+    const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+    const prevMonthDays = new Date(calYear, calMonth, 0).getDate();
+
+    const today = new Date();
+    const evMap = {};
+    events.forEach(function(ev) {
+      if (!evMap[ev.date]) evMap[ev.date] = [];
+      evMap[ev.date].push(ev);
+    });
+
+    // previous month padding
+    for (let i = startIdx-1; i >= 0; i--) {
+      const d = document.createElement("div");
+      d.className = "cal-day other-month";
+      d.innerHTML = '<span class="cal-day-num">' + (prevMonthDays - i) + '</span>';
+      grid.appendChild(d);
+    }
+
+    // current month
+    for (let d = 1; d <= daysInMonth; d++) {
+      const el = document.createElement("div");
+      el.className = "cal-day";
+      const isToday = (calYear === today.getFullYear() && calMonth === today.getMonth() && d === today.getDate());
+      if (isToday) el.classList.add("today");
+      if (selectedDate && selectedDate.y === calYear && selectedDate.m === calMonth && selectedDate.d === d) {
+        el.classList.add("selected");
+      }
+      const ds = dateStr(calYear, calMonth, d);
+      const dayEvents = evMap[ds] || [];
+      let dotsHtml = '<span class="cal-day-num">' + d + '</span><span class="cal-dots">';
+      const shown = {};
+      dayEvents.forEach(function(ev) {
+        if (!shown[ev.type]) {
+          dotsHtml += '<span class="cal-dot" style="background:' + (TYPE_COLOR[ev.type]||"#9ca3af") + '"></span>';
+          shown[ev.type] = true;
+        }
+      });
+      dotsHtml += '</span>';
+      el.innerHTML = dotsHtml;
+      (function(y, m, dd) {
+        el.addEventListener("click", function() { showDayDetail(y, m, dd); });
+      })(calYear, calMonth, d);
+      grid.appendChild(el);
+    }
+
+    // next month padding
+    const totalCells = startIdx + daysInMonth;
+    const remain = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+    for (let i = 1; i <= remain; i++) {
+      const d = document.createElement("div");
+      d.className = "cal-day other-month";
+      d.innerHTML = '<span class="cal-day-num">' + i + '</span>';
+      grid.appendChild(d);
+    }
+  }
+
+  // ========== 日期详情 ==========
+  function hideDayDetail() {
+    document.getElementById("dayDetail").style.display = "none";
+  }
+
+  function showDayDetail(y, m, d, doScroll) {
+    if (doScroll === undefined) doScroll = true;
+    selectedDate = { y: y, m: m, d: d };
+    buildCalendarGrid();
+
+    const ds = dateStr(y, m, d);
+    const dayEvents = events.filter(function(ev) { return ev.date === ds; });
+    const detail = document.getElementById("dayDetail");
+    const title = document.getElementById("dayDetailTitle");
+    const body = document.getElementById("dayDetailBody");
+
+    const weekDays = ["周日","周一","周二","周三","周四","周五","周六"];
+    const dt = new Date(y, m, d);
+    title.textContent = y + "年" + (m+1) + "月" + d + "日 " + weekDays[dt.getDay()];
+
+    body.innerHTML = "";
+
+    if (dayEvents.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "day-empty";
+      empty.textContent = "暂无安排，";
+      const a = document.createElement("a");
+      a.href = "#";
+      a.textContent = "＋ 添加事件";
+      a.addEventListener("click", function(e) { e.preventDefault(); openModalForSelected(); });
+      empty.appendChild(a);
+      body.appendChild(empty);
+    } else {
+      dayEvents.forEach(function(ev) {
+        const item = document.createElement("div");
+        item.className = "event-item";
+
+        const dot = document.createElement("span");
+        dot.className = "event-dot";
+        dot.style.background = TYPE_COLOR[ev.type] || "#9ca3af";
+
+        const time = document.createElement("span");
+        time.className = "event-time";
+        time.textContent = ev.time || "";
+
+        const info = document.createElement("span");
+        info.className = "event-info";
+
+        const titleSpan = document.createElement("span");
+        titleSpan.className = "event-title";
+        titleSpan.textContent = ev.title;
+
+        const tag = document.createElement("span");
+        tag.className = "event-tag " + (TYPE_CLS[ev.type] || "tag-other");
+        tag.textContent = TYPE_LABEL[ev.type] || "其他";
+        titleSpan.appendChild(tag);
+        info.appendChild(titleSpan);
+
+        if (ev.desc) {
+          const desc = document.createElement("div");
+          desc.className = "event-desc";
+          desc.textContent = ev.desc;
+          info.appendChild(desc);
+        }
+
+        const actions = document.createElement("span");
+        actions.className = "event-actions";
+
+        const editBtn = document.createElement("button");
+        editBtn.className = "edit-btn";
+        editBtn.textContent = "✎";
+        editBtn.addEventListener("click", function() { editEvent(ev.id); });
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "del-btn";
+        delBtn.textContent = "✕";
+        delBtn.addEventListener("click", function() { deleteEventById(ev.id); });
+
+        actions.appendChild(editBtn);
+        actions.appendChild(delBtn);
+
+        item.appendChild(dot);
+        item.appendChild(time);
+        item.appendChild(info);
+        item.appendChild(actions);
+        body.appendChild(item);
+      });
+    }
+
+    detail.style.display = "";
+    if (doScroll) detail.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  // ========== 事件 CRUD ==========
+  function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+  window.openModalForSelected = function() {
+    if (!selectedDate) return;
+    const ds = dateStr(selectedDate.y, selectedDate.m, selectedDate.d);
+    openModal(ds, null);
+  };
+
+  function openModal(ds, ev) {
+    if (ev) {
+      document.getElementById("modalTitle").textContent = "编辑事件";
+      document.getElementById("evTitle").value = ev.title;
+      document.getElementById("evDate").value = ev.date;
+      document.getElementById("evTime").value = ev.time || "";
+      document.getElementById("evType").value = ev.type || "work";
+      document.getElementById("evDesc").value = ev.desc || "";
+      document.getElementById("evDeleteBtn").style.display = "";
+      window.__editingId = ev.id;
+    } else {
+      document.getElementById("modalTitle").textContent = "新建事件";
+      document.getElementById("evTitle").value = "";
+      document.getElementById("evDate").value = ds || "";
+      document.getElementById("evTime").value = "09:00";
+      document.getElementById("evType").value = "work";
+      document.getElementById("evDesc").value = "";
+      document.getElementById("evDeleteBtn").style.display = "none";
+      window.__editingId = null;
+    }
+    document.getElementById("eventModal").classList.add("open");
+  }
+
+  window.closeModal = function() {
+    document.getElementById("eventModal").classList.remove("open");
+  };
+
+  window.editEvent = function(id) {
+    const ev = events.find(function(e) { return e.id === id; });
+    if (!ev) return;
+    openModal(null, ev);
+  };
+
+  window.saveEvent = function() {
+    const title = document.getElementById("evTitle").value.trim();
+    const date = document.getElementById("evDate").value;
+    if (!title || !date) { alert("请填写标题和日期"); return; }
+    const payload = {
+      title: title,
+      date: date,
+      time: document.getElementById("evTime").value,
+      type: document.getElementById("evType").value,
+      desc: document.getElementById("evDesc").value.trim()
+    };
+    if (window.__editingId) {
+      const idx = events.findIndex(function(e) { return e.id === window.__editingId; });
+      if (idx >= 0) events[idx] = Object.assign({}, events[idx], payload);
+    } else {
+      payload.id = genId();
+      events.push(payload);
+    }
+    saveEvents(events);
+    closeModal();
+    render();
+    if (selectedDate) showDayDetail(selectedDate.y, selectedDate.m, selectedDate.d, false);
+  };
+
+  window.deleteEvent = function() {
+    if (!window.__editingId) return;
+    if (!confirm("确定删除此事件？")) return;
+    events = events.filter(function(e) { return e.id !== window.__editingId; });
+    saveEvents(events);
+    closeModal();
+    render();
+    if (selectedDate) showDayDetail(selectedDate.y, selectedDate.m, selectedDate.d, false);
+  };
+
+  window.deleteEventById = function(id) {
+    if (!confirm("确定删除此事件？")) return;
+    events = events.filter(function(e) { return e.id !== id; });
+    saveEvents(events);
+    render();
+    if (selectedDate) showDayDetail(selectedDate.y, selectedDate.m, selectedDate.d, false);
+  };
+
+  // ========== 导出到全局 ==========
+  window.changeMonth = changeMonth;
+  window.goToday = goToday;
+  window.openModalForSelected = openModalForSelected;
+
+  // 点击遮罩关闭
+  document.getElementById("eventModal").addEventListener("click", function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // 初始化
+  init();
+})();
+</script>
+</body>
+</html>
