@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>沐阳 · 个人介绍</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --red: #c0392b;
+  --red-glow: rgba(192,57,43,0.35);
+  --red-bright: #e74c3c;
+  --gray-100: #f4f4f4;
+  --gray-200: #e0e0e0;
+  --gray-300: #c8c8c8;
+  --gray-400: #a0a0a0;
+  --gray-500: #777;
+  --gray-600: #555;
+  --gray-700: #444;
+  --gray-800: #333;
+  --gray-900: #222;
+  --bp-bg: #e4e6e9;
+  --panel-bg: rgba(255,255,255,0.65);
+  --panel-border: rgba(180,180,180,0.5);
+  --grid-fine: rgba(170,170,170,0.08);
+  --grid-mid: rgba(170,170,170,0.12);
+  --grid-bold: rgba(170,170,170,0.16);
+  --font: "Helvetica Neue", "PingFang SC", "Noto Sans SC", Arial, sans-serif;
+  /* ====== 纵深光效 ====== */
+  --surface-shadow: 0 2px 12px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.5);
+  --surface-hover-shadow: 0 8px 28px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.5);
+  --glass-frost: rgba(255,255,255,0.3);
+  --glass-frost-dark: rgba(200,205,210,0.25);
+}
+
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--font);
+  color: var(--gray-800);
+  background: var(--bp-bg);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ========== 蓝图全局网格层 ========== */
+.bp-layer {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+}
+.bp-layer-fine {
+  background-image:
+    linear-gradient(var(--grid-fine) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-fine) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.bp-layer-mid {
+  background-image:
+    linear-gradient(var(--grid-mid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-mid) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.bp-layer-bold {
+  background-image:
+    linear-gradient(var(--grid-bold) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-bold) 1px, transparent 1px);
+  background-size: 120px 120px;
+}
+
+/* 六边形水印纹样层 — AC Recollection 分子格 */
+.bp-layer-hex {
+  background-color: transparent;
+  background-image:
+    /* 六边形网格: 两条交错斜线模拟蜂窝 */
+    repeating-linear-gradient(60deg,  rgba(170,170,180,0.06) 0px, rgba(170,170,180,0.06) 0.5px, transparent 0.5px, transparent 40px),
+    repeating-linear-gradient(-60deg, rgba(170,170,180,0.06) 0px, rgba(170,170,180,0.06) 0.5px, transparent 0.5px, transparent 40px),
+    repeating-linear-gradient(0deg,   rgba(170,170,180,0.06) 0px, rgba(170,170,180,0.06) 0.5px, transparent 0.5px, transparent 40px);
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 70%);
+}
+
+/* 全局背景渐变纵深 */
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    /* 左上角强光源 — Hero 区域 */
+    radial-gradient(ellipse 600px 480px at 20% 15%, rgba(255,255,255,0.7) 0%, transparent 60%),
+    /* 右侧中部光池 — 能力区 */
+    radial-gradient(ellipse 500px 400px at 78% 42%, rgba(210,218,230,0.4) 0%, transparent 60%),
+    /* 底部中央暗角收束 */
+    radial-gradient(ellipse 700px 350px at 50% 92%, rgba(160,168,178,0.5) 0%, transparent 55%),
+    /* 左下角子光点 — 能力拓扑区 */
+    radial-gradient(ellipse 300px 250px at 15% 60%, rgba(235,238,242,0.38) 0%, transparent 65%),
+    /* 正中微光 — 连贯过渡 */
+    radial-gradient(ellipse 400px 300px at 55% 55%, rgba(245,247,250,0.18) 0%, transparent 70%);
+}
+
+/* 横扫描线 */
+body::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,0,0,0.015) 3px,
+    rgba(0,0,0,0.015) 4px
+  );
+}
+
+.content-layer { position: relative; z-index: 1; }
+.container { max-width: 760px; margin: 0 auto; padding: 0 28px; }
+
+/* ========== 通用面板 ========== */
+.bp-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--panel-border);
+  position: relative;
+  box-shadow:
+    /* 内发光：顶部亮边 */
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    /* 内发光：左侧亮边 */
+    inset 1px 0 0 rgba(255,255,255,0.3),
+    /* 内暗：底部收束 */
+    inset 0 -1px 0 rgba(0,0,0,0.04),
+    /* 外阴影：卡片浮起 */
+    0 2px 18px rgba(0,0,0,0.05);
+}
+.bp-panel::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    /* 左上角光向渐变 — 模拟光源入射 */
+    linear-gradient(135deg, rgba(255,255,255,0.35) 0%, transparent 35%),
+    /* 右下角微暗 — 纵深对比 */
+    linear-gradient(-45deg, transparent 55%, rgba(180,185,190,0.1) 100%);
+  pointer-events: none;
+}
+
+/* 角标 bracket */
+.corner-brackets {
+  position: relative;
+}
+.corner-brackets::before,
+.corner-brackets::after {
+  content: ''; position: absolute; width: 16px; height: 16px; pointer-events: none;
+  border-color: var(--gray-400);
+}
+.corner-brackets::before { top: -1px; left: -1px; border-top: 1.5px solid; border-left: 1.5px solid; }
+.corner-brackets::after  { top: -1px; right: -1px; border-top: 1.5px solid; border-right: 1.5px solid; }
+
+/* 底角 */
+.corner-brackets .cb-bottom {
+  position: absolute; bottom: -1px; left: -1px; right: -1px; pointer-events: none;
+}
+.corner-brackets .cb-bottom::before {
+  content: ''; position: absolute; bottom: -1px; left: -1px;
+  width: 16px; height: 16px;
+  border-bottom: 1.5px solid var(--gray-400); border-left: 1.5px solid var(--gray-400);
+}
+.corner-brackets .cb-bottom::after {
+  content: ''; position: absolute; bottom: -1px; right: -1px;
+  width: 16px; height: 16px;
+  border-bottom: 1.5px solid var(--gray-400); border-right: 1.5px solid var(--gray-400);
+}
+
+/* 菱形 */
+.diamond {
+  display: inline-block; width: 10px; height: 10px;
+  background: var(--gray-400); transform: rotate(45deg);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.diamond.red { background: var(--red); box-shadow: 0 0 10px var(--red-glow); }
+.diamond.glow {
+  animation: dia-pulse 2.5s ease-in-out infinite;
+}
+@keyframes dia-pulse {
+  0%, 100% { box-shadow: 0 0 6px var(--red-glow); }
+  50% { box-shadow: 0 0 18px var(--red-glow), 0 0 30px rgba(192,57,43,0.15); }
+}
+
+/* ========== Hero ========== */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 40px 24px;
+  position: relative; z-index: 1;
+}
+.hero-inner {
+  background: var(--panel-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(180,180,180,0.5);
+  padding: 60px 56px;
+  position: relative;
+  max-width: 440px;
+  box-shadow:
+    0 6px 30px rgba(0,0,0,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    inset 0 -3px 8px rgba(0,0,0,0.03);
+}
+/* hero 内光向渐变 */
+.hero-inner .hero-glass {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 35%),
+    linear-gradient(-45deg, transparent 60%, rgba(170,175,180,0.1) 100%);
+}
+/* hero 角标 */
+.hero-inner::before { content:''; position:absolute; top:10px;left:10px;width:20px;height:20px;border-top:1.5px solid var(--gray-400);border-left:1.5px solid var(--gray-400); }
+.hero-inner::after  { content:''; position:absolute; top:10px;right:10px;width:20px;height:20px;border-top:1.5px solid var(--gray-400);border-right:1.5px solid var(--gray-400); }
+.hero-inner .h-cb { position:absolute; bottom:10px; left:10px; right:10px; }
+.hero-inner .h-cb::before { content:''; position:absolute; bottom:0; left:0; width:20px;height:20px; border-bottom:1.5px solid var(--gray-400);border-left:1.5px solid var(--gray-400); }
+.hero-inner .h-cb::after  { content:''; position:absolute; bottom:0; right:0; width:20px;height:20px; border-bottom:1.5px solid var(--gray-400);border-right:1.5px solid var(--gray-400); }
+
+.hero-diamond {
+  display: inline-block; width: 28px; height: 28px;
+  background: var(--red);
+  transform: rotate(45deg);
+  margin-bottom: 32px;
+  box-shadow: 0 0 20px var(--red-glow);
+}
+
+.hero h1 {
+  font-size: clamp(2.4rem, 7vw, 3.4rem);
+  font-weight: 200; letter-spacing: 12px;
+  color: var(--gray-900);
+  margin-bottom: 16px;
+}
+
+.hero .tagline {
+  font-size: 0.85rem; color: var(--gray-500);
+  font-weight: 400; letter-spacing: 3px;
+  margin-bottom: 32px;
+  line-height: 1.8;
+}
+
+.hero .location {
+  display: flex; gap: 20px; justify-content: center;
+}
+.loc-item {
+  font-size: 0.75rem; color: var(--gray-500);
+  letter-spacing: 2px;
+  display: flex; align-items: center; gap: 6px;
+}
+.loc-item .diamond { width: 7px; height: 7px; }
+
+.scroll-hint {
+  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+  font-size: 0.68rem; color: var(--gray-400); letter-spacing: 3px;
+  animation: bounce 2s infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(8px); }
+}
+
+/* ========== Section 通用 ========== */
+.section-animus { padding: 80px 0; position: relative; z-index: 1; }
+
+.section-header {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 36px;
+}
+.section-header .sh-diamond { width: 12px; height: 12px; background: var(--red); transform: rotate(45deg); flex-shrink: 0; box-shadow: 0 0 12px var(--red-glow); }
+.section-header .sh-lines {
+  flex: 1; display: flex; flex-direction: column; gap: 4px;
+}
+.section-header .sh-line {
+  height: 1px; background: linear-gradient(90deg, var(--gray-400), transparent);
+}
+.section-header .sh-line:last-child {
+  opacity: 0.5; width: 60%;
+}
+.section-title {
+  font-size: clamp(1.3rem, 3.5vw, 1.7rem);
+  font-weight: 300; letter-spacing: 6px; color: var(--gray-800);
+  margin-bottom: 12px;
+}
+.section-sub {
+  font-size: 0.72rem; color: var(--gray-500); letter-spacing: 3px;
+  margin-bottom: 32px;
+}
+
+/* ========== About ========== */
+.about-panel {
+  padding: 40px 36px;
+  overflow: hidden;
+}
+.about-panel p {
+  font-size: 0.9rem; line-height: 2.1; color: var(--gray-700);
+}
+.about-panel p + p { margin-top: 14px; }
+
+/* ====== Animus 肖像框 ====== */
+.about-portrait {
+  float: right; margin: 0 0 16px 20px;
+  position: relative; width: 140px; height: 155px;
+}
+.about-portrait .ap-img {
+  width: 100%; height: 100%;
+  object-fit: cover; border-radius: 0;
+  object-position: center 12%;
+  filter: grayscale(30%) contrast(1.05) brightness(0.95);
+  transition: filter 0.4s;
+}
+.about-portrait:hover .ap-img {
+  filter: grayscale(0%) contrast(1) brightness(1);
+}
+/* 六边形辉光外框 — 装饰性，不裁剪 */
+.about-portrait::before {
+  content: ''; position: absolute; inset: -6px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: transparent;
+  border: 1.5px solid rgba(192,57,43,0.45);
+  box-shadow: 0 0 20px rgba(192,57,43,0.2), inset 0 0 14px rgba(192,57,43,0.06);
+  pointer-events: none; z-index: 2;
+}
+/* 扫描线叠加 — 圆形 */
+.about-portrait .ap-scan {
+  position: absolute; inset: 0; border-radius: 50%;
+  pointer-events: none; z-index: 1; overflow: hidden;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(192,57,43,0.03) 2px, rgba(192,57,43,0.03) 4px);
+}
+/* HUD 数据角标 */
+.about-portrait .ap-hud-tl,
+.about-portrait .ap-hud-tr,
+.about-portrait .ap-hud-bl,
+.about-portrait .ap-hud-br {
+  position: absolute; width: 8px; height: 8px; z-index: 3; pointer-events: none;
+}
+.about-portrait .ap-hud-tl { top: 8px; left: 8px; border-top: 1px solid rgba(192,57,43,0.5); border-left: 1px solid rgba(192,57,43,0.5); }
+.about-portrait .ap-hud-tr { top: 8px; right: 8px; border-top: 1px solid rgba(192,57,43,0.5); border-right: 1px solid rgba(192,57,43,0.5); }
+.about-portrait .ap-hud-bl { bottom: 8px; left: 8px; border-bottom: 1px solid rgba(192,57,43,0.5); border-left: 1px solid rgba(192,57,43,0.5); }
+.about-portrait .ap-hud-br { bottom: 8px; right: 8px; border-bottom: 1px solid rgba(192,57,43,0.5); border-right: 1px solid rgba(192,57,43,0.5); }
+/* 底部数据标签 */
+.about-portrait .ap-label {
+  position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%);
+  font-size: 0.55rem; letter-spacing: 2px; color: var(--gray-400);
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .about-portrait { float: none; margin: 0 auto 20px; display: block; }
+}
+
+.tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.bp-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.7rem; font-weight: 500; letter-spacing: 2px;
+  padding: 6px 16px; color: var(--gray-600);
+  background: rgba(255,255,255,0.5);
+  border: 1px solid rgba(180,180,180,0.5);
+  transition: border-color 0.2s, color 0.2s;
+}
+.bp-tag::before {
+  content: ''; width: 6px; height: 6px; background: var(--gray-400); transform: rotate(45deg);
+}
+.bp-tag:hover { border-color: var(--red); color: var(--red); }
+.bp-tag:hover::before { background: var(--red); }
+
+/* ========== Gallup ========== */
+.gallup-panel {
+  padding: 36px;
+}
+.gallup-header {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
+  padding-bottom: 16px; border-bottom: 1px solid rgba(180,180,180,0.4);
+}
+.gallup-header .gh-diamond {
+  width: 16px; height: 16px; background: var(--red);
+  transform: rotate(45deg); flex-shrink: 0;
+  box-shadow: 0 0 14px var(--red-glow);
+}
+.gallup-header .gh-info h3 {
+  font-size: 0.95rem; font-weight: 500; letter-spacing: 2px; color: var(--gray-700);
+}
+.gallup-header .gh-info p {
+  font-size: 0.7rem; color: var(--gray-500); letter-spacing: 1px; margin-top: 2px;
+}
+
+.gallup-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+}
+@media (max-width: 640px) { .gallup-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 400px) { .gallup-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.gallup-card {
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(180,180,180,0.4);
+  padding: 20px 10px 14px; text-align: center;
+  position: relative; overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.5);
+}
+.gallup-card::before {
+  content: ''; position: absolute; top: 5px; left: 5px;
+  width: 8px; height: 8px; border-top: 1px solid var(--gray-400); border-left: 1px solid var(--gray-400);
+}
+.gallup-card::after {
+  content: ''; position: absolute; top: 5px; right: 5px;
+  width: 8px; height: 8px; border-top: 1px solid var(--gray-400); border-right: 1px solid var(--gray-400);
+}
+.gallup-card:hover {
+  border-color: var(--red);
+  box-shadow: 0 8px 28px rgba(192,57,43,0.1), inset 0 1px 0 rgba(255,255,255,0.5);
+  transform: translateY(-4px);
+}
+.gallup-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; margin-bottom: 10px;
+  color: var(--gray-500);
+  transition: color 0.3s, transform 0.2s;
+}
+.gallup-icon svg { width: 28px; height: 28px; }
+.gallup-card:hover .gallup-icon {
+  color: var(--red);
+  transform: scale(1.15);
+}
+.gallup-name {
+  font-size: 0.9rem; font-weight: 500; letter-spacing: 3px; color: var(--gray-800);
+}
+
+.gallup-footer {
+  display: flex; justify-content: center; gap: 12px; margin-top: 24px; flex-wrap: wrap;
+}
+.gallup-stat {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.68rem; letter-spacing: 2px; color: var(--gray-500);
+  padding: 6px 16px; border: 1px solid rgba(180,180,180,0.4);
+}
+.gallup-stat .diamond { width: 6px; height: 6px; background: var(--red); }
+
+/* ========== 能力拓扑 ========== */
+.topo-panel {
+  padding: 36px 24px;
+}
+.topo-intro {
+  font-size: 0.78rem; color: var(--gray-500); letter-spacing: 2px;
+  margin-bottom: 36px; text-align: center;
+}
+
+.topo-svg-wrap {
+  display: flex; justify-content: center; margin-bottom: 28px;
+}
+
+/* 拓扑 SVG 动画 */
+.topo-core {
+  animation: topo-breathe 3s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes topo-breathe {
+  0%, 100% { filter: drop-shadow(0 0 4px var(--red-glow)); }
+  50% { filter: drop-shadow(0 0 16px var(--red-glow)); }
+}
+.topo-sat {
+  animation: topo-sat-breathe 3.5s ease-in-out infinite;
+  cursor: pointer;
+}
+.topo-sat:nth-child(odd) { animation-delay: 0.8s; }
+.topo-sat:nth-child(even) { animation-delay: 1.6s; }
+@keyframes topo-sat-breathe {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.85; }
+}
+.topo-sat:hover { opacity: 1; filter: drop-shadow(0 0 6px var(--red-glow)); }
+
+.topo-connect {
+  opacity: 0.2; transition: opacity 0.35s;
+}
+.topo-sat:hover + .topo-connect { opacity: 0.5; }
+
+.topo-bottom {
+  display: flex; justify-content: center; padding: 20px 0 0;
+}
+.topo-bridge {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 0.7rem; letter-spacing: 3px; color: var(--gray-500);
+}
+
+/* ========== ANIMUS 能力矩阵 ========== */
+.animus-panel {
+  padding: 48px 40px;
+  position: relative;
+}
+.animus-panel::before {
+  content: '';
+  position: absolute; left: 28px; top: 48px; bottom: 48px; width: 40px;
+  display: flex; flex-direction: column; align-items: center;
+  pointer-events: none;
+}
+.animus-panel .ap-column {
+  position: absolute; left: 44px; top: 60px; bottom: 60px;
+  display: flex; flex-direction: column; align-items: center;
+  pointer-events: none; z-index: 0;
+}
+.ap-dia {
+  width: 12px; height: 12px; background: var(--gray-400); transform: rotate(45deg);
+  margin: 6px 0; transition: background 0.3s;
+}
+.ap-dia.active { background: var(--red); box-shadow: 0 0 12px var(--red-glow); }
+.ap-line {
+  width: 1px; flex: 1; min-height: 14px;
+  background: linear-gradient(to bottom, var(--gray-300), transparent);
+}
+
+.animus-header {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 8px;
+  padding-left: 56px;
+}
+.animus-badge {
+  font-size: 0.62rem; font-weight: 600; letter-spacing: 4px;
+  color: #fff; background: var(--red); padding: 4px 16px;
+}
+.animus-header .ah-title {
+  font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+  font-weight: 300; color: var(--gray-800); letter-spacing: 8px;
+}
+.animus-sub {
+  font-size: 0.68rem; color: var(--gray-500); letter-spacing: 4px;
+  margin-bottom: 44px; padding-left: 56px;
+}
+
+/* 分类 */
+.animus-cat {
+  margin-bottom: 40px; padding-left: 56px;
+}
+.animus-cat-title {
+  font-size: 0.72rem; font-weight: 500; letter-spacing: 6px;
+  color: var(--gray-600); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.animus-cat-title::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--gray-300), transparent);
+}
+
+.animus-rows {
+  display: flex; flex-direction: column;
+}
+.animus-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 9px 0;
+  position: relative;
+  transition: all 0.25s;
+  cursor: default;
+}
+.animus-row::after {
+  content: ''; position: absolute; bottom: 0; left: 22px; right: 0; height: 1px;
+  background: rgba(180,180,180,0.35);
+  transition: background 0.25s;
+}
+.animus-row:hover::after { background: rgba(192,57,43,0.2); }
+
+.animus-row .ar-dia {
+  width: 14px; height: 14px; background: var(--gray-400);
+  transform: rotate(45deg); flex-shrink: 0;
+  transition: background 0.25s, box-shadow 0.25s;
+}
+.animus-row:hover .ar-dia,
+.animus-row.active .ar-dia {
+  background: var(--red);
+  box-shadow: 0 0 14px var(--red-glow);
+}
+.animus-row .ar-name {
+  font-size: 0.9rem; font-weight: 400; letter-spacing: 4px;
+  color: var(--gray-600);
+  transition: color 0.25s;
+}
+.animus-row:hover .ar-name,
+.animus-row.active .ar-name {
+  color: var(--red); font-weight: 500;
+}
+
+/* 底部 */
+.animus-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 36px; padding-top: 16px; padding-left: 56px;
+  border-top: 1px solid rgba(180,180,180,0.4);
+}
+.animus-footer .af-left {
+  font-size: 0.68rem; color: var(--gray-500); letter-spacing: 2px;
+}
+.animus-footer .af-right {
+  display: flex; gap: 18px;
+}
+.af-coord {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.64rem; letter-spacing: 2px; color: var(--gray-400);
+}
+.af-coord .af-dia {
+  width: 6px; height: 6px; background: var(--gray-400); transform: rotate(45deg); flex-shrink: 0;
+}
+.af-coord .af-val { color: var(--gray-500); }
+
+/* ========== 心愿 ========== */
+.wish-panel { padding: 36px 36px; }
+.wish-list { display: flex; flex-direction: column; gap: 0; }
+.wish-item {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 18px 0; border-bottom: 1px solid rgba(180,180,180,0.3);
+  transition: all 0.25s;
+}
+.wish-item:last-child { border-bottom: none; }
+.wish-item:hover {
+  padding-left: 8px;
+  box-shadow: inset 10px 0 10px -8px rgba(192,57,43,0.12);
+  background: linear-gradient(90deg, rgba(192,57,43,0.04) 0%, transparent 8%);
+}
+
+.wish-num {
+  flex-shrink: 0; width: 14px; height: 14px;
+  background: var(--gray-400); transform: rotate(45deg) translateY(4px);
+  transition: background 0.25s, box-shadow 0.25s;
+}
+.wish-item:hover .wish-num {
+  background: var(--red); box-shadow: 0 0 10px var(--red-glow);
+}
+.wish-text {
+  font-size: 0.86rem; line-height: 1.8; color: var(--gray-700);
+  letter-spacing: 1px;
+}
+
+/* ========== 我能提供 ========== */
+.offer-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+@media (max-width: 560px) { .offer-grid { grid-template-columns: 1fr; } }
+
+.offer-card {
+  background: rgba(255,255,255,0.5);
+  border: 1px solid rgba(180,180,180,0.4);
+  padding: 30px 24px; position: relative; overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+}
+.offer-card::before {
+  content: ''; position: absolute; top: 8px; left: 8px;
+  width: 10px; height: 10px; border-top: 1px solid var(--gray-400); border-left: 1px solid var(--gray-400);
+}
+.offer-card::after {
+  content: ''; position: absolute; bottom: 8px; right: 8px;
+  width: 10px; height: 10px; border-bottom: 1px solid var(--gray-400); border-right: 1px solid var(--gray-400);
+}
+/* 玻璃层叠 — 左侧光源入射光 */
+.offer-card .card-glass {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 40%),
+    linear-gradient(-45deg, transparent 55%, rgba(180,185,190,0.12) 100%);
+  transition: opacity 0.3s;
+}
+.offer-card:hover {
+  border-color: var(--red);
+  box-shadow:
+    0 8px 28px rgba(0,0,0,0.07),
+    inset 0 1px 0 rgba(255,255,255,0.5);
+  transform: translateY(-3px);
+}
+
+.offer-icon {
+  width: 12px; height: 12px; background: var(--red);
+  transform: rotate(45deg); margin-bottom: 16px;
+  box-shadow: 0 0 10px var(--red-glow);
+}
+.offer-card h3 {
+  font-size: 0.9rem; font-weight: 500; letter-spacing: 3px;
+  margin-bottom: 10px; color: var(--gray-800);
+}
+.offer-card p {
+  font-size: 0.78rem; color: var(--gray-600); line-height: 1.75; letter-spacing: 0.5px;
+}
+/* 未解锁卡片 */
+.offer-card.locked {
+  background: rgba(255,255,255,0.2);
+  border: 1px dashed rgba(170,170,170,0.35);
+  cursor: default; pointer-events: none;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.offer-card.locked::before,
+.offer-card.locked::after {
+  border-color: var(--gray-300); opacity: 0.5;
+}
+.offer-card.locked .offer-icon {
+  background: #aaa; box-shadow: none; opacity: 0.25;
+}
+.offer-card.locked:hover {
+  border-color: rgba(170,170,170,0.35);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+  transform: none;
+}
+.offer-card.locked h3 {
+  color: var(--gray-400); font-weight: 400; opacity: 0.6;
+}
+.offer-card .lock-hint {
+  font-size: 0.65rem; color: var(--gray-400); letter-spacing: 1px;
+  margin-top: 6px; opacity: 0.45;
+}
+
+/* ========== 分割线 ========== */
+.divider-bp {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 12px 0; position: relative; z-index: 1;
+}
+.divider-bp .d-line { height: 1px; width: 60px; background: var(--gray-300); }
+.divider-bp .d-dia { width: 8px; height: 8px; background: var(--gray-400); transform: rotate(45deg); }
+
+/* ========== 编年史 ========== */
+.chronicle-panel {
+  padding: 36px 36px;
+}
+.chronicle-list {
+  display: flex; flex-direction: column;
+}
+.chronicle-row {
+  display: flex; align-items: center; gap: 20px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(180,180,180,0.25);
+  transition: all 0.25s;
+}
+.chronicle-row:last-child { border-bottom: none; }
+.chronicle-row:hover {
+  padding-left: 8px;
+}
+.chronicle-row .ch-year {
+  flex-shrink: 0; width: 64px;
+  font-size: 0.72rem; font-weight: 300; letter-spacing: 2px;
+  color: var(--gray-400); text-align: right;
+  transition: color 0.25s, font-size 0.25s;
+}
+.chronicle-row .ch-dia {
+  flex-shrink: 0;
+  width: 7px; height: 7px; background: var(--gray-300);
+  transform: rotate(45deg);
+  transition: background 0.25s, box-shadow 0.25s;
+}
+.chronicle-row .ch-title {
+  font-size: 0.75rem; font-weight: 300; letter-spacing: 3px;
+  color: var(--gray-400);
+  transition: color 0.25s, font-size 0.25s;
+}
+/* 当前年份高亮 */
+.chronicle-row.current .ch-year {
+  color: var(--red); font-weight: 500; font-size: 0.85rem; letter-spacing: 3px;
+}
+.chronicle-row.current .ch-dia {
+  background: var(--red); width: 10px; height: 10px;
+  box-shadow: 0 0 12px var(--red-glow);
+}
+.chronicle-row.current .ch-title {
+  color: var(--red); font-weight: 500; font-size: 0.9rem; letter-spacing: 4px;
+}
+.chronicle-row:hover .ch-dia {
+  background: var(--red);
+  box-shadow: 0 0 10px var(--red-glow);
+}
+.chronicle-row:hover .ch-title {
+  color: var(--gray-800);
+}
+.chronicle-row .ch-hint {
+  font-size: 0.65rem; color: var(--gray-400); letter-spacing: 2px;
+  margin-left: auto; font-style: italic;
+}
+
+/* ========== Footer ========== */
+.footer {
+  text-align: center; padding: 48px 0 64px; position: relative; z-index: 1;
+}
+.footer-line {
+  display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 24px;
+}
+.footer-line .fl { height: 1px; width: 40px; background: var(--gray-300); }
+.footer-line .fl-dia { width: 6px; height: 6px; background: var(--red); transform: rotate(45deg); box-shadow: 0 0 8px var(--red-glow); }
+.footer-text {
+  font-size: 0.7rem; color: var(--gray-500); letter-spacing: 3px;
+}
+
+@keyframes topo-ring {
+  0%, 100% { transform: rotate(45deg) scale(1); opacity: 0.4; }
+  50% { transform: rotate(45deg) scale(1.8); opacity: 0; }
+}
+@keyframes topo-ring2 {
+  0%, 100% { transform: rotate(45deg) scale(1); opacity: 0.4; }
+  50% { transform: rotate(45deg) scale(1.8); opacity: 0; }
+}
+
+/* 连线流动动画 */
+@keyframes dash-flow {
+  to { stroke-dashoffset: -24; }
+}
+.topo-connect-animated {
+  animation: dash-flow 1.2s linear infinite;
+}
+
+/* 面板双层边框 */
+.bp-panel {
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.45),
+    inset 0 0 0 2px rgba(180,180,180,0.35),
+    0 1px 4px rgba(0,0,0,0.04);
+}
+.scan-line {
+  position: fixed;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--red-glow), transparent);
+  animation: scan-down 8s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.25;
+}
+@keyframes scan-down {
+  0% { top: -2px; opacity: 0; }
+  5% { opacity: 0.35; }
+  95% { opacity: 0.35; }
+  100% { top: 100vh; opacity: 0; }
+}
+
+/* 面板内阴影增强纵深 */
+.bp-panel {
+  box-shadow:
+    inset 0 0 50px rgba(0,0,0,0.025),
+    0 1px 3px rgba(0,0,0,0.04);
+}
+
+/* 脉冲光环 */
+.pulse-ring {
+  transform: rotate(45deg);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* ========== Fade-in ========== */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 640px) {
+  .hero-inner { padding: 44px 28px; max-width: 92vw; }
+  .about-panel, .gallup-panel, .topo-panel, .animus-panel, .wish-panel { padding: 28px 18px; }
+  .animus-panel { padding-left: 10px; }
+  .animus-cat, .animus-sub, .animus-header, .animus-footer, .animus-panel .ap-column { padding-left: 0; }
+  .animus-panel .ap-column { display: none; }
+  .section-header .sh-line:last-child { width: 40%; }
+}
+</style>
+</head>
+<body>
+
+<!-- 蓝图网格层 -->
+<div class="bp-layer bp-layer-fine"></div>
+<div class="bp-layer bp-layer-mid"></div>
+<div class="bp-layer bp-layer-bold"></div>
+<div class="bp-layer bp-layer-hex"></div>
+<div class="scan-line"></div>
+
+<div class="content-layer">
+
+<!-- ====== Hero ====== -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-glass"></div>
+    <div class="h-cb"></div>
+    <div class="hero-diamond diamond glow"></div>
+    <h1>沐 阳</h1>
+    <p class="tagline">INFP · 高感知生命探索者 · 终身创作者</p>
+    <div class="location">
+      <span class="loc-item"><span class="diamond"></span> 天津</span>
+      <span class="loc-item"><span class="diamond"></span> 武当山</span>
+    </div>
+  </div>
+  <div class="scroll-hint">向 下 探 索</div>
+</section>
+
+<!-- ====== 关于我 ====== -->
+<section class="section-animus">
+  <div class="container fade-in">
+    <div class="section-header">
+      <div class="sh-diamond diamond glow"></div>
+      <div class="sh-lines">
+        <div class="sh-line"></div>
+        <div class="sh-line"></div>
+      </div>
+    </div>
+    <h2 class="section-title">关于我</h2>
+    <p class="section-sub">ABOUT</p>
+
+    <div class="bp-panel corner-brackets about-panel">
+      <div class="cb-bottom"></div>
+      <div class="about-portrait">
+        <img src="avatar.jpg" alt="MU YANG" class="ap-img" />
+        <div class="ap-scan"></div>
+        <div class="ap-hud-tl"></div>
+        <div class="ap-hud-tr"></div>
+        <div class="ap-hud-bl"></div>
+        <div class="ap-hud-br"></div>
+        <div class="ap-label">SUBJECT IDENTIFIED</div>
+      </div>
+      <p>我是 <span style="color:var(--red);font-weight:500;">沐阳</span>，一个 INFP，前摄影师和内容人，正在自由探索中完成「奥德赛时期」的自我跃迁。</p>
+      <p>我热爱沉淀思考、整合系统化思维，兼具共情创作力与理性规划力。几十年来，我一直在用摄影的语言观察世界，现在转向用更综合的方式——对话、文字、绘画——来探索生命的更多可能。</p>
+      <div class="tag-row">
+        <span class="bp-tag">INFP</span>
+        <span class="bp-tag">高感知</span>
+        <span class="bp-tag">盖洛普关系型</span>
+        <span class="bp-tag">前摄影师</span>
+        <span class="bp-tag">内容创作者</span>
+        <span class="bp-tag">奥德赛时期</span>
+      </div>
+    </div>
+
+    <!-- 盖洛普 -->
+    <div class="bp-panel corner-brackets gallup-panel" style="margin-top:24px;">
+      <div class="cb-bottom"></div>
+      <div class="gallup-header">
+        <div class="gh-diamond diamond glow"></div>
+        <div class="gh-info">
+          <h3>关系建立</h3>
+          <p>盖洛普优势测试前五优势全部集中于此领域，是我最核心的思维与行为模式</p>
+        </div>
+      </div>
+      <div class="gallup-grid">
+        <div class="gallup-card">
+          <div class="gallup-icon"><svg viewBox="0 0 28 28"><circle cx="9" cy="12" r="6.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="19" cy="12" r="6.5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></div>
+          <div class="gallup-name">体谅</div>
+        </div>
+        <div class="gallup-card">
+          <div class="gallup-icon"><svg viewBox="0 0 28 28"><circle cx="14" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="14" y1="5" x2="14" y2="19" stroke="currentColor" stroke-width="1" opacity=".5"/><line x1="5" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="1" opacity=".5"/><polygon points="17,7 25,12 17,17" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></div>
+          <div class="gallup-name">伯乐</div>
+        </div>
+        <div class="gallup-card">
+          <div class="gallup-icon"><svg viewBox="0 0 28 28"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="20" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="15.5" cy="11" r="2.5" fill="currentColor" opacity=".5"/></svg></div>
+          <div class="gallup-name">交往</div>
+        </div>
+        <div class="gallup-card">
+          <div class="gallup-icon"><svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="3" fill="currentColor" opacity=".5"/><line x1="14" y1="11" x2="14" y2="2" stroke="currentColor" stroke-width="1.2"/><circle cx="14" cy="2" r="1.5" fill="currentColor" opacity=".4"/><line x1="17.5" y1="10" x2="24" y2="4.5" stroke="currentColor" stroke-width="1.2"/><circle cx="24" cy="4.5" r="1.5" fill="currentColor" opacity=".4"/><line x1="10.5" y1="10" x2="4" y2="4.5" stroke="currentColor" stroke-width="1.2"/><circle cx="4" cy="4.5" r="1.5" fill="currentColor" opacity=".4"/></svg></div>
+          <div class="gallup-name">关联</div>
+        </div>
+        <div class="gallup-card">
+          <div class="gallup-icon"><svg viewBox="0 0 28 28"><polygon points="14,2 20,10 17,10 17,26 11,26 11,10 8,10" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="14" cy="14" r="2" fill="currentColor" opacity=".45"/></svg></div>
+          <div class="gallup-name">积极</div>
+        </div>
+      </div>
+      <div class="gallup-footer">
+        <span class="gallup-stat"><span class="diamond"></span> 领域：关系建立</span>
+        <span class="gallup-stat"><span class="diamond"></span> 集中度：100%</span>
+        <span class="gallup-stat"><span class="diamond"></span> 排名：Top 5</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-bp"><div class="d-line"></div><div class="d-dia"></div><div class="d-line"></div></div>
+
+<!-- ====== 能力拓扑 ====== -->
+<section class="section-animus">
+  <div class="container fade-in">
+    <div class="section-header">
+      <div class="sh-diamond diamond glow"></div>
+      <div class="sh-lines">
+        <div class="sh-line"></div>
+        <div class="sh-line"></div>
+      </div>
+    </div>
+    <h2 class="section-title">能力拓扑</h2>
+    <p class="section-sub">TOPOLOGY</p>
+
+    <div class="bp-panel corner-brackets topo-panel">
+      <div class="cb-bottom"></div>
+      <p class="topo-intro">关系优势为根，创作能力为枝，场域营造为形——三角互撑，彼此赋能</p>
+
+      <div class="topo-svg-wrap">
+        <svg viewBox="0 0 660 370" width="100%" height="370">
+          <defs>
+            <radialGradient id="glow-top" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(192,57,43,0.22)"/>
+              <stop offset="100%" stop-color="transparent"/>
+            </radialGradient>
+            <radialGradient id="glow-bl" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(192,57,43,0.2)"/>
+              <stop offset="100%" stop-color="transparent"/>
+            </radialGradient>
+            <radialGradient id="glow-br" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(192,57,43,0.2)"/>
+              <stop offset="100%" stop-color="transparent"/>
+            </radialGradient>
+            <radialGradient id="glow-center" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(192,57,43,0.35)"/>
+              <stop offset="50%" stop-color="rgba(192,57,43,0.1)"/>
+              <stop offset="100%" stop-color="transparent"/>
+            </radialGradient>
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="4" result="blur"/>
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+
+          <!-- 顶点辉光 -->
+          <circle cx="350" cy="78" r="58" fill="url(#glow-top)" opacity="0.55"/>
+          <circle cx="140" cy="285" r="58" fill="url(#glow-bl)" opacity="0.55"/>
+          <circle cx="560" cy="285" r="58" fill="url(#glow-br)" opacity="0.55"/>
+
+          <!-- 域环 -->
+          <circle cx="350" cy="78" r="50" fill="none" stroke="#b0b0b0" stroke-width="1" opacity="0.25"/>
+          <circle cx="140" cy="285" r="50" fill="none" stroke="#b0b0b0" stroke-width="1" opacity="0.25"/>
+          <circle cx="560" cy="285" r="50" fill="none" stroke="#b0b0b0" stroke-width="1" opacity="0.25"/>
+
+          <!-- 三角形连接线 -->
+          <!-- 左上斜边 (top → bot-left) -->
+          <line class="topo-connect topo-connect-animated" x1="350" y1="78" x2="140" y2="285" stroke="#b0b0b0" stroke-width="1.2" stroke-dasharray="8,5" opacity="0.4"/>
+          <!-- 右上斜边 (top → bot-right) -->
+          <line class="topo-connect topo-connect-animated" x1="350" y1="78" x2="560" y2="285" stroke="#b0b0b0" stroke-width="1.2" stroke-dasharray="8,5" opacity="0.4"/>
+          <!-- 底边 (bot-left → bot-right) -->
+          <line class="topo-connect topo-connect-animated" x1="140" y1="285" x2="560" y2="285" stroke="#b0b0b0" stroke-width="1.2" stroke-dasharray="8,5" opacity="0.4"/>
+
+          <!-- 从顶点到中心的辐射线 -->
+          <line x1="350" y1="78" x2="350" y2="212" stroke="#b0b0b0" stroke-width="0.8" stroke-dasharray="4,6" opacity="0.2"/>
+          <line x1="140" y1="285" x2="350" y2="212" stroke="#b0b0b0" stroke-width="0.8" stroke-dasharray="4,6" opacity="0.2"/>
+          <line x1="560" y1="285" x2="350" y2="212" stroke="#b0b0b0" stroke-width="0.8" stroke-dasharray="4,6" opacity="0.2"/>
+
+          <!-- 中心融合辉光 -->
+          <circle cx="350" cy="212" r="40" fill="url(#glow-center)" opacity="0.7">
+            <animate attributeName="opacity" values="0.5;0.8;0.5" dur="3s" repeatCount="indefinite"/>
+          </circle>
+
+          <!-- 中心融合节点 -->
+          <rect x="340" y="202" width="20" height="20" fill="#c0392b" rx="2" transform="rotate(45,350,212)" opacity="0.6" filter="url(#glow)">
+            <animate attributeName="opacity" values="0.4;0.85;0.4" dur="2s" repeatCount="indefinite"/>
+          </rect>
+          <rect class="pulse-ring" x="340" y="202" width="20" height="20" fill="none" stroke="#c0392b" stroke-width="1" rx="2" opacity="0.4" style="animation: topo-ring 2.5s ease-in-out infinite;"/>
+
+          <!-- ====== 顶点标记 ====== -->
+          <rect x="342" y="70" width="16" height="16" fill="#c0392b" rx="2" transform="rotate(45,350,78)" opacity="0.7" filter="url(#glow)"/>
+          <rect x="132" y="277" width="16" height="16" fill="#c0392b" rx="2" transform="rotate(45,140,285)" opacity="0.7" filter="url(#glow)"/>
+          <rect x="552" y="277" width="16" height="16" fill="#c0392b" rx="2" transform="rotate(45,560,285)" opacity="0.7" filter="url(#glow)"/>
+
+          <!-- ====== 顶点：关系优势 (Top) ====== -->
+
+          <!-- 卫星 — 关系优势 -->
+          <rect class="topo-sat" x="346" y="47" width="6" height="6" fill="#999" rx="1" transform="rotate(45,349,50)"/>
+          <line class="topo-connect" x1="350" y1="56" x2="350" y2="67" stroke="#999" stroke-width="0.8" opacity="0.35"/>
+          <rect class="topo-sat" x="383" y="62" width="6" height="6" fill="#999" rx="1" transform="rotate(45,386,65)"/>
+          <line class="topo-connect" x1="366" y1="71" x2="375" y2="66" stroke="#999" stroke-width="0.8" opacity="0.35"/>
+
+          <!-- ====== 顶点：创作能力 (Bot-Left) ====== -->
+          <!-- 卫星 — 创作能力 -->
+          <rect class="topo-sat" x="78" y="278" width="6" height="6" fill="#999" rx="1" transform="rotate(45,81,281)"/>
+          <line class="topo-connect" x1="92" y1="285" x2="130" y2="285" stroke="#999" stroke-width="0.8" opacity="0.35"/>
+          <rect class="topo-sat" x="154" y="312" width="6" height="6" fill="#999" rx="1" transform="rotate(45,157,315)"/>
+          <line class="topo-connect" x1="162" y1="305" x2="155" y2="310" stroke="#999" stroke-width="0.8" opacity="0.35"/>
+
+          <!-- ====== 顶点：场域营造 (Bot-Right) ====== -->
+          <!-- 卫星 — 场域营造 -->
+          <rect class="topo-sat" x="618" y="278" width="6" height="6" fill="#999" rx="1" transform="rotate(45,621,281)"/>
+          <line class="topo-connect" x1="576" y1="285" x2="610" y2="285" stroke="#999" stroke-width="0.8" opacity="0.35"/>
+          <rect class="topo-sat" x="546" y="312" width="6" height="6" fill="#999" rx="1" transform="rotate(45,549,315)"/>
+
+          <!-- 标签 -->
+          <text x="350" y="118" text-anchor="middle" fill="#777" font-size="14" font-weight="500" letter-spacing="4">关系优势</text>
+          <text x="102" y="318" text-anchor="middle" fill="#777" font-size="14" font-weight="500" letter-spacing="4">创作能力</text>
+          <text x="598" y="318" text-anchor="middle" fill="#777" font-size="14" font-weight="500" letter-spacing="4">场域营造</text>
+          <text x="350" y="248" text-anchor="middle" fill="#c0392b" font-size="9" font-weight="500" letter-spacing="3" opacity="0.5">交汇</text>
+        </svg>
+      </div>
+
+      <div class="topo-bottom">
+        <div class="topo-bridge">
+          <span class="diamond red" style="width:6px;height:6px;box-shadow:0 0 8px var(--red-glow);"></span>
+          <span class="diamond red" style="width:6px;height:6px;box-shadow:0 0 8px var(--red-glow);"></span>
+          <span class="diamond red" style="width:6px;height:6px;box-shadow:0 0 8px var(--red-glow);"></span>
+          <span style="color:var(--red);">三角互撑 · 持续循环</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-bp"><div class="d-line"></div><div class="d-dia"></div><div class="d-line"></div></div>
+
+<!-- ====== ANIMUS 能力矩阵 ====== -->
+<section class="section-animus">
+  <div class="container fade-in">
+    <div class="section-header">
+      <div class="sh-diamond diamond glow"></div>
+      <div class="sh-lines">
+        <div class="sh-line"></div>
+        <div class="sh-line"></div>
+      </div>
+    </div>
+
+    <div class="bp-panel corner-brackets animus-panel">
+      <div class="cb-bottom"></div>
+
+      <!-- 左侧菱形柱 -->
+      <div class="ap-column">
+        <div class="ap-dia"></div><div class="ap-line"></div>
+        <div class="ap-dia"></div><div class="ap-line"></div>
+        <div class="ap-dia"></div><div class="ap-line"></div>
+        <div class="ap-dia"></div><div class="ap-line"></div>
+        <div class="ap-dia"></div><div class="ap-line"></div>
+        <div class="ap-dia"></div><div class="ap-line"></div>
+        <div class="ap-dia"></div><div class="ap-line"></div>
+        <div class="ap-dia"></div><div class="ap-line"></div>
+        <div class="ap-dia"></div><div class="ap-line"></div>
+        <div class="ap-dia"></div><div class="ap-line"></div>
+        <div class="ap-dia"></div>
+      </div>
+
+      <div class="animus-header">
+        <span class="animus-badge">核心能力</span>
+        <span class="ah-title">矩阵</span>
+      </div>
+      <p class="animus-sub">关系 · 创作 · 场域</p>
+
+      <!-- 关系优势 -->
+      <div class="animus-cat">
+        <div class="animus-cat-title">关系优势</div>
+        <div class="animus-rows">
+          <div class="animus-row active"><div class="ar-dia"></div><span class="ar-name">共情倾听</span></div>
+          <div class="animus-row"><div class="ar-dia"></div><span class="ar-name">深度信任</span></div>
+          <div class="animus-row"><div class="ar-dia"></div><span class="ar-name">以人为本</span></div>
+        </div>
+      </div>
+
+      <!-- 创作能力 -->
+      <div class="animus-cat">
+        <div class="animus-cat-title">创作能力</div>
+        <div class="animus-rows">
+          <div class="animus-row"><div class="ar-dia"></div><span class="ar-name">摄影视觉</span></div>
+          <div class="animus-row"><div class="ar-dia"></div><span class="ar-name">文字叙事</span></div>
+          <div class="animus-row"><div class="ar-dia"></div><span class="ar-name">内容策略</span></div>
+          <div class="animus-row"><div class="ar-dia"></div><span class="ar-name">绘画表达</span></div>
+        </div>
+      </div>
+
+      <!-- 场域营造 -->
+      <div class="animus-cat">
+        <div class="animus-cat-title">场域营造</div>
+        <div class="animus-rows">
+          <div class="animus-row"><div class="ar-dia"></div><span class="ar-name">能量感知</span></div>
+          <div class="animus-row"><div class="ar-dia"></div><span class="ar-name">社群凝聚</span></div>
+          <div class="animus-row"><div class="ar-dia"></div><span class="ar-name">节奏守护</span></div>
+          <div class="animus-row"><div class="ar-dia"></div><span class="ar-name">共创催化</span></div>
+        </div>
+      </div>
+
+      <div class="animus-footer">
+        <span class="af-left">已识别 11 项能力</span>
+        <div class="af-right">
+          <span class="af-coord"><span class="af-dia"></span><span class="af-val">R.03</span></span>
+          <span class="af-coord"><span class="af-dia"></span><span class="af-val">C.04</span></span>
+          <span class="af-coord"><span class="af-dia"></span><span class="af-val">F.04</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-bp"><div class="d-line"></div><div class="d-dia"></div><div class="d-line"></div></div>
+
+<!-- ====== 心愿 ====== -->
+<section class="section-animus">
+  <div class="container fade-in">
+    <div class="section-header">
+      <div class="sh-diamond diamond glow"></div>
+      <div class="sh-lines">
+        <div class="sh-line"></div>
+        <div class="sh-line"></div>
+      </div>
+    </div>
+    <h2 class="section-title">心愿与想法</h2>
+    <p class="section-sub">WISHES</p>
+
+    <div class="bp-panel corner-brackets wish-panel">
+      <div class="cb-bottom"></div>
+      <div class="wish-list">
+        <div class="wish-item">
+          <div class="wish-num"></div>
+          <div class="wish-text">在社群中找到能发挥<span style="color:var(--red);font-weight:500;">关系优势</span>的位置，与伙伴们共创价值</div>
+        </div>
+        <div class="wish-item">
+          <div class="wish-num"></div>
+          <div class="wish-text">寻找<span style="color:var(--red);font-weight:500;">商业伙伴</span>，共同打造有收入的可持续项目</div>
+        </div>
+        <div class="wish-item">
+          <div class="wish-num"></div>
+          <div class="wish-text">交流探索<span style="color:var(--red);font-weight:500;">内容如何赋能</span>个人成长与社群连接</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-bp"><div class="d-line"></div><div class="d-dia"></div><div class="d-line"></div></div>
+
+<!-- ====== 我能提供 ====== -->
+<section class="section-animus">
+  <div class="container fade-in">
+    <div class="section-header">
+      <div class="sh-diamond diamond glow"></div>
+      <div class="sh-lines">
+        <div class="sh-line"></div>
+        <div class="sh-line"></div>
+      </div>
+    </div>
+    <h2 class="section-title">我能提供什么</h2>
+    <p class="section-sub">OFFERINGS</p>
+
+    <div class="bp-panel corner-brackets wish-panel" style="margin-bottom:24px;">
+      <div class="cb-bottom"></div>
+      <div class="offer-grid">
+      <div class="offer-card">
+        <div class="card-glass"></div>
+        <div class="offer-icon"></div>
+        <h3>共创咨询</h3>
+        <p>数百小时以人为本的共创咨询经验。以人为中心的生命卡点梳理，用对话、文字与绘画连接人心，促成动力整合。</p>
+      </div>
+      <div class="offer-card">
+        <div class="card-glass"></div>
+        <div class="offer-icon"></div>
+        <h3>内容价值打造</h3>
+        <p>基于人生设计和多元维度的自我链接，用 INFP 高感知 + 前摄影师视角，打磨个人故事与项目文案，产出有穿透力的内容。</p>
+      </div>
+      <div class="offer-card">
+        <div class="card-glass"></div>
+        <div class="offer-icon"></div>
+        <h3>项目化落地</h3>
+        <p>把天马行空的想法拆解为低能耗、可执行的轻量项目。搭建符合创作者节奏的可持续模式，避免热情耗尽。</p>
+      </div>
+      <div class="offer-card">
+        <div class="card-glass"></div>
+        <div class="offer-icon"></div>
+        <h3>「奥德赛时期」成长样本</h3>
+        <p>以文章/笔记形式分享转向自由人生的完整实验：低内耗项目化生活方法、真实踩坑与心得。欢迎成为我的「成长观察员」。</p>
+      </div>
+      <div class="offer-card locked">
+        <div class="offer-icon"></div>
+        <h3>未解锁</h3>
+        <p class="lock-hint">—— 更多能力开发中 ——</p>
+      </div>
+      <div class="offer-card locked">
+        <div class="offer-icon"></div>
+        <h3>未解锁</h3>
+        <p class="lock-hint">—— 更多能力开发中 ——</p>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-bp"><div class="d-line"></div><div class="d-dia"></div><div class="d-line"></div></div>
+
+<!-- ====== 编年史 ====== -->
+<section class="section-animus">
+  <div class="container fade-in">
+    <div class="section-header">
+      <div class="sh-diamond diamond glow"></div>
+      <div class="sh-lines">
+        <div class="sh-line"></div>
+        <div class="sh-line"></div>
+      </div>
+    </div>
+    <h2 class="section-title">编年史</h2>
+    <p class="section-sub">CHRONICLE</p>
+
+    <div class="bp-panel corner-brackets chronicle-panel">
+      <div class="cb-bottom"></div>
+      <div class="chronicle-list">
+        <div class="chronicle-row current">
+          <span class="ch-year">2026</span>
+          <span class="ch-dia"></span>
+          <span class="ch-title">奥德赛时期</span>
+          <span class="ch-hint">进行中</span>
+        </div>
+        <div class="chronicle-row">
+          <span class="ch-year">2025</span>
+          <span class="ch-dia"></span>
+          <span class="ch-title">战火世界</span>
+        </div>
+        <div class="chronicle-row">
+          <span class="ch-year">2024</span>
+          <span class="ch-dia"></span>
+          <span class="ch-title">草木随风</span>
+        </div>
+        <div class="chronicle-row">
+          <span class="ch-year">2023</span>
+          <span class="ch-dia"></span>
+          <span class="ch-title">公共问题</span>
+        </div>
+        <div class="chronicle-row">
+          <span class="ch-year">2022</span>
+          <span class="ch-dia"></span>
+          <span class="ch-title">寻人不遇</span>
+        </div>
+        <div class="chronicle-row">
+          <span class="ch-year">2021</span>
+          <span class="ch-dia"></span>
+          <span class="ch-title">疾速备战</span>
+        </div>
+        <div class="chronicle-row">
+          <span class="ch-year">2020</span>
+          <span class="ch-dia"></span>
+          <span class="ch-title">全面瓦解</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== Footer ====== -->
+<footer class="footer fade-in">
+  <div class="footer-line">
+    <div class="fl"></div>
+    <div class="fl-dia"></div>
+    <div class="fl"></div>
+  </div>
+  <p class="footer-text">沐阳 · 2026 · 奥德赛时期进行中</p>
+</footer>
+
+</div>
+
+<script>
+// fade-in
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+setTimeout(() => {
+  document.querySelectorAll('.fade-in').forEach(el => {
+    if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('visible');
+  });
+}, 80);
+</script>
+
+</body>
+</html>
