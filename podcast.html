@@ -5,943 +5,672 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>流动的人 · 播客</title>
 <style>
-  :root {
-    --accent: #4af3ff;
-    --accent2: #c0392b;
-    --bg: #060c14;
-    --bg2: #0a1628;
-    --bg3: #0d1e35;
-    --panel: rgba(10, 28, 52, 0.85);
-    --glass: rgba(74, 243, 255, 0.06);
-    --border: rgba(74, 243, 255, 0.18);
-    --border-dim: rgba(74, 243, 255, 0.08);
-    --text: #e8f4ff;
-    --text2: rgba(200, 230, 255, 0.65);
-    --text3: rgba(150, 200, 240, 0.4);
-    --font: 'SF Pro Display', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
-    --glow: 0 0 20px rgba(74, 243, 255, 0.15), 0 0 60px rgba(74, 243, 255, 0.05);
-    --glow-strong: 0 0 30px rgba(74, 243, 255, 0.35), 0 0 80px rgba(74, 243, 255, 0.12);
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font);
-    min-height: 100vh;
-    overflow-x: hidden;
-    line-height: 1.6;
-  }
-
-  /* ═══ HEX GRID BG ═══ */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='52' viewBox='0 0 60 52'%3E%3Cpolygon fill='none' stroke='rgba(74,243,255,0.04)' stroke-width='0.8' points='30,1 59,17 59,35 30,51 1,35 1,17'/%3E%3C/svg%3E");
-    background-size: 60px 52px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* ═══ NAV ═══ */
-  nav {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 max(24px, 5vw);
-    height: 60px;
-    background: rgba(6, 12, 20, 0.92);
-    border-bottom: 1px solid var(--border-dim);
-    backdrop-filter: blur(20px);
-  }
-
-  .nav-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-  }
-
-  .nav-logo {
-    width: 32px; height: 32px;
-    border: 1.5px solid var(--accent);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 12px rgba(74,243,255,0.4);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .nav-logo::before {
-    content: '';
-    position: absolute;
-    inset: 4px;
-    border-radius: 50%;
-    background: var(--accent);
-    opacity: 0.2;
-  }
-
-  .nav-logo svg { color: var(--accent); }
-
-  .nav-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-    letter-spacing: 0.02em;
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 28px;
-    list-style: none;
-  }
-
-  .nav-links a {
-    color: var(--text2);
-    text-decoration: none;
-    font-size: 13px;
-    letter-spacing: 0.05em;
-    transition: color 0.2s;
-  }
-
-  .nav-links a:hover { color: var(--accent); }
-
-  /* ═══ LAYOUT ═══ */
-  .page {
-    position: relative;
-    z-index: 1;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 max(20px, 4vw);
-  }
-
-  /* ═══ HERO ═══ */
-  .hero {
-    padding: 80px 0 60px;
-    display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: 60px;
-    align-items: center;
-  }
-
-  .hero-eyebrow {
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .hero-eyebrow::before {
-    content: '';
-    width: 24px; height: 1px;
-    background: var(--accent);
-    box-shadow: 0 0 6px var(--accent);
-  }
-
-  .hero-title {
-    font-size: clamp(36px, 5vw, 56px);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    margin-bottom: 20px;
-  }
-
-  .hero-title span {
-    color: transparent;
-    -webkit-text-stroke: 1px var(--accent);
-    text-shadow: var(--glow);
-  }
-
-  .hero-desc {
-    color: var(--text2);
-    font-size: 15px;
-    line-height: 1.75;
-    max-width: 500px;
-    margin-bottom: 32px;
-  }
-
-  .hero-stats {
-    display: flex;
-    gap: 32px;
-  }
-
-  .stat-item {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .stat-num {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--accent);
-    text-shadow: 0 0 20px rgba(74,243,255,0.5);
-    line-height: 1;
-  }
-
-  .stat-label {
-    font-size: 11px;
-    color: var(--text3);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  /* ═══ COVER ART ═══ */
-  .hero-cover {
-    position: relative;
-    aspect-ratio: 1;
-    border-radius: 20px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    box-shadow: var(--glow-strong), inset 0 0 40px rgba(74,243,255,0.03);
-  }
-
-  .cover-inner {
-    width: 100%; height: 100%;
-    background: linear-gradient(135deg, #0d1e35 0%, #061226 50%, #0a1a30 100%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .cover-inner::before {
-    content: '';
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    background: conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(74,243,255,0.04) 60deg, transparent 120deg);
-    animation: spin 20s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .cover-inner::after {
-    content: '';
-    position: absolute;
-    width: 160px; height: 160px;
-    border-radius: 50%;
-    border: 1px solid rgba(74,243,255,0.2);
-    box-shadow: 0 0 40px rgba(74,243,255,0.1);
-  }
-
-  .cover-text {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-  }
-
-  .cover-icon {
-    width: 72px; height: 72px;
-    margin: 0 auto 16px;
-    border-radius: 50%;
-    background: rgba(74,243,255,0.1);
-    border: 1.5px solid rgba(74,243,255,0.4);
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 30px rgba(74,243,255,0.25);
-  }
-
-  .cover-icon svg { width: 32px; height: 32px; color: var(--accent); }
-
-  .cover-name {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    color: var(--text);
-    margin-bottom: 4px;
-  }
-
-  .cover-sub {
-    font-size: 11px;
-    color: var(--text3);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-  }
-
-  .cover-rings {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-
-  .ring {
-    position: absolute;
-    border-radius: 50%;
-    border: 1px solid rgba(74,243,255,0.06);
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    animation: pulse 4s ease-in-out infinite;
-  }
-
-  .ring:nth-child(1) { width: 220px; height: 220px; animation-delay: 0s; }
-  .ring:nth-child(2) { width: 300px; height: 300px; animation-delay: 1.3s; }
-  .ring:nth-child(3) { width: 380px; height: 380px; animation-delay: 2.6s; }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.8; border-color: rgba(74,243,255,0.15); }
-  }
-
-  /* ═══ SECTION HEADERS ═══ */
-  .section-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 32px;
-  }
-
-  .section-line {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(to right, var(--border), transparent);
-  }
-
-  .section-tag {
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border: 1px solid var(--border-dim);
-    border-radius: 2px;
-    background: rgba(74,243,255,0.04);
-  }
-
-  .section-title {
-    font-size: 22px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-  }
-
-  /* ═══ NOW PLAYING ═══ */
-  .now-playing {
-    margin-bottom: 60px;
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    background: var(--panel);
-    backdrop-filter: blur(20px);
-    overflow: hidden;
-    box-shadow: var(--glow);
-  }
-
-  .np-top {
-    padding: 24px 28px 20px;
-    border-bottom: 1px solid var(--border-dim);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .np-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    color: var(--accent);
-    text-transform: uppercase;
-  }
-
-  .np-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 8px var(--accent);
-    animation: blink 1.5s ease-in-out infinite;
-  }
-
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-  .np-ep-num {
-    font-size: 12px;
-    color: var(--text3);
-  }
-
-  .np-content {
-    padding: 28px 28px;
-    display: grid;
-    grid-template-columns: 100px 1fr;
-    gap: 28px;
-    align-items: start;
-  }
-
-  .np-thumb {
-    width: 100px; height: 100px;
-    border-radius: 12px;
-    background: transparent;
-    border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    overflow: hidden;
-    box-shadow: 0 2px 20px rgba(192,57,43,0.12);
-  }
-
-  .np-thumb img {
-    border-radius: 12px;
-  }
-
-  .np-thumb svg { width: 28px; height: 28px; color: var(--accent); opacity: 0.7; }
-
-  .np-info { flex: 1; }
-
-  .np-title {
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 6px;
-    line-height: 1.3;
-  }
-
-  .np-guest {
-    font-size: 13px;
-    color: var(--accent);
-    margin-bottom: 8px;
-  }
-
-  .np-desc {
-    font-size: 13px;
-    color: var(--text2);
-    line-height: 1.65;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .np-player {
-    padding: 20px 28px 24px;
-    border-top: 1px solid var(--border-dim);
-  }
-
-  .progress-wrap {
-    position: relative;
-    margin-bottom: 8px;
-    cursor: pointer;
-    padding: 8px 0;
-  }
-
-  .progress-bg {
-    position: relative;
-    width: 100%;
-    height: 3px;
-    background: rgba(74,243,255,0.1);
-    border-radius: 2px;
-    overflow: visible;
-    cursor: pointer;
-  }
-
-  .progress-fill {
-    height: 100%;
-    width: 35%;
-    background: linear-gradient(to right, var(--accent), rgba(74,243,255,0.6));
-    border-radius: 2px;
-    box-shadow: 0 0 8px var(--accent);
-    transition: width 0.1s;
-    pointer-events: none;
-  }
-
-  .progress-dot {
-    position: absolute;
-    top: 50%;
-    left: 35%;
-    transform: translate(-50%, -50%);
-    width: 11px; height: 11px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 12px var(--accent);
-    pointer-events: none;
-  }
-
-  .time-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: var(--text3);
-    margin-bottom: 16px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-  }
-
-  .btn-ctrl {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--text2);
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
-    padding: 6px;
-    border-radius: 50%;
-  }
-
-  .btn-ctrl:hover { color: var(--accent); }
-
-  .btn-play {
-    width: 48px; height: 48px;
-    background: rgba(74,243,255,0.1);
-    border: 1.5px solid var(--accent);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    color: var(--accent);
-    box-shadow: 0 0 20px rgba(74,243,255,0.25);
-    transition: all 0.2s;
-  }
-
-  .btn-play:hover {
-    background: rgba(74,243,255,0.2);
-    box-shadow: var(--glow-strong);
-    transform: scale(1.05);
-  }
-
-  .btn-speed {
-    font-size: 11px;
-    color: var(--text3);
-    background: rgba(74,243,255,0.05);
-    border: 1px solid var(--border-dim);
-    border-radius: 4px;
-    padding: 4px 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.05em;
-  }
-
-  .btn-speed:hover { color: var(--accent); border-color: var(--border); }
-
-  /* ═══ EPISODE LIST ═══ */
-  .episodes {
-    margin-bottom: 60px;
-  }
-
-  .ep-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .ep-item {
-    display: grid;
-    grid-template-columns: 48px 1fr auto;
-    gap: 16px;
-    align-items: center;
-    padding: 18px 20px;
-    border-radius: 10px;
-    border: 1px solid transparent;
-    background: transparent;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: left;
-  }
-
-  .ep-item:hover {
-    background: var(--glass);
-    border-color: var(--border-dim);
-  }
-
-  .ep-item.active {
-    background: rgba(74,243,255,0.06);
-    border-color: var(--border);
-    box-shadow: 0 0 20px rgba(74,243,255,0.06);
-  }
-
-  .ep-num {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--border);
-    font-variant-numeric: tabular-nums;
-    line-height: 1;
-    text-align: right;
-    transition: color 0.2s;
-  }
-
-  .ep-item.active .ep-num,
-  .ep-item:hover .ep-num { color: var(--accent); }
-
-  .ep-body {}
-
-  .ep-title {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text);
-    margin-bottom: 4px;
-    line-height: 1.35;
-  }
-
-  .ep-meta {
-    font-size: 12px;
-    color: var(--text3);
-    display: flex;
-    gap: 10px;
-  }
-
-  .ep-tag {
-    color: var(--accent);
-    opacity: 0.7;
-  }
-
-  .ep-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 6px;
-  }
-
-  .ep-duration {
-    font-size: 12px;
-    color: var(--text3);
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-
-  .ep-play-btn {
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    background: rgba(74,243,255,0.08);
-    border: 1px solid var(--border-dim);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--accent);
-    opacity: 0;
-    transition: all 0.2s;
-  }
-
-  .ep-item:hover .ep-play-btn,
-  .ep-item.active .ep-play-btn { opacity: 1; }
-
-  /* ═══ ABOUT ═══ */
-  .about {
-    margin-bottom: 80px;
-    display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: 48px;
-    align-items: start;
-  }
-
-  .about-card {
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    background: var(--panel);
-    backdrop-filter: blur(20px);
-    padding: 32px;
-    box-shadow: var(--glow);
-  }
-
-  .host-info {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-
-  .host-avatar {
-    width: 56px; height: 56px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, rgba(74,243,255,0.15), rgba(74,243,255,0.05));
-    border: 1.5px solid rgba(74,243,255,0.3);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--accent);
-    box-shadow: 0 0 20px rgba(74,243,255,0.15);
-    flex-shrink: 0;
-  }
-
-  .host-name {
-    font-size: 17px;
-    font-weight: 600;
-    margin-bottom: 3px;
-  }
-
-  .host-role {
-    font-size: 12px;
-    color: var(--text3);
-    letter-spacing: 0.08em;
-  }
-
-  .about-text {
-    font-size: 14px;
-    color: var(--text2);
-    line-height: 1.8;
-    margin-bottom: 20px;
-  }
-
-  /* ═══ SUBSCRIBE CARD ═══ */
-  .subscribe-card {
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    background: var(--panel);
-    backdrop-filter: blur(20px);
-    padding: 28px 24px;
-    box-shadow: var(--glow);
-  }
-
-  .sub-title {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
-
-  .sub-desc {
-    font-size: 12px;
-    color: var(--text3);
-    margin-bottom: 20px;
-    line-height: 1.6;
-  }
-
-  .sub-platforms {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .sub-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    border: 1px solid var(--border-dim);
-    border-radius: 8px;
-    background: rgba(74,243,255,0.03);
-    text-decoration: none;
-    color: var(--text2);
-    font-size: 13px;
-    transition: all 0.2s;
-    cursor: pointer;
-  }
-
-  .sub-btn:hover {
-    border-color: var(--border);
-    color: var(--text);
-    background: rgba(74,243,255,0.07);
-    transform: translateX(3px);
-  }
-
-  .sub-icon {
-    width: 28px; height: 28px;
-    border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    font-size: 14px;
-  }
-
-  .sub-arrow {
-    margin-left: auto;
-    color: var(--text3);
-    font-size: 16px;
-    transition: transform 0.2s;
-  }
-
-  .sub-btn:hover .sub-arrow {
-    transform: translateX(3px);
-    color: var(--accent);
-  }
-
-  /* ═══ FOOTER ═══ */
-  footer {
-    position: relative;
-    z-index: 1;
-    border-top: 1px solid var(--border-dim);
-    padding: 24px max(20px, 4vw);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 12px;
-    color: var(--text3);
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  footer a { color: var(--text3); text-decoration: none; }
-  footer a:hover { color: var(--accent); }
-
-  /* ═══ RESPONSIVE ═══ */
-  @media (max-width: 768px) {
-    .hero { grid-template-columns: 1fr; gap: 40px; padding: 48px 0 40px; }
-    .hero-cover { max-width: 280px; margin: 0 auto; }
-    .about { grid-template-columns: 1fr; }
-    .ep-item { grid-template-columns: 36px 1fr auto; gap: 12px; padding: 14px 12px; }
-    .nav-links { display: none; }
-    .np-content { grid-template-columns: 1fr; gap: 20px; padding: 20px; }
-    .np-thumb { width: 80px; height: 80px; margin: 0 auto; }
-  }
-
-  /* ═══ SCAN LINE EFFECT ═══ */
-  .scanline {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(to right, transparent, rgba(74,243,255,0.3), transparent);
-    animation: scan 8s linear infinite;
-    pointer-events: none;
-    z-index: 9999;
-  }
-
-  @keyframes scan {
-    0% { top: -2px; opacity: 0; }
-    5% { opacity: 1; }
-    95% { opacity: 0.5; }
-    100% { top: 100vh; opacity: 0; }
-  }
-
-  /* ═══ WAVEFORM ═══ */
-  .waveform {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    height: 20px;
-  }
-
-  .wave-bar {
-    width: 3px;
-    background: var(--accent);
-    border-radius: 2px;
-    opacity: 0.6;
-    animation: wave 0.8s ease-in-out infinite alternate;
-  }
-
-  @keyframes wave {
-    from { height: 4px; opacity: 0.4; }
-    to { height: 18px; opacity: 0.9; }
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --red: #c0392b;
+  --red-glow: rgba(192,57,43,0.35);
+  --red-bright: #e74c3c;
+  --gray-100: #f4f4f4;
+  --gray-200: #e0e0e0;
+  --gray-300: #c8c8c8;
+  --gray-400: #a0a0a0;
+  --gray-500: #777;
+  --gray-600: #555;
+  --gray-700: #444;
+  --gray-800: #333;
+  --gray-900: #222;
+  --bp-bg: #d9dde3;
+  --panel-bg: rgba(255,255,255,0.62);
+  --panel-border: rgba(180,180,180,0.48);
+  --grid-fine: rgba(170,170,170,0.07);
+  --grid-mid: rgba(170,170,170,0.10);
+  --grid-bold: rgba(170,170,170,0.14);
+  --font: "Helvetica Neue", "PingFang SC", "Noto Sans SC", Arial, sans-serif;
+  --surface-shadow: 0 2px 12px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.5);
+  --surface-hover-shadow: 0 8px 28px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.5);
+}
+
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--font);
+  color: var(--gray-800);
+  background: var(--bp-bg);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ========== 蓝图全局网格层 ========== */
+.bp-layer {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+}
+.bp-layer-fine {
+  background-image:
+    linear-gradient(var(--grid-fine) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-fine) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.bp-layer-mid {
+  background-image:
+    linear-gradient(var(--grid-mid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-mid) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.bp-layer-bold {
+  background-image:
+    linear-gradient(var(--grid-bold) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-bold) 1px, transparent 1px);
+  background-size: 120px 120px;
+}
+.bp-layer-hex {
+  background-color: transparent;
+  background-image:
+    repeating-linear-gradient(60deg,  rgba(170,170,180,0.05) 0px, rgba(170,170,180,0.05) 0.5px, transparent 0.5px, transparent 40px),
+    repeating-linear-gradient(-60deg, rgba(170,170,180,0.05) 0px, rgba(170,170,180,0.05) 0.5px, transparent 0.5px, transparent 40px),
+    repeating-linear-gradient(0deg,   rgba(170,170,180,0.05) 0px, rgba(170,170,180,0.05) 0.5px, transparent 0.5px, transparent 40px);
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 70%);
+}
+
+/* 播客专属音频波形背景层 */
+.bp-layer-wave {
+  background-color: transparent;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 9px, rgba(192,57,43,0.015) 9px, rgba(192,57,43,0.015) 10px),
+    repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(192,57,43,0.01) 19px, rgba(192,57,43,0.01) 20px);
+  mask-image: radial-gradient(ellipse 60% 80% at 50% 30%, black 20%, transparent 65%);
+  -webkit-mask-image: radial-gradient(ellipse 60% 80% at 50% 30%, black 20%, transparent 65%);
+}
+
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 600px 480px at 20% 15%, rgba(255,255,255,0.65) 0%, transparent 60%),
+    radial-gradient(ellipse 500px 400px at 78% 42%, rgba(210,218,230,0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 350px at 50% 92%, rgba(160,168,178,0.45) 0%, transparent 55%),
+    radial-gradient(ellipse 300px 250px at 15% 60%, rgba(235,238,242,0.3) 0%, transparent 65%),
+    radial-gradient(ellipse 400px 300px at 55% 55%, rgba(245,247,250,0.15) 0%, transparent 70%);
+}
+
+body::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px, rgba(0,0,0,0.012) 3px, rgba(0,0,0,0.012) 4px
+  );
+}
+
+.content-layer { position: relative; z-index: 1; }
+.container { max-width: 760px; margin: 0 auto; padding: 0 28px; }
+
+/* ========== 扫描线 ========== */
+.scan-line {
+  position: fixed; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--red-glow), transparent);
+  animation: scan-down 8s linear infinite;
+  pointer-events: none; z-index: 0; opacity: 0.2;
+}
+@keyframes scan-down {
+  0% { top: -2px; opacity: 0; }
+  5% { opacity: 0.3; }
+  95% { opacity: 0.3; }
+  100% { top: 100vh; opacity: 0; }
+}
+
+/* ========== NAV ========== */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px; height: 56px;
+  background: rgba(217,221,227,0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(180,180,180,0.35);
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 10px; text-decoration: none;
+}
+.nav-diamond {
+  width: 14px; height: 14px; background: var(--red);
+  transform: rotate(45deg); box-shadow: 0 0 10px var(--red-glow);
+}
+.nav-title {
+  font-size: 14px; font-weight: 500; letter-spacing: 4px; color: var(--gray-800);
+}
+.nav-links {
+  display: flex; gap: 28px; list-style: none;
+}
+.nav-links a {
+  color: var(--gray-500); text-decoration: none;
+  font-size: 12px; letter-spacing: 2px; transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--red); }
+
+/* ========== 通用面板 ========== */
+.bp-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--panel-border);
+  position: relative;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    inset 1px 0 0 rgba(255,255,255,0.3),
+    inset 0 -1px 0 rgba(0,0,0,0.04),
+    0 2px 18px rgba(0,0,0,0.05);
+}
+.bp-panel::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.35) 0%, transparent 35%),
+    linear-gradient(-45deg, transparent 55%, rgba(180,185,190,0.1) 100%);
+  pointer-events: none;
+}
+
+.corner-brackets { position: relative; }
+.corner-brackets::before,
+.corner-brackets::after {
+  content: ''; position: absolute; width: 16px; height: 16px; pointer-events: none;
+  border-color: var(--gray-400);
+}
+.corner-brackets::before { top: -1px; left: -1px; border-top: 1.5px solid; border-left: 1.5px solid; }
+.corner-brackets::after  { top: -1px; right: -1px; border-top: 1.5px solid; border-right: 1.5px solid; }
+.corner-brackets .cb-bottom {
+  position: absolute; bottom: -1px; left: -1px; right: -1px; pointer-events: none;
+}
+.corner-brackets .cb-bottom::before {
+  content: ''; position: absolute; bottom: -1px; left: -1px;
+  width: 16px; height: 16px;
+  border-bottom: 1.5px solid var(--gray-400); border-left: 1.5px solid var(--gray-400);
+}
+.corner-brackets .cb-bottom::after {
+  content: ''; position: absolute; bottom: -1px; right: -1px;
+  width: 16px; height: 16px;
+  border-bottom: 1.5px solid var(--gray-400); border-right: 1.5px solid var(--gray-400);
+}
+
+/* ========== 菱形 ========== */
+.diamond {
+  display: inline-block; width: 10px; height: 10px;
+  background: var(--gray-400); transform: rotate(45deg);
+}
+.diamond.red { background: var(--red); box-shadow: 0 0 10px var(--red-glow); }
+.diamond.glow { animation: dia-pulse 2.5s ease-in-out infinite; }
+@keyframes dia-pulse {
+  0%, 100% { box-shadow: 0 0 6px var(--red-glow); }
+  50% { box-shadow: 0 0 18px var(--red-glow), 0 0 30px rgba(192,57,43,0.15); }
+}
+
+/* ========== Section 通用 ========== */
+.section-animus { padding: 64px 0; position: relative; z-index: 1; }
+.section-animus.top-section { padding-top: 40px; }
+
+.section-header {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
+}
+.section-header .sh-diamond { width: 12px; height: 12px; background: var(--red); transform: rotate(45deg); flex-shrink: 0; box-shadow: 0 0 12px var(--red-glow); }
+.section-header .sh-lines { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.section-header .sh-line { height: 1px; background: linear-gradient(90deg, var(--gray-400), transparent); }
+.section-header .sh-line:last-child { opacity: 0.5; width: 60%; }
+.section-title {
+  font-size: clamp(1.3rem, 3.5vw, 1.7rem);
+  font-weight: 300; letter-spacing: 6px; color: var(--gray-800);
+  margin-bottom: 8px;
+}
+.section-sub {
+  font-size: 0.72rem; color: var(--gray-500); letter-spacing: 3px;
+  margin-bottom: 24px;
+}
+
+/* ========== HERO — 「了解更多」卡片置顶 ========== */
+.about-hero {
+  margin-bottom: 48px;
+}
+.about-hero-card {
+  padding: 40px 36px;
+  position: relative;
+  overflow: hidden;
+}
+.about-hero-card .ahc-glass {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.35) 0%, transparent 40%),
+    linear-gradient(-45deg, transparent 55%, rgba(180,185,190,0.12) 100%);
+}
+.about-hero-header {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 20px;
+}
+.about-hero-header .ahh-diamond {
+  width: 18px; height: 18px; background: var(--red);
+  transform: rotate(45deg); flex-shrink: 0;
+  box-shadow: 0 0 16px var(--red-glow);
+}
+.about-hero-header h2 {
+  font-size: 1.15rem; font-weight: 400; letter-spacing: 5px; color: var(--gray-800);
+}
+.about-hero-desc {
+  font-size: 0.82rem; color: var(--gray-600); line-height: 1.9;
+  margin-bottom: 22px; letter-spacing: 1px; max-width: 540px;
+}
+.about-hero-link {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 10px 24px;
+  border: 1px solid var(--red);
+  background: rgba(192,57,43,0.06);
+  color: var(--red);
+  text-decoration: none;
+  font-size: 0.78rem; font-weight: 500; letter-spacing: 3px;
+  transition: all 0.25s;
+}
+.about-hero-link:hover {
+  background: var(--red);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(192,57,43,0.25);
+}
+.about-hero-link .ahl-arrow {
+  font-size: 1.1rem; transition: transform 0.25s;
+}
+.about-hero-link:hover .ahl-arrow {
+  transform: translateX(4px);
+}
+
+/* ========== NOW PLAYING ═══ */
+.now-playing-panel {
+  padding: 0;
+  overflow: hidden;
+}
+.np-top {
+  padding: 22px 32px 18px;
+  border-bottom: 1px solid rgba(180,180,180,0.35);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.np-badge {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; letter-spacing: 3px; color: var(--red); font-weight: 500;
+}
+.np-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 8px var(--red-glow);
+  animation: blink 1.5s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+.np-ep-num {
+  font-size: 0.7rem; color: var(--gray-500); letter-spacing: 2px;
+}
+
+.np-content {
+  padding: 28px 32px;
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.np-thumb {
+  width: 100px; height: 100px; flex-shrink: 0;
+  border: 1px solid rgba(180,180,180,0.45);
+  overflow: hidden; position: relative;
+  box-shadow: 0 2px 14px rgba(0,0,0,0.06);
+}
+
+.np-thumb::before {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  border: 1px solid rgba(192,57,43,0.15);
+}
+
+.np-info {}
+
+.np-title {
+  font-size: 1rem; font-weight: 500; color: var(--gray-800);
+  margin-bottom: 6px; letter-spacing: 1px; line-height: 1.4;
+}
+.np-guest {
+  font-size: 0.78rem; color: var(--red); letter-spacing: 2px; margin-bottom: 8px; font-weight: 400;
+}
+.np-desc {
+  font-size: 0.75rem; color: var(--gray-600); line-height: 1.75;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* Player */
+.np-player {
+  padding: 18px 32px 24px;
+  border-top: 1px solid rgba(180,180,180,0.3);
+}
+
+.progress-wrap {
+  position: relative; margin-bottom: 8px; cursor: pointer; padding: 6px 0;
+}
+.progress-bg {
+  position: relative; width: 100%; height: 3px;
+  background: rgba(180,180,180,0.25);
+  overflow: visible; cursor: pointer;
+}
+.progress-fill {
+  height: 100%; width: 35%;
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red-glow);
+  transition: width 0.1s; pointer-events: none;
+}
+.progress-dot {
+  position: absolute; top: 50%; left: 35%;
+  transform: translate(-50%, -50%);
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--red); box-shadow: 0 0 10px var(--red-glow);
+  pointer-events: none;
+}
+
+.time-row {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--gray-500); margin-bottom: 14px;
+  font-variant-numeric: tabular-nums; letter-spacing: 1px;
+}
+
+.controls {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+}
+.btn-ctrl {
+  background: none; border: none; cursor: pointer;
+  color: var(--gray-500); display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; padding: 5px; border-radius: 50%;
+}
+.btn-ctrl:hover { color: var(--red); }
+
+.btn-play {
+  width: 44px; height: 44px;
+  background: rgba(192,57,43,0.06);
+  border: 1.5px solid var(--red);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--red);
+  box-shadow: 0 0 16px rgba(192,57,43,0.15);
+  transition: all 0.2s;
+}
+.btn-play:hover {
+  background: var(--red); color: #fff;
+  box-shadow: 0 0 24px rgba(192,57,43,0.35);
+  transform: scale(1.04);
+}
+
+.btn-speed {
+  font-size: 11px; color: var(--gray-500);
+  background: rgba(255,255,255,0.4);
+  border: 1px solid rgba(180,180,180,0.4);
+  padding: 4px 8px; cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+.btn-speed:hover { color: var(--red); border-color: var(--red); }
+
+/* ═══ WAVEFORM ═══ */
+.waveform {
+  display: flex; align-items: center; gap: 2px; height: 16px;
+}
+.wave-bar {
+  width: 3px; background: var(--red);
+  opacity: 0.5; border-radius: 1px;
+  animation: wave 0.8s ease-in-out infinite alternate;
+}
+@keyframes wave {
+  from { height: 3px; opacity: 0.3; }
+  to { height: 14px; opacity: 0.8; }
+}
+
+/* ═══ EPISODES ═══ */
+.episodes-panel {
+  padding: 28px 20px;
+}
+.ep-list {
+  display: flex; flex-direction: column; gap: 0;
+}
+.ep-item {
+  display: grid; grid-template-columns: 44px 1fr auto;
+  gap: 14px; align-items: center;
+  padding: 16px 16px; cursor: pointer;
+  border-bottom: 1px solid rgba(180,180,180,0.22);
+  transition: all 0.2s;
+}
+.ep-item:last-child { border-bottom: none; }
+.ep-item:hover {
+  background: rgba(192,57,43,0.04);
+  padding-left: 20px;
+}
+.ep-item.active {
+  background: rgba(192,57,43,0.06);
+  padding-left: 20px;
+  border-left: 2px solid var(--red);
+}
+
+.ep-num {
+  font-size: 1rem; font-weight: 400; color: var(--gray-400);
+  letter-spacing: 2px; text-align: right;
+}
+.ep-item.active .ep-num,
+.ep-item:hover .ep-num { color: var(--red); }
+
+.ep-title {
+  font-size: 0.82rem; font-weight: 400; color: var(--gray-700);
+  letter-spacing: 1px; line-height: 1.4;
+}
+.ep-meta {
+  font-size: 0.65rem; color: var(--gray-500); letter-spacing: 1px;
+  display: flex; gap: 8px; margin-top: 3px;
+}
+.ep-tag { color: var(--red); opacity: 0.7; }
+
+.ep-right {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+}
+.ep-duration {
+  font-size: 0.68rem; color: var(--gray-500); letter-spacing: 1px;
+  font-variant-numeric: tabular-nums;
+}
+.ep-play-dia {
+  width: 10px; height: 10px; background: var(--gray-300);
+  transform: rotate(45deg); opacity: 0;
+  transition: all 0.2s;
+}
+.ep-item:hover .ep-play-dia,
+.ep-item.active .ep-play-dia {
+  opacity: 1; background: var(--red);
+  box-shadow: 0 0 8px var(--red-glow);
+}
+
+/* ═══ ABOUT HOST ═══ */
+.about-host-panel {
+  padding: 32px 32px;
+}
+.host-info {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 18px;
+}
+.host-diamond {
+  width: 40px; height: 40px; background: var(--red);
+  transform: rotate(45deg); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 16px var(--red-glow);
+}
+.host-diamond span {
+  transform: rotate(-45deg);
+  font-size: 1rem; font-weight: 500; color: #fff;
+}
+.host-name {
+  font-size: 1rem; font-weight: 500; letter-spacing: 3px; color: var(--gray-800);
+}
+.host-role {
+  font-size: 0.7rem; color: var(--gray-500); letter-spacing: 2px; margin-top: 2px;
+}
+.about-text {
+  font-size: 0.8rem; color: var(--gray-600); line-height: 2; letter-spacing: 0.5px;
+}
+.about-text + .about-text { margin-top: 10px; }
+
+/* ═══ FOOTER ═══ */
+footer {
+  text-align: center; padding: 48px 0 64px; position: relative; z-index: 1;
+}
+.footer-line {
+  display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 20px;
+}
+.footer-line .fl { height: 1px; width: 40px; background: var(--gray-300); }
+.footer-line .fl-dia { width: 7px; height: 7px; background: var(--red); transform: rotate(45deg); box-shadow: 0 0 8px var(--red-glow); }
+.footer-text {
+  font-size: 0.7rem; color: var(--gray-500); letter-spacing: 3px;
+}
+
+/* ═══ FADE-IN ═══ */
+.fade-in { opacity: 0; transform: translateY(16px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 640px) {
+  .container { padding: 0 16px; }
+  .about-hero-card, .about-host-panel { padding: 28px 20px; }
+  .np-content { grid-template-columns: 1fr; gap: 18px; padding: 20px; }
+  .np-thumb { width: 80px; height: 80px; margin: 0 auto; }
+  .np-top { padding: 18px 20px 14px; }
+  .np-player { padding: 14px 20px 20px; }
+  .episodes-panel { padding: 20px 12px; }
+  .ep-item { grid-template-columns: 32px 1fr auto; gap: 10px; padding: 14px 12px; }
+  .nav-links { display: none; }
+  .section-header .sh-line:last-child { width: 40%; }
+}
 </style>
 </head>
 <body>
 
-<div class="scanline"></div>
+<!-- 蓝图网格层 -->
+<div class="bp-layer bp-layer-fine"></div>
+<div class="bp-layer bp-layer-mid"></div>
+<div class="bp-layer bp-layer-bold"></div>
+<div class="bp-layer bp-layer-hex"></div>
+<div class="bp-layer bp-layer-wave"></div>
+<div class="scan-line"></div>
 
-<!-- NAV -->
+<div class="content-layer">
+
+<!-- ═══ NAV ═══ -->
 <nav>
   <a class="nav-brand" href="#">
-    <div class="nav-logo">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
-        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-        <line x1="12" y1="19" x2="12" y2="23"/>
-        <line x1="8" y1="23" x2="16" y2="23"/>
-      </svg>
-    </div>
+    <div class="nav-diamond"></div>
     <span class="nav-title">流动的人</span>
   </a>
   <ul class="nav-links">
     <li><a href="#episodes">单集</a></li>
     <li><a href="#about">关于</a></li>
-    <li><a href="#subscribe">订阅</a></li>
   </ul>
 </nav>
 
-<!-- HERO -->
-<div class="page">
-  <section class="hero">
-    <div class="hero-left">
-      <div class="hero-eyebrow">个人播客</div>
-      <h1 class="hero-title">
-        流动的<span>人</span><br>
-        关于成长与连接
-      </h1>
-      <p class="hero-desc">
-        我是沐阳。这档播客记录真实的内在旅程——从前摄影师到探索者，
-        关于关系、创作、身体智慧，以及如何在流动中找到自己。
-        每一期都是一次真诚的对话。
-      </p>
-      <div class="hero-stats">
-        <div class="stat-item">
-          <span class="stat-num">8</span>
-          <span class="stat-label">单集</span>
-        </div>
-      </div>
-    </div>
-    <div class="hero-cover">
-      <img src="cover-ep8.png" alt="流动的人" style="width:100%;height:100%;object-fit:cover;display:block;">
-    </div>
-  </section>
+<!-- ═══ HERO — 「了解更多」卡片 置顶 ═══ -->
+<section class="section-animus top-section about-hero">
+  <div class="container fade-in">
+    <div class="bp-panel corner-brackets about-hero-card">
+      <div class="cb-bottom"></div>
+      <div class="ahc-glass"></div>
 
-  <!-- NOW PLAYING -->
-  <div class="section-header">
-    <span class="section-tag">正在播放</span>
-    <div class="section-line"></div>
+      <div class="about-hero-header">
+        <div class="ahh-diamond diamond glow"></div>
+        <h2>了解更多关于我</h2>
+      </div>
+
+      <p class="about-hero-desc">
+        我是<span style="color:var(--red);font-weight:500;">沐阳</span>，前摄影师、内容人，正在奥德赛时期自由探索。
+        这档播客记录真实的内在旅程——关于关系、创作、身体智慧，以及如何在流动中找到自己。
+      </p>
+
+      <a class="about-hero-link" href="about.html">
+        个人主页 · About
+        <span class="ahl-arrow">→</span>
+      </a>
+    </div>
   </div>
-  <div class="now-playing">
-    <div class="np-top">
-      <div class="np-badge">
-        <div class="np-dot"></div>
-        LIVE
-      </div>
-      <div class="np-ep-num">EP.8</div>
-    </div>
-    <div class="np-content">
-      <div class="np-thumb" id="npThumb">
-        <img id="npCover" src="cover-ep8.png" alt="封面" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none';document.getElementById('npThumbFallback').style.display='flex';">
-        <div id="npThumbFallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:50%;height:50%;">
-            <circle cx="12" cy="12" r="10"/>
-            <polygon points="10,8 16,12 10,16"/>
-          </svg>
-        </div>
-      </div>
-      <div class="np-info">
-        <div class="np-title">一起聊聊，如何设计你的人生🌈</div>
-        <div class="np-guest">沐阳 · 共创沙龙</div>
-        <div class="np-desc">
-          这是一期关于人生设计的深度对话。我们如何从现有的生活轨迹中找到自己的方向？
-          什么才是真正属于自己的人生设计？不设限，不套模板，从真实的自己出发。
-        </div>
+</section>
+
+<!-- ═══ NOW PLAYING ═══ -->
+<section class="section-animus" style="padding-top:0;">
+  <div class="container fade-in">
+    <div class="section-header">
+      <div class="sh-diamond diamond glow"></div>
+      <div class="sh-lines">
+        <div class="sh-line"></div>
+        <div class="sh-line"></div>
       </div>
     </div>
-    <div class="np-player">
-      <div class="progress-wrap" id="progressWrap" onclick="progressClick(event)">
-        <div class="progress-bg" id="progressBg">
-          <div class="progress-fill" id="progressFill"></div>
-          <div class="progress-dot" id="progressDot"></div>
+    <h2 class="section-title">正在播放</h2>
+    <p class="section-sub">NOW PLAYING</p>
+
+    <div class="bp-panel corner-brackets now-playing-panel">
+      <div class="cb-bottom"></div>
+
+      <div class="np-top">
+        <div class="np-badge">
+          <div class="np-dot"></div>
+          LIVE
+        </div>
+        <div class="np-ep-num">EP.8</div>
+      </div>
+
+      <div class="np-content">
+        <div class="np-thumb" id="npThumb">
+          <img id="npCover" src="cover-ep8.png" alt="封面" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none';document.getElementById('npThumbFallback').style.display='flex';">
+          <div id="npThumbFallback" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;background:rgba(255,255,255,0.3);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <polygon points="10,8 16,12 10,16"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="np-info">
+          <div class="np-title">一起聊聊，如何设计你的人生🌈</div>
+          <div class="np-guest">沐阳 · 共创沙龙</div>
+          <div class="np-desc">
+            这是一期关于人生设计的深度对话。我们如何从现有的生活轨迹中找到自己的方向？
+            什么才是真正属于自己的人生设计？不设限，不套模板，从真实的自己出发。
+          </div>
         </div>
       </div>
-      <div class="time-row">
-        <span id="currentTime">22:15</span>
-        <span id="totalTime">63:48</span>
-      </div>
-      <div class="controls">
-        <button class="btn-ctrl btn-speed" id="speedBtn" title="播放速度" onclick="cycleSpeed()">1.0×</button>
-        <button class="btn-ctrl" id="skipBack" title="后退15秒" onclick="skipTime(-15)">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="1,4 1,10 7,10"/>
-            <path d="M3.51 15a9 9 0 1 0 .49-3.18"/>
-            <text x="8" y="16" font-size="7" fill="currentColor" stroke="none" font-family="sans-serif">15</text>
-          </svg>
-        </button>
-        <button class="btn-play" id="playBtn" title="播放/暂停" onclick="togglePlay()">
-          <svg id="playIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <polygon points="5,3 19,12 5,21"/>
-          </svg>
-        </button>
-        <button class="btn-ctrl" id="skipFwd" title="前进30秒" onclick="skipTime(30)">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="23,4 23,10 17,10"/>
-            <path d="M20.49 15a9 9 0 1 1-.49-3.18"/>
-            <text x="8" y="16" font-size="7" fill="currentColor" stroke="none" font-family="sans-serif">30</text>
-          </svg>
-        </button>
-        <button class="btn-ctrl" title="下一集" style="margin-left:4px;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="5,4 15,12 5,20"/>
-            <line x1="19" y1="5" x2="19" y2="19"/>
-          </svg>
-        </button>
-        <div style="display:flex;align-items:center;gap:6px;margin-left:16px;">
-          <div class="waveform" id="waveform">
+
+      <div class="np-player">
+        <div class="progress-wrap" id="progressWrap" onclick="progressClick(event)">
+          <div class="progress-bg" id="progressBg">
+            <div class="progress-fill" id="progressFill"></div>
+            <div class="progress-dot" id="progressDot"></div>
+          </div>
+        </div>
+        <div class="time-row">
+          <span id="currentTime">22:15</span>
+          <span id="totalTime">63:48</span>
+        </div>
+        <div class="controls">
+          <button class="btn-ctrl btn-speed" id="speedBtn" title="播放速度" onclick="cycleSpeed()">1.0×</button>
+          <button class="btn-ctrl" id="skipBack" title="后退15秒" onclick="skipTime(-15)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="1,4 1,10 7,10"/>
+              <path d="M3.51 15a9 9 0 1 0 .49-3.18"/>
+              <text x="8" y="16" font-size="6" fill="currentColor" stroke="none" font-family="sans-serif">15</text>
+            </svg>
+          </button>
+          <button class="btn-play" id="playBtn" title="播放/暂停" onclick="togglePlay()">
+            <svg id="playIcon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5,3 19,12 5,21"/>
+            </svg>
+          </button>
+          <button class="btn-ctrl" id="skipFwd" title="前进30秒" onclick="skipTime(30)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23,4 23,10 17,10"/>
+              <path d="M20.49 15a9 9 0 1 1-.49-3.18"/>
+              <text x="8" y="16" font-size="6" fill="currentColor" stroke="none" font-family="sans-serif">30</text>
+            </svg>
+          </button>
+          <button class="btn-ctrl" title="下一集">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5,4 15,12 5,20"/>
+              <line x1="19" y1="5" x2="19" y2="19"/>
+            </svg>
+          </button>
+          <div class="waveform" id="waveform" style="margin-left:12px;">
             <div class="wave-bar" style="animation-delay:0s"></div>
             <div class="wave-bar" style="animation-delay:0.1s"></div>
             <div class="wave-bar" style="animation-delay:0.2s"></div>
@@ -954,29 +683,59 @@
       </div>
     </div>
   </div>
+</section>
 
-  <!-- EPISODES -->
-  <section id="episodes" class="episodes">
+<div class="container"><div class="divider-bp"><div class="d-line"></div><div class="d-dia"></div><div class="d-line"></div></div></div>
+<style>
+.divider-bp {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 12px 0; position: relative; z-index: 1;
+}
+.divider-bp .d-line { height: 1px; width: 60px; background: var(--gray-300); }
+.divider-bp .d-dia { width: 8px; height: 8px; background: var(--gray-400); transform: rotate(45deg); }
+</style>
+
+<!-- ═══ EPISODES ═══ -->
+<section id="episodes" class="section-animus" style="padding-top:0;">
+  <div class="container fade-in">
     <div class="section-header">
-      <span class="section-tag">所有单集</span>
-      <div class="section-line"></div>
-      <span style="font-size:12px;color:var(--text3);">8 集</span>
-    </div>
-
-    <div class="ep-list" id="epList">
-      <!-- Episodes injected by JS -->
-    </div>
-  </section>
-
-  <!-- ABOUT -->
-  <section id="about" class="about">
-    <div class="about-card">
-      <div class="section-header" style="margin-bottom:24px;">
-        <span class="section-tag">关于主播</span>
-        <div class="section-line"></div>
+      <div class="sh-diamond diamond glow"></div>
+      <div class="sh-lines">
+        <div class="sh-line"></div>
+        <div class="sh-line"></div>
       </div>
+    </div>
+    <h2 class="section-title">所有单集</h2>
+    <p class="section-sub">EPISODES · 8 集</p>
+
+    <div class="bp-panel corner-brackets episodes-panel">
+      <div class="cb-bottom"></div>
+      <div class="ep-list" id="epList">
+        <!-- Episodes injected by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container"><div class="divider-bp"><div class="d-line"></div><div class="d-dia"></div><div class="d-line"></div></div></div>
+
+<!-- ═══ ABOUT HOST ═══ -->
+<section id="about" class="section-animus" style="padding-top:0;">
+  <div class="container fade-in">
+    <div class="section-header">
+      <div class="sh-diamond diamond glow"></div>
+      <div class="sh-lines">
+        <div class="sh-line"></div>
+        <div class="sh-line"></div>
+      </div>
+    </div>
+    <h2 class="section-title">关于主播</h2>
+    <p class="section-sub">ABOUT THE HOST</p>
+
+    <div class="bp-panel corner-brackets about-host-panel">
+      <div class="cb-bottom"></div>
       <div class="host-info">
-        <div class="host-avatar">沐</div>
+        <div class="host-diamond"><span>沐</span></div>
         <div>
           <div class="host-name">沐阳</div>
           <div class="host-role">探索者 · INFP · 天津 & 武当山</div>
@@ -991,45 +750,27 @@
         没有标准答案，只有真实的流动。盖洛普优势：共情、和谐、连接、信仰、审慎。
       </p>
     </div>
+  </div>
+</section>
 
-    <div id="subscribe" class="subscribe-card">
-      <div class="sub-title">了解更多关于我</div>
-      <p class="sub-desc">我的个人主页，AC2 风格，关于盖洛普优势、创作与人生系统</p>
-      <div class="sub-platforms">
-        <a class="sub-btn" href="about.html" style="background:rgba(74,243,255,0.08);border-color:var(--border);">
-          <div class="sub-icon" style="background:rgba(74,243,255,0.12);color:var(--accent);">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="8" r="4"/>
-              <path d="M6 21v-1a6 6 0 0 1 12 0v1"/>
-            </svg>
-          </div>
-          <span>个人主页 · About</span>
-          <span class="sub-arrow">›</span>
-        </a>
-      </div>
-    </div>
-  </section>
-</div>
-
-<!-- FOOTER -->
-<footer>
-  <span>© 2026 流动的人 · 沐阳</span>
-  <span>用声音记录流动</span>
+<!-- ═══ FOOTER ═══ -->
+<footer class="fade-in">
+  <div class="footer-line">
+    <div class="fl"></div>
+    <div class="fl-dia"></div>
+    <div class="fl"></div>
+  </div>
+  <p class="footer-text">沐阳 · 2026 · 流动的人</p>
 </footer>
 
-<!-- Audio Element -->
-<audio id="audioPlayer" preload="auto" controls style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);width:90%;max-width:500px;z-index:999999;border-radius:12px;box-shadow:0 0 30px rgba(192,57,43,0.5);"></audio>
+</div>
 
-<!-- DEBUG: collapsed by default after confirming audio works -->
-<div id="debugBox" style="position:fixed;top:0;left:0;right:0;background:rgba(20,30,40,0.92);color:var(--accent);padding:6px 16px;font-size:11px;z-index:99999;display:none;font-family:monospace;word-break:break-all;border-bottom:1px solid var(--border-dim);max-height:80px;overflow-y:auto;"></div>
+<!-- Audio Element (hidden from view, JS-controlled) -->
+<audio id="audioPlayer" preload="auto"></audio>
 
 <script>
-// ═══ Debug helper ═══
-var _debug = document.getElementById('debugBox');
-function debug(msg) { _debug.style.display = 'block'; _debug.textContent += msg + '\n'; }
-
+// ═══ Audio & Episode Management ═══
 var audio = document.getElementById('audioPlayer');
-debug('1. audio=' + audio + ', setting up episodes...');
 var isPlaying = false;
 
 const episodes = [
@@ -1044,17 +785,16 @@ const episodes = [
 ];
 
 function renderEpisodes(eps) {
-  const list = document.getElementById('epList');
-  eps.forEach(ep => {
-    const item = document.createElement('div');
+  var list = document.getElementById('epList');
+  eps.forEach(function(ep) {
+    var item = document.createElement('div');
     item.className = 'ep-item' + (ep.active ? ' active' : '');
     item.onclick = function() {
-      document.querySelectorAll('.ep-item').forEach(e => e.classList.remove('active'));
+      document.querySelectorAll('.ep-item').forEach(function(e) { e.classList.remove('active'); });
       this.classList.add('active');
       document.querySelector('.np-title').textContent = ep.title;
       document.querySelector('.np-guest').textContent = ep.guest || '沐阳 · 共创沙龙';
       document.querySelector('.np-ep-num').textContent = 'EP.' + ep.num;
-      // Swap cover image
       var coverImg = document.getElementById('npCover');
       var fallback = document.getElementById('npThumbFallback');
       if (ep.cover) {
@@ -1065,49 +805,31 @@ function renderEpisodes(eps) {
         coverImg.style.display = 'none';
         fallback.style.display = 'flex';
       }
-      // If this episode has an audio file, load it
-      if (ep.audio) {
-        loadAudio(ep.audio);
-      }
+      if (ep.audio) loadAudio(ep.audio);
     };
-    item.innerHTML = `
-      <div class="ep-num">${String(ep.num).padStart(2,'0')}</div>
-      <div class="ep-body">
-        <div class="ep-title">${ep.title}</div>
-        <div class="ep-meta">
-          <span>${ep.date}</span>
-          ${ep.guest ? `<span>·</span><span>${ep.guest}</span>` : ''}
-          <span>·</span><span class="ep-tag">${ep.tag}</span>
-        </div>
-      </div>
-      <div class="ep-right">
-        <span class="ep-duration">${ep.duration}</span>
-        <div class="ep-play-btn">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-        </div>
-      </div>
-    `;
+    var guestStr = ep.guest ? '<span>·</span><span>' + ep.guest + '</span>' : '';
+    item.innerHTML =
+      '<div class="ep-num">' + String(ep.num).padStart(2,'0') + '</div>' +
+      '<div class="ep-body">' +
+        '<div class="ep-title">' + ep.title + '</div>' +
+        '<div class="ep-meta">' +
+          '<span>' + ep.date + '</span>' + guestStr +
+          '<span>·</span><span class="ep-tag">' + ep.tag + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ep-right">' +
+        '<span class="ep-duration">' + ep.duration + '</span>' +
+        '<div class="ep-play-dia"></div>' +
+      '</div>';
     list.appendChild(item);
   });
-
-  // Auto-load the first active episode's audio on page load
-  const activeEp = eps.find(e => e.active && e.audio);
-  if (activeEp) {
-    loadAudio(activeEp.audio);
-  }
+  var activeEp = eps.find(function(e) { return e.active && e.audio; });
+  if (activeEp) loadAudio(activeEp.audio);
 }
 
-debug('3. Starting renderEpisodes...');
-renderEpisodes(episodes);
-debug('4. renderEpisodes done, binding events...');
-
-// ═══ Load more ═══
-// ═══ Real Audio Player ═══
 function loadAudio(src) {
-  debug('loadAudio called, src=' + src);
-  audio.src = encodeURI(src);
+  audio.src = src;
   audio.load();
-  debug('loadAudio: audio.src=' + audio.src);
   isPlaying = false;
   updatePlayIcon();
   document.getElementById('currentTime').textContent = '0:00';
@@ -1115,85 +837,47 @@ function loadAudio(src) {
   document.getElementById('progressDot').style.left = '0%';
   document.getElementById('waveform').style.opacity = '0.3';
   document.getElementById('totalTime').textContent = '--:--';
-  // Get total duration once metadata is loaded
   audio.addEventListener('loadedmetadata', function() {
     document.getElementById('totalTime').textContent = fmt(Math.floor(audio.duration));
-    debug('META loaded: duration=' + audio.duration + 's');
-  }, { once: true });
-  audio.addEventListener('loadeddata', function() {
-    debug('DATA loaded: readyState=' + audio.readyState);
-  }, { once: true });
-  audio.addEventListener('canplay', function() {
-    debug('CANPLAY: audio ready to play');
-  }, { once: true });
-  audio.addEventListener('error', function(e) {
-    debug('AUDIO ERROR: code=' + (audio.error ? audio.error.code : '?') + ' msg=' + (audio.error ? audio.error.message : '?'));
   }, { once: true });
 }
 
 function togglePlay() {
-  debug('CLICK: togglePlay fired, audio.src=' + audio.src + ', paused=' + audio.paused + ', readyState=' + audio.readyState);
   if (!audio.src) {
-    const activeEp = episodes.find(e => e.audio);
+    var activeEp = episodes.find(function(e) { return e.audio; });
     if (activeEp) loadAudio(activeEp.audio);
   }
   if (audio.paused) {
-    var playPromise = audio.play();
-    if (playPromise !== undefined) {
-      playPromise.then(function() {
-        debug('PLAY: success');
-      }).catch(function(err) {
-        debug('PLAY ERROR: ' + err.name + ' - ' + err.message);
-      });
-    }
+    audio.play().catch(function(){});
     isPlaying = true;
   } else {
     audio.pause();
     isPlaying = false;
-    debug('PAUSE: audio paused');
   }
   updatePlayIcon();
   document.getElementById('waveform').style.opacity = isPlaying ? '1' : '0.3';
 }
 
 function updatePlayIcon() {
-  const icon = document.getElementById('playIcon');
-  if (isPlaying) {
-    icon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
-  } else {
-    icon.innerHTML = '<polygon points="5,3 19,12 5,21"/>';
-  }
+  var icon = document.getElementById('playIcon');
+  icon.innerHTML = isPlaying
+    ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>'
+    : '<polygon points="5,3 19,12 5,21"/>';
 }
 
-// Sync UI with audio time
 audio.addEventListener('timeupdate', function() {
   if (audio.duration) {
-    const pct = (audio.currentTime / audio.duration * 100).toFixed(2);
+    var pct = (audio.currentTime / audio.duration * 100).toFixed(2);
     document.getElementById('progressFill').style.width = pct + '%';
     document.getElementById('progressDot').style.left = pct + '%';
     document.getElementById('currentTime').textContent = fmt(Math.floor(audio.currentTime));
   }
 });
 
-audio.addEventListener('ended', function() {
-  isPlaying = false;
-  updatePlayIcon();
-  document.getElementById('waveform').style.opacity = '0.3';
-});
+audio.addEventListener('ended', function() { isPlaying = false; updatePlayIcon(); document.getElementById('waveform').style.opacity = '0.3'; });
+audio.addEventListener('play', function() { isPlaying = true; updatePlayIcon(); document.getElementById('waveform').style.opacity = '1'; });
+audio.addEventListener('pause', function() { isPlaying = false; updatePlayIcon(); document.getElementById('waveform').style.opacity = '0.3'; });
 
-audio.addEventListener('play', function() {
-  isPlaying = true;
-  updatePlayIcon();
-  document.getElementById('waveform').style.opacity = '1';
-});
-
-audio.addEventListener('pause', function() {
-  isPlaying = false;
-  updatePlayIcon();
-  document.getElementById('waveform').style.opacity = '0.3';
-});
-
-// ═══ Progress bar: inline onclick on progress-wrap ═══
 function progressClick(e) {
   if (!audio.duration || isNaN(audio.duration)) return;
   var bg = document.getElementById('progressBg');
@@ -1209,27 +893,32 @@ function skipTime(s) {
 }
 
 function fmt(s) {
-  const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+  var m = Math.floor(s / 60), sec = Math.floor(s % 60);
   return m + ':' + String(sec).padStart(2, '0');
 }
 
-// Speed control
-const speeds = [0.75, 1.0, 1.25, 1.5, 2.0];
-let speedIdx = 1;
+var speeds = [0.75, 1.0, 1.25, 1.5, 2.0];
+var speedIdx = 1;
 function cycleSpeed() {
   speedIdx = (speedIdx + 1) % speeds.length;
-  const rate = speeds[speedIdx];
+  var rate = speeds[speedIdx];
   audio.playbackRate = rate;
   document.getElementById('speedBtn').textContent = rate.toFixed(rate === 1 ? 1 : 2) + '\u00d7';
 }
 
-// Waveform animation control
-document.querySelectorAll('.wave-bar').forEach((bar, i) => {
-  const heights = [12, 18, 8, 16, 10, 20, 14];
-  bar.style.setProperty('--max-h', heights[i % heights.length] + 'px');
-});
+// Init
+renderEpisodes(episodes);
 
-debug('✅ All JavaScript executed successfully');
+// Fade-in
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.fade-in').forEach(function(el) { observer.observe(el); });
+setTimeout(function() {
+  document.querySelectorAll('.fade-in').forEach(function(el) {
+    if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('visible');
+  });
+}, 80);
 </script>
 
 </body>
