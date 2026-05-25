@@ -914,15 +914,24 @@ function _seekTo(clientX) {
 
 // 调试标记
 function debugProgressClick(e) {
+  var rect = progressTrack.getBoundingClientRect();
+  var pct = (e.clientX - rect.left) / rect.width;
+  pct = Math.max(0, Math.min(1, pct));
+  var targetSec = audio.duration ? (pct * audio.duration).toFixed(0) : '--';
   var dbg = document.getElementById('debugHit');
   dbg.style.display = 'block';
-  dbg.textContent = (e.type || 'click') + ' @ ' + (e.clientX || 0).toFixed(0);
-  setTimeout(function(){ dbg.style.display = 'none'; }, 600);
+  dbg.textContent =
+    'click@' + e.clientX.toFixed(0) +
+    ' track[' + rect.left.toFixed(0) + '-' + rect.right.toFixed(0) + ']' +
+    ' pct=' + (pct*100).toFixed(1) + '%' +
+    ' → ' + targetSec + 's' +
+    ' dur=' + (audio.duration||0).toFixed(1);
+  setTimeout(function(){ dbg.style.display = 'none'; }, 2500);
   // 实际 seek
   _dragging = true;
   progressFill.classList.add('seeking');
   progressThumb.classList.add('seeking');
-  _seekTo(e.clientX || (e.touches && e.touches[0].clientX) || 0);
+  _seekTo(e.clientX);
   e.preventDefault();
   e.stopPropagation();
 }
