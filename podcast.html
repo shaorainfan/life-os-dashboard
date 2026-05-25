@@ -843,17 +843,41 @@ function renderEpisodes(eps) {
 }
 
 function loadAudio(src) {
-  audio.src = src;
-  audio.load();
-  isPlaying = false;
-  updatePlayIcon();
-  document.getElementById('currentTime').textContent = '0:00';
-  document.getElementById('totalTime').textContent = '--:--';
-  _updateProgressUI(0);
-  document.getElementById('waveform').style.opacity = '0.3';
-  audio.addEventListener('loadedmetadata', function() {
-    document.getElementById('totalTime').textContent = fmt(Math.floor(audio.duration));
-  }, { once: true });
+  // ── Blob URL 方式：先下载全文件，再创建本地 Blob URL ──
+  // 解决部分浏览器对 HTTP Range seek 不兼容的问题
+  _dbgShow('⬇ 下载音频中...');
+  fetch(src)
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) {
+      var blobUrl = URL.createObjectURL(blob);
+      audio.src = blobUrl;
+      audio.load();
+      _dbgShow('✅ Blob ready, try seek!');
+      isPlaying = false;
+      updatePlayIcon();
+      document.getElementById('currentTime').textContent = '0:00';
+      document.getElementById('totalTime').textContent = '--:--';
+      _updateProgressUI(0);
+      document.getElementById('waveform').style.opacity = '0.3';
+      audio.addEventListener('loadedmetadata', function() {
+        document.getElementById('totalTime').textContent = fmt(Math.floor(audio.duration));
+      }, { once: true });
+    })
+    .catch(function(e) {
+      _dbgShow('❌ Download fail: ' + e.message);
+      // fallback to direct URL
+      audio.src = src;
+      audio.load();
+      isPlaying = false;
+      updatePlayIcon();
+      document.getElementById('currentTime').textContent = '0:00';
+      document.getElementById('totalTime').textContent = '--:--';
+      _updateProgressUI(0);
+      document.getElementById('waveform').style.opacity = '0.3';
+      audio.addEventListener('loadedmetadata', function() {
+        document.getElementById('totalTime').textContent = fmt(Math.floor(audio.duration));
+      }, { once: true });
+    });
 }
 
 function togglePlay() {
