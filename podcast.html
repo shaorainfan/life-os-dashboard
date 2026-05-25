@@ -901,7 +901,6 @@ function fmt(sec) {
 function loadAudio(src, cb) {
   if (!src) return;
   resetPlayerUI();
-  // 清理旧的事件监听
   if (_metaHandler) audio.removeEventListener('loadedmetadata', _metaHandler);
   if (_errHandler) audio.removeEventListener('error', _errHandler);
   _metaHandler = function() {
@@ -909,14 +908,20 @@ function loadAudio(src, cb) {
     if (d && !isNaN(d) && isFinite(d)) {
       document.getElementById('pbTotalTime').textContent = fmt(Math.floor(d));
     }
-    if (cb) cb();
+    if (cb) { cb(); cb = null; }
   };
   _errHandler = function(e) {
-    console.error('audio error:', audio.error);
     document.getElementById('pbTotalTime').textContent = 'ERR';
+    if (cb) { cb(); cb = null; }
   };
   audio.addEventListener('loadedmetadata', _metaHandler);
   audio.addEventListener('error', _errHandler);
+  // Fallback: 如果 8 秒内 loadedmetadata 还没触发，强制继续
+  var fallback = setTimeout(function() {
+    if (cb) { cb(); cb = null; }
+  }, 8000);
+  var origCb = cb;
+  cb = function() { clearTimeout(fallback); if (origCb) origCb(); };
   audio.src = src;
   audio.load();
 }
@@ -933,21 +938,27 @@ function resetPlayerUI() {
 }
 
 function togglePlay() {
-  if (!audio.src) {
+  var startPlay = function() {
+    if (audio.paused) {
+      var p = audio.play();
+      if (p) p.catch(function(e) { console.error('play:', e); });
+      isPlaying = true;
+    } else {
+      audio.pause();
+      isPlaying = false;
+    }
+    updateAllPlayIcons();
+    setWaveOpacity(isPlaying ? 1 : 0.3);
+  };
+
+  if (!audio.getAttribute('src')) {
     var ep = episodes[_currentEpIdx];
-    if (ep && ep.audio) loadAudio(ep.audio);
-    else return;
+    if (ep && ep.audio) {
+      loadAudio(ep.audio, startPlay);
+    }
+    return;
   }
-  if (audio.paused) {
-    var p = audio.play();
-    if (p) p.catch(function(e) { console.error('play error:', e); });
-    isPlaying = true;
-  } else {
-    audio.pause();
-    isPlaying = false;
-  }
-  updateAllPlayIcons();
-  setWaveOpacity(isPlaying ? 1 : 0.3);
+  startPlay();
 }
 
 function updateAllPlayIcons() {
@@ -1106,8 +1117,10 @@ function switchEpisode(idx) {
     el.classList.toggle('active', i === idx);
   });
 
-  // Load audio
-  if (ep.audio) loadAudio(ep.audio);
+  // Reset audio
+  audio.removeAttribute('src');
+  audio.load();
+  resetPlayerUI();
 }
 
 // ═══════════════════════════════════════
