@@ -757,6 +757,32 @@ body::after {
   font-size: 0.78rem; color: var(--gray-600); line-height: 1.75; letter-spacing: 0.5px;
 }
 
+/* 可点击的产品卡片 */
+a.product-card-link {
+  display: block; color: inherit; text-decoration: none;
+  position: relative;
+}
+a.product-card-link:hover {
+  border-color: var(--red);
+  box-shadow:
+    0 8px 28px rgba(0,0,0,0.07),
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    0 0 24px var(--red-glow);
+  transform: translateY(-3px);
+}
+.product-card-link .pc-link-hint {
+  font-size: 0.7rem; color: var(--gray-500); letter-spacing: 1px;
+  margin-top: 12px; display: inline-block;
+  opacity: 0; transition: opacity 0.3s;
+}
+.product-card-link:hover .pc-link-hint { opacity: 1; }
+.product-card-link .pc-icon { background: var(--red); box-shadow: 0 0 10px var(--red-glow), 0 0 20px var(--red-glow); }
+
+.products-hint {
+  font-size: 0.68rem; color: var(--gray-500); letter-spacing: 1px;
+  margin-top: 20px; text-align: center; font-style: italic;
+}
+
 /* ========== 分割线 ========== */
 .divider-bp {
   display: flex; align-items: center; justify-content: center; gap: 10px;
@@ -1163,12 +1189,13 @@ body::after {
           <h3>INFP↔INTP 沟通转译器</h3>
           <p>精准转译不同 MBTI 人格的表达逻辑，减少语言信息错位带来的沟通障碍。</p>
         </div>
-        <div class="product-card">
+        <a href="life-dashboard.html" class="product-card product-card-link" target="_blank">
           <div class="card-glass"></div>
           <div class="pc-icon"></div>
           <h3>Life Buddy 生命状态仪表盘</h3>
           <p>像仪表盘一样可视化你的精力、情绪、健康等全维度生命数据，促进生命整合与行动。</p>
-        </div>
+          <span class="pc-link-hint">📋 查看案例展示 →</span>
+        </a>
         <div class="product-card">
           <div class="card-glass"></div>
           <div class="pc-icon"></div>
@@ -1182,6 +1209,7 @@ body::after {
           <p>用 AI 技术蒸馏身边优秀者的知识、技能与思维方式，把他人的宝贵经验变成你随时调用的专属能力库。</p>
         </div>
       </div>
+      <p class="products-hint">💡 Life Buddy 可点击查看案例展示</p>
     </div>
   </div>
 </section>
