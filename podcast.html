@@ -647,13 +647,12 @@ footer {
       </div>
 
       <div class="np-player" id="npPlayer">
-        <div class="progress-wrap" id="progressWrap" onmousedown="debugProgressClick(event)" ontouchstart="debugProgressClick(event)">
-          <div class="progress-track" id="progressTrack" style="background:rgba(255,0,0,0.15);">
+        <div class="progress-wrap" id="progressWrap">
+          <div class="progress-track" id="progressTrack">
             <div class="progress-fill" id="progressFill"></div>
             <div class="progress-thumb" id="progressThumb"></div>
           </div>
         </div>
-        <div id="debugHit" style="display:none;position:fixed;top:10px;right:10px;background:#c0392b;color:white;padding:6px 14px;border-radius:4px;font:bold 14px sans-serif;z-index:99999;">HIT!</div>
         <div class="time-row">
           <span id="currentTime">22:15</span>
           <span id="totalTime">63:48</span>
@@ -843,16 +842,14 @@ function renderEpisodes(eps) {
 }
 
 function loadAudio(src) {
-  // ── Blob URL 方式：先下载全文件，再创建本地 Blob URL ──
-  // 解决部分浏览器对 HTTP Range seek 不兼容的问题
-  _dbgShow('⬇ 下载音频中...');
+  // ── Blob URL：先下载全文件再创建本地 Blob URL ──
+  // 解决 MP3 缺少 seek 表导致浏览器无法定位的问题
   fetch(src)
     .then(function(r) { return r.blob(); })
     .then(function(blob) {
       var blobUrl = URL.createObjectURL(blob);
       audio.src = blobUrl;
       audio.load();
-      _dbgShow('✅ Blob ready, try seek!');
       isPlaying = false;
       updatePlayIcon();
       document.getElementById('currentTime').textContent = '0:00';
@@ -864,7 +861,6 @@ function loadAudio(src) {
       }, { once: true });
     })
     .catch(function(e) {
-      _dbgShow('❌ Download fail: ' + e.message);
       // fallback to direct URL
       audio.src = src;
       audio.load();
@@ -936,59 +932,15 @@ function _seekTo(clientX) {
   document.getElementById('currentTime').textContent = fmt(Math.floor(audio.currentTime));
 }
 
-// ═══ 音频事件哨兵 ═══
-var _dbg = document.getElementById('debugHit');
-var _monitor = 0;
-function _dbgShow(msg) {
-  _dbg.style.display = 'block';
-  _dbg.textContent = msg;
-  if (_monitor) clearTimeout(_monitor);
-  _monitor = setTimeout(function(){ _dbg.style.display = 'none'; }, 4000);
-}
-// 监控 seeking / seeked / error / loadstart / 时间突变
-audio.addEventListener('seeking', function() { _dbgShow('⏳ seeking → ct=' + audio.currentTime.toFixed(1)); });
-audio.addEventListener('seeked',  function() { _dbgShow('✅ seeked → ct=' + audio.currentTime.toFixed(1)); });
-audio.addEventListener('error',   function() { _dbgShow('❌ AUDIO ERROR: code=' + audio.error?.code + ' msg=' + audio.error?.message); });
-audio.addEventListener('loadstart', function() { _dbgShow('🔄 loadstart! (src changed?) ct=' + audio.currentTime.toFixed(1)); });
-audio.addEventListener('stalled', function() { _dbgShow('⏸ stalled ct=' + audio.currentTime.toFixed(1)); });
-audio.addEventListener('waiting', function() { _dbgShow('⌛ waiting ct=' + audio.currentTime.toFixed(1)); });
-audio.addEventListener('emptied', function() { _dbgShow('🗑 emptied! ct=' + audio.currentTime.toFixed(1)); });
-audio.addEventListener('abort',   function() { _dbgShow('🚫 abort! ct=' + audio.currentTime.toFixed(1)); });
-audio.addEventListener('suspend', function() { /* 太多太吵，略过 */ });
-// 监控 currentTime 突变（每秒检查）
-var _lastCt = -1;
-setInterval(function() {
-  if (audio.error) { _dbgShow('❌ ERROR STATE code=' + audio.error.code); return; }
-  if (_lastCt > 10 && audio.currentTime < 1 && audio.readyState < 3) {
-    _dbgShow('⚠ ct JUMP: ' + _lastCt.toFixed(1) + '→' + audio.currentTime.toFixed(1) + ' rdy=' + audio.readyState);
-  }
-  _lastCt = audio.currentTime;
-}, 1000);
-
-// ═══ 进度条点击 ═══
-function debugProgressClick(e) {
-  var rect = progressTrack.getBoundingClientRect();
-  var pct = (e.clientX - rect.left) / rect.width;
-  pct = Math.max(0, Math.min(1, pct));
-  var targetSec = audio.duration ? (pct * audio.duration).toFixed(0) : '--';
-  _dbgShow(
-    'click@' + e.clientX.toFixed(0) +
-    ' pct=' + (pct*100).toFixed(1) + '%' +
-    ' → seek ' + targetSec + 's' +
-    ' (dur=' + (audio.duration||0).toFixed(1) + ' readyState=' + audio.readyState + ')'
-  );
+// ═══ 进度条事件（mousedown + touchstart）═══
+// 绑定到 progressWrap（大热区），坐标用 progressTrack 计算
+progressWrap.addEventListener('mousedown', function(e) {
   _dragging = true;
   progressFill.classList.add('seeking');
   progressThumb.classList.add('seeking');
   _seekTo(e.clientX);
   e.preventDefault();
-  e.stopPropagation();
-}
-
-// 5分钟后停止哨兵（减少 log 噪音）
-setTimeout(function() { _lastCt = -1; clearInterval(_monitor); }, 300000);
-
-// document-level 拖动
+});
 document.addEventListener('mousemove', function(e) {
   if (!_dragging) return;
   _seekTo(e.clientX);
@@ -999,10 +951,23 @@ document.addEventListener('mouseup', function() {
   progressFill.classList.remove('seeking');
   progressThumb.classList.remove('seeking');
 });
+progressWrap.addEventListener('touchstart', function(e) {
+  _dragging = true;
+  progressFill.classList.add('seeking');
+  progressThumb.classList.add('seeking');
+  _seekTo(e.touches[0].clientX);
+  e.preventDefault();
+}, { passive: false });
 document.addEventListener('touchmove', function(e) {
   if (!_dragging) return;
   _seekTo(e.touches[0].clientX);
 }, { passive: false });
+document.addEventListener('touchend', function() {
+  if (!_dragging) return;
+  _dragging = false;
+  progressFill.classList.remove('seeking');
+  progressThumb.classList.remove('seeking');
+});
 document.addEventListener('touchend', function() {
   if (!_dragging) return;
   _dragging = false;
