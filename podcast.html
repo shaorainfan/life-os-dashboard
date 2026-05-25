@@ -900,27 +900,15 @@ function fmt(sec) {
 
 function loadAudio(src, cb) {
   if (!src) return;
-  fetch(src)
-    .then(function(r) { return r.blob(); })
-    .then(function(blob) {
-      var blobUrl = URL.createObjectURL(blob);
-      audio.src = blobUrl;
-      audio.load();
-      resetPlayerUI();
-      audio.addEventListener('loadedmetadata', function() {
-        document.getElementById('pbTotalTime').textContent = fmt(Math.floor(audio.duration));
-        if (cb) cb();
-      }, { once: true });
-    })
-    .catch(function(e) {
-      audio.src = src;
-      audio.load();
-      resetPlayerUI();
-      audio.addEventListener('loadedmetadata', function() {
-        document.getElementById('pbTotalTime').textContent = fmt(Math.floor(audio.duration));
-        if (cb) cb();
-      }, { once: true });
-    });
+  resetPlayerUI();
+  audio.src = src;
+  audio.load();
+  audio.addEventListener('canplay', function() {
+    if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
+      document.getElementById('pbTotalTime').textContent = fmt(Math.floor(audio.duration));
+    }
+    if (cb) cb();
+  }, { once: true });
 }
 
 function resetPlayerUI() {
