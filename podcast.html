@@ -277,7 +277,6 @@ nav {
 /* ========== NOW PLAYING ═══ */
 .now-playing-panel {
   padding: 0;
-  overflow: hidden;
 }
 .np-top {
   padding: 22px 32px 18px;
@@ -342,7 +341,7 @@ nav {
 
 /* ── 进度条：纯 div + Pointer Events ── */
 .progress-wrap {
-  position: relative; margin-bottom: 8px; cursor: pointer;
+  position: relative; z-index: 10; margin-bottom: 8px; cursor: pointer;
   padding: 8px 0;
   touch-action: none;
   -webkit-user-select: none; user-select: none;
@@ -912,8 +911,12 @@ function _handleSeek(clientX) {
   document.getElementById('currentTime').textContent = fmt(Math.floor(audio.currentTime));
 }
 
-// mousedown — 最基础，全平台通用
-progressWrap.addEventListener('mousedown', function(e) {
+// mousedown — 挂在 body 上，手动判断是否在进度条区域
+document.body.addEventListener('mousedown', function(e) {
+  var r = progressTrack.getBoundingClientRect();
+  // 扩大判定范围（±12px 容错）
+  if (e.clientX < r.left - 5 || e.clientX > r.right + 5 ||
+      e.clientY < r.top - 12 || e.clientY > r.bottom + 12) return;
   _dragging = true;
   progressFill.classList.add('seeking');
   progressThumb.classList.add('seeking');
