@@ -5,790 +5,857 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>流动的人 · 播客</title>
 <style>
+/* ═══════════════════════════════════════
+   Gcores-inspired design
+   流动的人 · 播客
+   ═══════════════════════════════════════ */
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --red: #c0392b;
-  --red-glow: rgba(192,57,43,0.35);
-  --red-bright: #e74c3c;
-  --gray-100: #f4f4f4;
-  --gray-200: #e0e0e0;
-  --gray-300: #c8c8c8;
-  --gray-400: #a0a0a0;
-  --gray-500: #777;
-  --gray-600: #555;
-  --gray-700: #444;
-  --gray-800: #333;
-  --gray-900: #222;
-  --bp-bg: #d9dde3;
-  --panel-bg: rgba(255,255,255,0.62);
-  --panel-border: rgba(180,180,180,0.48);
-  --grid-fine: rgba(170,170,170,0.07);
-  --grid-mid: rgba(170,170,170,0.10);
-  --grid-bold: rgba(170,170,170,0.14);
-  --font: "Helvetica Neue", "PingFang SC", "Noto Sans SC", Arial, sans-serif;
-  --surface-shadow: 0 2px 12px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.5);
-  --surface-hover-shadow: 0 8px 28px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.5);
+  --accent: #6b7c5e;
+  --accent-light: #8a9e7a;
+  --accent-bright: #9db891;
+  --accent-glow: rgba(107,124,94,0.2);
+  --accent-subtle: rgba(107,124,94,0.08);
+  --accent-ghost: rgba(107,124,94,0.04);
+  --bg: #ffffff;
+  --bg-card: #ffffff;
+  --text: #2a2722;
+  --text-secondary: #5c574e;
+  --text-tertiary: #8a8579;
+  --border: #e6e2d9;
+  --border-light: #f0ede6;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.03);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.04);
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --font: "Helvetica Neue", "PingFang SC", "Noto Sans SC", -apple-system, sans-serif;
+  --font-display: "PingFang SC", "Noto Sans SC", "Helvetica Neue", sans-serif;
 }
 
-html { scroll-behavior: smooth; font-size: 16px; }
+html { scroll-behavior: smooth; font-size: 16px; -webkit-font-smoothing: antialiased; }
+
 body {
   font-family: var(--font);
-  color: var(--gray-800);
-  background: var(--bp-bg);
-  line-height: 1.8;
-  -webkit-font-smoothing: antialiased;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+  min-height: 100vh;
 }
 
-/* ========== 蓝图全局网格层 ========== */
-.bp-layer {
-  position: fixed; inset: 0; pointer-events: none; z-index: 0;
-}
-.bp-layer-fine {
-  background-image:
-    linear-gradient(var(--grid-fine) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-fine) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-.bp-layer-mid {
-  background-image:
-    linear-gradient(var(--grid-mid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-mid) 1px, transparent 1px);
-  background-size: 60px 60px;
-}
-.bp-layer-bold {
-  background-image:
-    linear-gradient(var(--grid-bold) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-bold) 1px, transparent 1px);
-  background-size: 120px 120px;
-}
-.bp-layer-hex {
-  background-color: transparent;
-  background-image:
-    repeating-linear-gradient(60deg,  rgba(170,170,180,0.05) 0px, rgba(170,170,180,0.05) 0.5px, transparent 0.5px, transparent 40px),
-    repeating-linear-gradient(-60deg, rgba(170,170,180,0.05) 0px, rgba(170,170,180,0.05) 0.5px, transparent 0.5px, transparent 40px),
-    repeating-linear-gradient(0deg,   rgba(170,170,180,0.05) 0px, rgba(170,170,180,0.05) 0.5px, transparent 0.5px, transparent 40px);
-  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 70%);
-  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 70%);
-}
+img { max-width: 100%; display: block; }
 
-/* 播客专属音频波形背景层 */
-.bp-layer-wave {
-  background-color: transparent;
-  background-image:
-    repeating-linear-gradient(0deg, transparent, transparent 9px, rgba(192,57,43,0.015) 9px, rgba(192,57,43,0.015) 10px),
-    repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(192,57,43,0.01) 19px, rgba(192,57,43,0.01) 20px);
-  mask-image: radial-gradient(ellipse 60% 80% at 50% 30%, black 20%, transparent 65%);
-  -webkit-mask-image: radial-gradient(ellipse 60% 80% at 50% 30%, black 20%, transparent 65%);
-}
-
-body::before {
-  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background:
-    radial-gradient(ellipse 600px 480px at 20% 15%, rgba(255,255,255,0.65) 0%, transparent 60%),
-    radial-gradient(ellipse 500px 400px at 78% 42%, rgba(210,218,230,0.35) 0%, transparent 60%),
-    radial-gradient(ellipse 700px 350px at 50% 92%, rgba(160,168,178,0.45) 0%, transparent 55%),
-    radial-gradient(ellipse 300px 250px at 15% 60%, rgba(235,238,242,0.3) 0%, transparent 65%),
-    radial-gradient(ellipse 400px 300px at 55% 55%, rgba(245,247,250,0.15) 0%, transparent 70%);
-}
-
-body::after {
-  content: '';
-  position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background: repeating-linear-gradient(
-    0deg, transparent, transparent 3px, rgba(0,0,0,0.012) 3px, rgba(0,0,0,0.012) 4px
-  );
-}
-
-.content-layer { position: relative; z-index: 1; }
-.container { max-width: 760px; margin: 0 auto; padding: 0 28px; }
-
-/* ========== 扫描线 ========== */
-.scan-line {
-  position: fixed; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--red-glow), transparent);
-  animation: scan-down 8s linear infinite;
-  pointer-events: none; z-index: 0; opacity: 0.2;
-}
-@keyframes scan-down {
-  0% { top: -2px; opacity: 0; }
-  5% { opacity: 0.3; }
-  95% { opacity: 0.3; }
-  100% { top: 100vh; opacity: 0; }
-}
-
-/* ========== NAV ========== */
-nav {
+/* ═══ NAV ═══ */
+.nav {
   position: sticky; top: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 28px; height: 56px;
-  background: rgba(217,221,227,0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(180,180,180,0.35);
+  height: 56px; padding: 0 24px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
 }
 .nav-brand {
-  display: flex; align-items: center; gap: 10px; text-decoration: none;
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--text);
 }
 .nav-diamond {
-  width: 14px; height: 14px; background: var(--red);
-  transform: rotate(45deg); box-shadow: 0 0 10px var(--red-glow);
+  width: 12px; height: 12px;
+  background: var(--accent);
+  transform: rotate(45deg);
+  box-shadow: 0 0 10px var(--accent-glow);
 }
 .nav-title {
-  font-size: 14px; font-weight: 500; letter-spacing: 4px; color: var(--gray-800);
+  font-size: 15px; font-weight: 600;
+  letter-spacing: 2px; color: var(--text);
 }
-.nav-links {
-  display: flex; gap: 28px; list-style: none;
-}
+.nav-links { display: flex; gap: 24px; list-style: none; }
 .nav-links a {
-  color: var(--gray-500); text-decoration: none;
-  font-size: 12px; letter-spacing: 2px; transition: color 0.2s;
+  font-size: 13px; color: var(--text-tertiary);
+  text-decoration: none; letter-spacing: 1px;
+  transition: color 0.2s;
 }
-.nav-links a:hover { color: var(--red); }
+.nav-links a:hover { color: var(--accent); }
 
-/* ========== 通用面板 ========== */
-.bp-panel {
-  background: var(--panel-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--panel-border);
+/* ═══ HERO BANNER ═══ */
+.hero {
   position: relative;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.7),
-    inset 1px 0 0 rgba(255,255,255,0.3),
-    inset 0 -1px 0 rgba(0,0,0,0.04),
-    0 2px 18px rgba(0,0,0,0.05);
-}
-.bp-panel::before {
-  content: ''; position: absolute; inset: 0;
-  background:
-    linear-gradient(135deg, rgba(255,255,255,0.35) 0%, transparent 35%),
-    linear-gradient(-45deg, transparent 55%, rgba(180,185,190,0.1) 100%);
-  pointer-events: none;
-}
-
-.corner-brackets { position: relative; }
-.corner-brackets::before,
-.corner-brackets::after {
-  content: ''; position: absolute; width: 16px; height: 16px; pointer-events: none;
-  border-color: var(--gray-400);
-}
-.corner-brackets::before { top: -1px; left: -1px; border-top: 1.5px solid; border-left: 1.5px solid; }
-.corner-brackets::after  { top: -1px; right: -1px; border-top: 1.5px solid; border-right: 1.5px solid; }
-.corner-brackets .cb-bottom {
-  position: absolute; bottom: -1px; left: -1px; right: -1px; pointer-events: none;
-}
-.corner-brackets .cb-bottom::before {
-  content: ''; position: absolute; bottom: -1px; left: -1px;
-  width: 16px; height: 16px;
-  border-bottom: 1.5px solid var(--gray-400); border-left: 1.5px solid var(--gray-400);
-}
-.corner-brackets .cb-bottom::after {
-  content: ''; position: absolute; bottom: -1px; right: -1px;
-  width: 16px; height: 16px;
-  border-bottom: 1.5px solid var(--gray-400); border-right: 1.5px solid var(--gray-400);
-}
-
-/* ========== 菱形 ========== */
-.diamond {
-  display: inline-block; width: 10px; height: 10px;
-  background: var(--gray-400); transform: rotate(45deg);
-}
-.diamond.red { background: var(--red); box-shadow: 0 0 10px var(--red-glow); }
-.diamond.glow { animation: dia-pulse 2.5s ease-in-out infinite; }
-@keyframes dia-pulse {
-  0%, 100% { box-shadow: 0 0 6px var(--red-glow); }
-  50% { box-shadow: 0 0 18px var(--red-glow), 0 0 30px rgba(192,57,43,0.15); }
-}
-
-/* ========== Section 通用 ========== */
-.section-animus { padding: 64px 0; position: relative; z-index: 1; }
-.section-animus.top-section { padding-top: 40px; }
-
-.section-header {
-  display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
-}
-.section-header .sh-diamond { width: 12px; height: 12px; background: var(--red); transform: rotate(45deg); flex-shrink: 0; box-shadow: 0 0 12px var(--red-glow); }
-.section-header .sh-lines { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.section-header .sh-line { height: 1px; background: linear-gradient(90deg, var(--gray-400), transparent); }
-.section-header .sh-line:last-child { opacity: 0.5; width: 60%; }
-.section-title {
-  font-size: clamp(1.3rem, 3.5vw, 1.7rem);
-  font-weight: 300; letter-spacing: 6px; color: var(--gray-800);
-  margin-bottom: 8px;
-}
-.section-sub {
-  font-size: 0.72rem; color: var(--gray-500); letter-spacing: 3px;
-  margin-bottom: 24px;
-}
-
-/* ========== HERO — 「了解更多」卡片置顶 ========== */
-.about-hero {
-  margin-bottom: 48px;
-}
-.about-hero-card {
-  padding: 40px 36px;
-  position: relative;
+  height: 220px;
   overflow: hidden;
+  margin: 0 auto;
+  max-width: 800px;
+  border-radius: 0 0 16px 16px;
 }
-.about-hero-card .ahc-glass {
-  position: absolute; inset: 0; pointer-events: none;
-  background:
-    linear-gradient(135deg, rgba(255,255,255,0.35) 0%, transparent 40%),
-    linear-gradient(-45deg, transparent 55%, rgba(180,185,190,0.12) 100%);
+.hero-bg {
+  position: absolute; inset: 0;
+  background-color: #5a6e4e;
+  background-size: cover;
+  background-position: center;
+  display: none;
 }
-.about-hero-header {
-  display: flex; align-items: center; gap: 16px; margin-bottom: 20px;
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 30%,
+    rgba(0,0,0,0.15) 55%,
+    rgba(0,0,0,0.55) 100%
+  );
 }
-.about-hero-header .ahh-diamond {
-  width: 18px; height: 18px; background: var(--red);
-  transform: rotate(45deg); flex-shrink: 0;
-  box-shadow: 0 0 16px var(--red-glow);
+.hero-content {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 20px 24px 20px;
+  color: #fff;
 }
-.about-hero-header h2 {
-  font-size: 1.15rem; font-weight: 400; letter-spacing: 5px; color: var(--gray-800);
+.hero-ep {
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+  opacity: 0.85;
+  display: flex; align-items: center; gap: 8px;
 }
-.about-hero-desc {
-  font-size: 0.82rem; color: var(--gray-600); line-height: 1.9;
-  margin-bottom: 22px; letter-spacing: 1px; max-width: 540px;
+.hero-ep::after {
+  content: ''; flex: 1; height: 1px;
+  background: rgba(255,255,255,0.2);
 }
-.about-hero-link {
-  display: inline-flex; align-items: center; gap: 10px;
-  padding: 10px 24px;
-  border: 1px solid var(--red);
-  background: rgba(192,57,43,0.06);
-  color: var(--red);
-  text-decoration: none;
-  font-size: 0.78rem; font-weight: 500; letter-spacing: 3px;
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 4px;
+  letter-spacing: 1px;
+}
+.hero-meta {
+  font-size: 11px; opacity: 0.75;
+  letter-spacing: 1px; margin-bottom: 10px;
+  display: flex; gap: 14px; align-items: center;
+}
+.hero-meta span { display: flex; align-items: center; gap: 5px; }
+.hero-play {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 18px;
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 20px;
+  color: #fff;
+  font-size: 12px; font-weight: 500;
+  letter-spacing: 1px;
+  cursor: pointer;
   transition: all 0.25s;
 }
-.about-hero-link:hover {
-  background: var(--red);
-  color: #fff;
-  box-shadow: 0 4px 20px rgba(192,57,43,0.25);
+.hero-play:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.03);
 }
-.about-hero-link .ahl-arrow {
-  font-size: 1.1rem; transition: transform 0.25s;
+.hero-play svg { width: 14px; height: 14px; }
+
+/* Hero - 无封面时的渐变背景 */
+.hero-fallback {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(160deg, #5c704a 0%, #7a8f68 30%, #6b7c5e 50%, #4d5e3a 100%);
 }
-.about-hero-link:hover .ahl-arrow {
-  transform: translateX(4px);
+.hero-fallback::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 300px 200px at 25% 30%, rgba(255,255,255,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 200px 250px at 70% 60%, rgba(255,255,255,0.05) 0%, transparent 60%);
 }
 
-/* ========== NOW PLAYING ═══ */
-.now-playing-panel {
-  padding: 0;
-}
-.np-top {
-  padding: 22px 32px 18px;
-  border-bottom: 1px solid rgba(180,180,180,0.35);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.np-badge {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 11px; letter-spacing: 3px; color: var(--red); font-weight: 500;
-}
-.np-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: var(--red);
-  box-shadow: 0 0 8px var(--red-glow);
-  animation: blink 1.5s ease-in-out infinite;
-}
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
-
-.np-ep-num {
-  font-size: 0.7rem; color: var(--gray-500); letter-spacing: 2px;
+@media (max-width: 640px) {
+  .hero { height: 180px; border-radius: 0 0 12px 12px; }
+  .hero-content { padding: 16px 16px 16px; }
+  .hero-title { font-size: 1rem; }
+  .hero-play { padding: 5px 14px; font-size: 11px; }
 }
 
-.np-content {
-  padding: 28px 32px;
-  display: grid;
-  grid-template-columns: 100px 1fr;
-  gap: 28px;
-  align-items: start;
+/* ═══ CONTAINER ═══ */
+.container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+
+/* ═══ SECTION ═══ */
+.section { padding: 48px 0; }
+.section-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+}
+.section-diamond {
+  width: 10px; height: 10px;
+  background: var(--accent);
+  transform: rotate(45deg); flex-shrink: 0;
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+  font-weight: 600; color: var(--text);
+  letter-spacing: 1px;
+}
+.section-sub {
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: 2px; margin-bottom: 20px;
 }
 
-.np-thumb {
-  width: 100px; height: 100px; flex-shrink: 0;
-  border: 1px solid rgba(180,180,180,0.45);
-  overflow: hidden; position: relative;
-  box-shadow: 0 2px 14px rgba(0,0,0,0.06);
+/* ═══ PLAYER BAR (compact) ═══ */
+.player-bar {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 0;
 }
+.player-bar .pb-info {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 12px;
+}
+.pb-thumb {
+  width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0;
+  overflow: hidden; background: var(--accent-subtle);
+  display: flex; align-items: center; justify-content: center;
+}
+.pb-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.pb-text { min-width: 0; }
+.pb-title {
+  font-size: 14px; font-weight: 600; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  letter-spacing: 0.5px;
+}
+.pb-guest { font-size: 11px; color: var(--accent); letter-spacing: 1px; }
+.pb-guest::after { content: ' · '; color: var(--text-tertiary); opacity: 0.5; }
+.pb-origin {
+  font-size: 10px; color: var(--text-tertiary);
+  letter-spacing: 0.5px; opacity: 0.7;
+}
+.pb-live {
+  margin-left: auto; display: flex; align-items: center; gap: 6px;
+  font-size: 10px; letter-spacing: 2px; color: var(--accent); font-weight: 600;
+}
+.pb-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  animation: pb-blink 1.5s ease-in-out infinite;
+}
+@keyframes pb-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-.np-thumb::before {
-  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  border: 1px solid rgba(192,57,43,0.15);
+/* Progress */
+.pb-progress-wrap {
+  position: relative; cursor: pointer; padding: 6px 0;
+  touch-action: none; user-select: none;
+  -webkit-user-select: none;
+  margin-bottom: 8px;
 }
-
-.np-info {}
-
-.np-title {
-  font-size: 1rem; font-weight: 500; color: var(--gray-800);
-  margin-bottom: 6px; letter-spacing: 1px; line-height: 1.4;
+.pb-progress-track {
+  width: 100%; height: 5px;
+  background: var(--border);
+  border-radius: 3px; overflow: visible;
+  pointer-events: none;
 }
-.np-guest {
-  font-size: 0.78rem; color: var(--red); letter-spacing: 2px; margin-bottom: 8px; font-weight: 400;
-}
-.np-desc {
-  font-size: 0.75rem; color: var(--gray-600); line-height: 1.75;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-}
-
-/* Player */
-.np-player {
-  padding: 18px 32px 24px;
-  border-top: 1px solid rgba(180,180,180,0.3);
-}
-
-/* ── 进度条：纯 div + Pointer Events ── */
-.progress-wrap {
-  position: relative; z-index: 10; margin-bottom: 8px; cursor: pointer;
-  padding: 8px 0;
-  touch-action: none;
-  -webkit-user-select: none; user-select: none;
-}
-.progress-track {
-  width: 100%; height: 8px;
-  background: rgba(180,180,180,0.3);
-  border-radius: 4px;
-  position: relative;
-  overflow: visible;
-  pointer-events: none; /* 事件由 wrap 处理 */
-}
-.progress-fill {
+.pb-progress-fill {
   position: absolute; left: 0; top: 0; height: 100%;
-  background: var(--red);
+  background: var(--accent);
   border-radius: 3px;
-  box-shadow: 0 0 6px var(--red-glow);
+  box-shadow: 0 0 6px var(--accent-glow);
   pointer-events: none;
   transition: width 0.08s linear;
 }
-.progress-fill.seeking { transition: none; }
-.progress-thumb {
+.pb-progress-fill.seeking { transition: none; }
+.pb-progress-thumb {
   position: absolute; top: 50%;
   transform: translate(-50%, -50%);
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  background: var(--red);
-  box-shadow: 0 0 12px var(--red-glow);
+  width: 13px; height: 13px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
   pointer-events: none;
   transition: left 0.08s linear;
 }
-.progress-thumb.seeking { transition: none; }
-.progress-range { display: none; }
+.pb-progress-thumb.seeking { transition: none; }
 
-.time-row {
+.pb-time-row {
   display: flex; justify-content: space-between;
-  font-size: 11px; color: var(--gray-500); margin-bottom: 14px;
-  font-variant-numeric: tabular-nums; letter-spacing: 1px;
+  font-size: 10px; color: var(--text-tertiary);
+  letter-spacing: 1px; font-variant-numeric: tabular-nums;
+  margin-bottom: 10px;
 }
 
-.controls {
-  display: flex; align-items: center; justify-content: center; gap: 16px;
+.pb-controls {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
 }
-.btn-ctrl {
+.pb-btn {
   background: none; border: none; cursor: pointer;
-  color: var(--gray-500); display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s; padding: 5px; border-radius: 50%;
-}
-.btn-ctrl:hover { color: var(--red); }
-
-.btn-play {
-  width: 44px; height: 44px;
-  background: rgba(192,57,43,0.06);
-  border: 1.5px solid var(--red);
-  border-radius: 50%;
+  color: var(--text-tertiary);
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: var(--red);
-  box-shadow: 0 0 16px rgba(192,57,43,0.15);
+  transition: all 0.2s; padding: 4px; border-radius: 50%;
+}
+.pb-btn:hover { color: var(--accent); }
+.pb-btn-play {
+  width: 40px; height: 40px;
+  background: var(--accent);
+  border: none; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: #fff;
+  box-shadow: 0 3px 12px var(--accent-glow);
   transition: all 0.2s;
 }
-.btn-play:hover {
-  background: var(--red); color: #fff;
-  box-shadow: 0 0 24px rgba(192,57,43,0.35);
-  transform: scale(1.04);
+.pb-btn-play:hover {
+  background: var(--accent-light);
+  transform: scale(1.06);
+  box-shadow: 0 4px 20px var(--accent-glow);
 }
-
-.btn-speed {
-  font-size: 11px; color: var(--gray-500);
-  background: rgba(255,255,255,0.4);
-  border: 1px solid rgba(180,180,180,0.4);
-  padding: 4px 8px; cursor: pointer;
-  letter-spacing: 1px;
+.pb-speed {
+  font-size: 11px; color: var(--text-tertiary);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 3px 8px; border-radius: 4px;
+  cursor: pointer; letter-spacing: 1px;
   transition: all 0.2s;
 }
-.btn-speed:hover { color: var(--red); border-color: var(--red); }
+.pb-speed:hover { color: var(--accent); border-color: var(--accent); }
 
-/* ═══ WAVEFORM ═══ */
-.waveform {
-  display: flex; align-items: center; gap: 2px; height: 16px;
+/* Waveform mini */
+.pb-wave {
+  display: flex; align-items: center; gap: 1.5px; height: 12px; margin-left: 4px;
 }
-.wave-bar {
-  width: 3px; background: var(--red);
+.pb-wave-bar {
+  width: 2.5px; background: var(--accent-light);
   opacity: 0.5; border-radius: 1px;
-  animation: wave 0.8s ease-in-out infinite alternate;
+  animation: pb-wave 0.7s ease-in-out infinite alternate;
 }
-@keyframes wave {
-  from { height: 3px; opacity: 0.3; }
-  to { height: 14px; opacity: 0.8; }
+@keyframes pb-wave {
+  from { height: 2px; opacity: 0.3; }
+  to { height: 10px; opacity: 0.8; }
 }
 
-/* ═══ EPISODES ═══ */
-.episodes-panel {
-  padding: 28px 20px;
+@media (max-width: 640px) {
+  .player-bar { padding: 14px 16px; border-radius: var(--radius-sm); }
+  .pb-controls { gap: 10px; }
+  .pb-btn-play { width: 36px; height: 36px; }
 }
-.ep-list {
+
+/* ═══ EPISODE INTRO ═══ */
+.player-intro {
+  padding: 16px 4px 0;
+}
+.player-intro .intro-text {
+  font-size: 13.5px; color: var(--text-secondary);
+  line-height: 1.8; letter-spacing: 0.4px;
+}
+.player-intro .intro-text strong { color: var(--text); }
+
+/* ═══ TIMELINE CARDS ═══ */
+.timeline-grid {
   display: flex; flex-direction: column; gap: 0;
+  position: relative;
 }
-.ep-item {
-  display: grid; grid-template-columns: 44px 1fr auto;
-  gap: 14px; align-items: center;
-  padding: 16px 16px; cursor: pointer;
-  border-bottom: 1px solid rgba(180,180,180,0.22);
-  transition: all 0.2s;
+.timeline-grid::before {
+  content: '';
+  position: absolute;
+  left: 14px; top: 20px; bottom: 20px;
+  width: 1px;
+  background: var(--border-light);
+  z-index: 0;
 }
-.ep-item:last-child { border-bottom: none; }
-.ep-item:hover {
-  background: rgba(192,57,43,0.04);
-  padding-left: 20px;
+.tl-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all 0.25s;
+  border: 1px solid var(--border-light);
+  margin-bottom: 14px;
+  position: relative; z-index: 1;
 }
-.ep-item.active {
-  background: rgba(192,57,43,0.06);
-  padding-left: 20px;
-  border-left: 2px solid var(--red);
+.tl-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--accent);
 }
-
-.ep-num {
-  font-size: 1rem; font-weight: 400; color: var(--gray-400);
-  letter-spacing: 2px; text-align: right;
+.tl-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow), var(--shadow-md);
 }
-.ep-item.active .ep-num,
-.ep-item:hover .ep-num { color: var(--red); }
-
-.ep-title {
-  font-size: 0.82rem; font-weight: 400; color: var(--gray-700);
-  letter-spacing: 1px; line-height: 1.4;
+.tl-card-inner {
+  display: flex; gap: 0;
 }
-.ep-meta {
-  font-size: 0.65rem; color: var(--gray-500); letter-spacing: 1px;
-  display: flex; gap: 8px; margin-top: 3px;
+.tl-card-dot {
+  width: 28px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--accent);
+  line-height: 1; user-select: none;
+  position: relative; z-index: 2; opacity: 0.6;
 }
-.ep-tag { color: var(--red); opacity: 0.7; }
-
-.ep-right {
-  display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+.tl-card-dot::before {
+  content: '';
+  position: absolute; z-index: -1;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--bg-card);
 }
-.ep-duration {
-  font-size: 0.68rem; color: var(--gray-500); letter-spacing: 1px;
+.tl-card-body {
+  flex: 1; padding: 14px 16px;
+  display: flex; flex-direction: column;
+  min-width: 0;
+}
+.tl-card-time {
+  font-size: 12px; font-weight: 600; color: var(--accent);
+  letter-spacing: 1px; margin-bottom: 6px;
   font-variant-numeric: tabular-nums;
 }
-.ep-play-dia {
-  width: 10px; height: 10px; background: var(--gray-300);
-  transform: rotate(45deg); opacity: 0;
-  transition: all 0.2s;
+.tl-card-text {
+  font-size: 14px; color: var(--text);
+  line-height: 1.6; letter-spacing: 0.5px;
 }
-.ep-item:hover .ep-play-dia,
-.ep-item.active .ep-play-dia {
-  opacity: 1; background: var(--red);
-  box-shadow: 0 0 8px var(--red-glow);
+.tl-card-desc {
+  font-size: 12px; color: var(--text-secondary);
+  line-height: 1.7; margin-top: 6px;
+  letter-spacing: 0.3px;
 }
 
-/* ═══ ABOUT HOST ═══ */
-.about-host-panel {
-  padding: 32px 32px;
+@media (max-width: 640px) {
+  .tl-card-dot { width: 20px; font-size: 16px; }
+  .tl-card-body { padding: 10px 14px; }
+  .tl-card-text { font-size: 13px; }
 }
-.host-info {
-  display: flex; align-items: center; gap: 16px; margin-bottom: 18px;
+
+/* ═══ RESOURCE CARDS ═══ */
+.res-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
 }
-.host-diamond {
-  width: 40px; height: 40px; background: var(--red);
-  transform: rotate(45deg); flex-shrink: 0;
+.res-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  cursor: default;
+}
+.res-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-glow), var(--shadow-md);
+}
+.res-card-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: var(--accent-subtle);
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 16px var(--red-glow);
+  margin-bottom: 12px;
+  color: var(--accent); font-size: 16px;
 }
-.host-diamond span {
-  transform: rotate(-45deg);
-  font-size: 1rem; font-weight: 500; color: #fff;
+.res-card-title {
+  font-size: 14px; font-weight: 600; color: var(--text);
+  margin-bottom: 6px; letter-spacing: 0.3px;
 }
-.host-name {
-  font-size: 1rem; font-weight: 500; letter-spacing: 3px; color: var(--gray-800);
+.res-card-desc {
+  font-size: 12px; color: var(--text-secondary);
+  line-height: 1.7; letter-spacing: 0.2px;
 }
-.host-role {
-  font-size: 0.7rem; color: var(--gray-500); letter-spacing: 2px; margin-top: 2px;
+.res-card-link {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 10px; font-size: 12px; font-weight: 500;
+  color: var(--accent); text-decoration: none;
+  letter-spacing: 0.5px; transition: color 0.2s;
+}
+.res-card-link:hover { color: var(--accent-light); }
+.res-card-link svg { width: 14px; height: 14px; }
+
+/* Section header (金句精选 / 推荐资料) */
+.res-header {
+  grid-column: 1 / -1;
+  background: none; border: none; border-radius: 0;
+  padding: 8px 0 4px; cursor: default;
+  box-shadow: none;
+}
+.res-header:hover {
+  border-color: transparent; box-shadow: none;
+}
+.res-header span {
+  font-size: 12px; font-weight: 600; color: var(--text-tertiary);
+  letter-spacing: 0.8px; text-transform: uppercase;
+}
+.res-header:first-child { padding-top: 0; }
+
+/* Book cover card */
+.res-card-cover {
+  display: flex; gap: 16px; align-items: flex-start;
+}
+.res-cover-img {
+  flex-shrink: 0; width: 64px; height: 90px;
+  border-radius: 4px; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.res-cover-img img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.res-cover-body {
+  flex: 1; min-width: 0;
+}
+.res-card-cover .res-card-title {
+  font-size: 15px; margin-bottom: 4px;
+}
+
+.res-quote {
+  border-left: 2px solid var(--accent);
+}
+.res-quote .res-card-title {
+  font-size: 15px; font-weight: 400; font-style: italic;
+  line-height: 1.8; color: var(--text); letter-spacing: 0.2px;
+}
+.res-quote .res-card-desc {
+  margin-top: 8px; font-size: 12px; color: var(--text-tertiary);
+  font-style: normal; letter-spacing: 0.5px;
+}
+
+@media (max-width: 640px) {
+  .res-grid { grid-template-columns: 1fr; }
+  .res-card { padding: 16px; }
+  .res-card-cover { gap: 12px; }
+  .res-cover-img { width: 52px; height: 74px; }
+}
+
+/* ═══ EPISODE CARDS GRID ═══ */
+.ep-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.ep-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.ep-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+.ep-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow), var(--shadow-md);
+  background: var(--accent-ghost);
+}
+.ep-card-num {
+  font-size: 28px; font-weight: 700; color: var(--accent);
+  letter-spacing: 1px; opacity: 0.3;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.ep-card-title {
+  font-size: 15px; font-weight: 600; color: var(--text);
+  line-height: 1.4; margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+.ep-card-meta {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 11px; color: var(--text-tertiary);
+  letter-spacing: 0.5px;
+}
+.ep-card-tag {
+  padding: 2px 8px; border-radius: 10px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 1px;
+}
+.ep-card-duration {
+  margin-left: auto; font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+.ep-card-pending {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  font-size: 10px; font-weight: 500;
+  color: var(--text-tertiary);
+  background: #f0ede6;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
+}
+.ep-card-play {
+  position: absolute; top: 16px; right: 16px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: all 0.25s;
+}
+.ep-card:hover .ep-card-play { opacity: 1; }
+.ep-card.active .ep-card-play { opacity: 1; }
+.ep-card-play svg { width: 12px; height: 12px; fill: #fff; }
+
+@media (max-width: 640px) {
+  .ep-grid { grid-template-columns: 1fr; gap: 10px; }
+  .ep-card { padding: 16px; }
+}
+
+/* ═══ ABOUT CARD ═══ */
+.about-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+}
+.about-host {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 16px;
+}
+.about-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 18px; font-weight: 600;
+  box-shadow: 0 0 16px var(--accent-glow);
+  flex-shrink: 0;
+}
+.about-name {
+  font-size: 16px; font-weight: 600; color: var(--text);
+  letter-spacing: 1px;
+}
+.about-role {
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: 0.5px; margin-top: 2px;
 }
 .about-text {
-  font-size: 0.8rem; color: var(--gray-600); line-height: 2; letter-spacing: 0.5px;
+  font-size: 14px; color: var(--text-secondary);
+  line-height: 1.9; letter-spacing: 0.5px;
 }
-.about-text + .about-text { margin-top: 10px; }
+.about-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 14px;
+  padding: 8px 18px;
+  border-radius: 20px;
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 13px; font-weight: 500;
+  letter-spacing: 1px;
+  transition: all 0.25s;
+}
+.about-link:hover {
+  background: var(--accent);
+  color: #fff;
+}
+.about-link svg { width: 14px; height: 14px; transition: transform 0.25s; }
+.about-link:hover svg { transform: translateX(2px); }
 
 /* ═══ FOOTER ═══ */
-footer {
-  text-align: center; padding: 48px 0 64px; position: relative; z-index: 1;
+.footer {
+  text-align: center; padding: 40px 0 48px;
 }
-.footer-line {
-  display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 20px;
+.footer-diamond {
+  width: 8px; height: 8px; background: var(--accent);
+  transform: rotate(45deg); margin: 0 auto 16px;
+  box-shadow: 0 0 8px var(--accent-glow);
 }
-.footer-line .fl { height: 1px; width: 40px; background: var(--gray-300); }
-.footer-line .fl-dia { width: 7px; height: 7px; background: var(--red); transform: rotate(45deg); box-shadow: 0 0 8px var(--red-glow); }
 .footer-text {
-  font-size: 0.7rem; color: var(--gray-500); letter-spacing: 3px;
+  font-size: 12px; color: var(--text-tertiary);
+  letter-spacing: 3px;
 }
 
 /* ═══ FADE-IN ═══ */
-.fade-in { opacity: 0; transform: translateY(16px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
 .fade-in.visible { opacity: 1; transform: translateY(0); }
 
-/* ═══ RESPONSIVE ═══ */
-@media (max-width: 640px) {
-  .container { padding: 0 16px; }
-  .about-hero-card, .about-host-panel { padding: 28px 20px; }
-  .np-content { grid-template-columns: 1fr; gap: 18px; padding: 20px; }
-  .np-thumb { width: 80px; height: 80px; margin: 0 auto; }
-  .np-top { padding: 18px 20px 14px; }
-  .np-player { padding: 14px 20px 20px; }
-  .episodes-panel { padding: 20px 12px; }
-  .ep-item { grid-template-columns: 32px 1fr auto; gap: 10px; padding: 14px 12px; }
-  .nav-links { display: none; }
-  .section-header .sh-line:last-child { width: 40%; }
+/* ═══ EMPTY STATE ═══ */
+.empty-state {
+  text-align: center; padding: 40px 20px; color: var(--text-tertiary);
+  font-size: 14px; letter-spacing: 1px;
 }
 </style>
 </head>
 <body>
 
-<!-- 蓝图网格层 -->
-<div class="bp-layer bp-layer-fine"></div>
-<div class="bp-layer bp-layer-mid"></div>
-<div class="bp-layer bp-layer-bold"></div>
-<div class="bp-layer bp-layer-hex"></div>
-<div class="bp-layer bp-layer-wave"></div>
-<div class="scan-line"></div>
-
-<div class="content-layer">
-
 <!-- ═══ NAV ═══ -->
-<nav>
+<nav class="nav">
   <a class="nav-brand" href="#">
     <div class="nav-diamond"></div>
     <span class="nav-title">流动的人</span>
   </a>
   <ul class="nav-links">
+    <li><a href="#timeline">时间线</a></li>
+    <li><a href="#resources">干货</a></li>
     <li><a href="#episodes">单集</a></li>
     <li><a href="#about">关于</a></li>
   </ul>
 </nav>
 
-<!-- ═══ HERO — 「了解更多」卡片 置顶 ═══ -->
-<section class="section-animus top-section about-hero">
-  <div class="container fade-in">
-    <div class="bp-panel corner-brackets about-hero-card">
-      <div class="cb-bottom"></div>
-      <div class="ahc-glass"></div>
+<!-- ═══ HERO BANNER ═══ -->
+<section class="hero" id="heroBanner">
+  <div class="hero-fallback" id="heroFallback"></div>
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-ep" id="heroEpNum">EP.8</div>
+    <h1 class="hero-title" id="heroTitle">一起聊聊，如何设计你的人生🌈</h1>
+    <div class="hero-meta">
+      <span>👤 <span id="heroGuest">沐阳 · 共创沙龙</span></span>
+      <span>⏱ <span id="heroDuration">115:30</span></span>
+    </div>
+    <button class="hero-play" id="heroPlayBtn" onclick="togglePlay()">
+      <svg id="heroPlayIcon" viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21" fill="currentColor"/></svg>
+      <span id="heroPlayText">开始收听</span>
+    </button>
+  </div>
+</section>
 
-      <div class="about-hero-header">
-        <div class="ahh-diamond diamond glow"></div>
-        <h2>了解更多关于我</h2>
+<!-- ═══ PLAYER BAR ═══ -->
+<div class="container fade-in" style="margin-top:24px;position:relative;z-index:10;">
+  <div class="player-bar" id="playerBar">
+    <div class="pb-info">
+      <div class="pb-thumb" id="pbThumb">
+        <img id="pbCover" src="" alt="" style="display:none;">
+        <svg id="pbThumbFallback" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5" opacity="0.5"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16" fill="var(--text-tertiary)"/></svg>
       </div>
+      <div class="pb-text">
+        <div class="pb-title" id="pbTitle">一起聊聊，如何设计你的人生🌈</div>
+        <span class="pb-guest" id="pbGuest">沐阳 · 共创沙龙</span>
+        <span class="pb-origin">新出路·创造计划</span>
+      </div>
+      <div class="pb-live"><div class="pb-dot"></div> LIVE</div>
+    </div>
+    <div class="pb-progress-wrap" id="pbProgressWrap">
+      <div class="pb-progress-track" id="pbProgressTrack">
+        <div class="pb-progress-fill" id="pbProgressFill"></div>
+        <div class="pb-progress-thumb" id="pbProgressThumb"></div>
+      </div>
+    </div>
+    <div class="pb-time-row">
+      <span id="pbCurrentTime">0:00</span>
+      <span id="pbTotalTime">--:--</span>
+    </div>
+    <div class="pb-controls">
+      <button class="pb-btn pb-speed" id="pbSpeedBtn" title="播放速度" onclick="cycleSpeed()">1.0×</button>
+      <button class="pb-btn" title="后退15秒" onclick="skipTime(-15)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="1,4 1,10 7,10"/><path d="M3.5 15a9 9 0 1 0 .5-3.2"/>
+          <text x="7" y="16" font-size="6" fill="currentColor" stroke="none">15</text>
+        </svg>
+      </button>
+      <button class="pb-btn-play" id="pbPlayBtn" onclick="togglePlay()">
+        <svg id="pbPlayIcon" width="16" height="16" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" fill="currentColor"/></svg>
+      </button>
+      <button class="pb-btn" title="前进30秒" onclick="skipTime(30)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23,4 23,10 17,10"/><path d="M20.5 15a9 9 0 1 1-.5-3.2"/>
+          <text x="7" y="16" font-size="6" fill="currentColor" stroke="none">30</text>
+        </svg>
+      </button>
+      <div class="pb-wave" id="pbWave">
+        <div class="pb-wave-bar" style="animation-delay:0s"></div>
+        <div class="pb-wave-bar" style="animation-delay:0.08s"></div>
+        <div class="pb-wave-bar" style="animation-delay:0.16s"></div>
+        <div class="pb-wave-bar" style="animation-delay:0.12s"></div>
+        <div class="pb-wave-bar" style="animation-delay:0.04s"></div>
+        <div class="pb-wave-bar" style="animation-delay:0.2s"></div>
+        <div class="pb-wave-bar" style="animation-delay:0.24s"></div>
+      </div>
+    </div>
+  </div>
+  <!-- 内容简介，整合在播放条下方 -->
+  <div class="player-intro" id="epIntro"></div>
+</div>
 
-      <p class="about-hero-desc">
-        我是<span style="color:var(--red);font-weight:500;">沐阳</span>，前摄影师、内容人，正在奥德赛时期自由探索。
-        这档播客记录真实的内在旅程——关于关系、创作、身体智慧，以及如何在流动中找到自己。
+<!-- ═══ TIMELINE ═══ -->
+<section class="section" id="timeline" style="padding-bottom:20px;">
+  <div class="container fade-in">
+    <div class="section-header">
+      <div class="section-diamond"></div>
+      <h2 class="section-title">本期内容时间线</h2>
+    </div>
+    <p class="section-sub">TIMELINE</p>
+    <div class="timeline-grid" id="tlGrid">
+      <!-- Timeline cards injected by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ═══ RESOURCES ═══ -->
+<section class="section" id="resources" style="padding-top: 0;">
+  <div class="container fade-in">
+    <div class="section-header">
+      <div class="section-diamond"></div>
+      <h2 class="section-title">本期干货</h2>
+    </div>
+    <p class="section-sub">TAKEAWAYS</p>
+    <div class="res-grid" id="resGrid">
+      <!-- Resource cards injected by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ═══ EPISODES ═══ -->
+<section class="section" id="episodes">
+  <div class="container fade-in">
+    <div class="section-header">
+      <div class="section-diamond"></div>
+      <h2 class="section-title">所有单集</h2>
+    </div>
+    <p class="section-sub">EPISODES · <span id="epCount">8</span> 集</p>
+    <div class="ep-grid" id="epGrid">
+      <!-- Episode cards injected by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ABOUT ═══ -->
+<section class="section" id="about" style="padding-top:16px;">
+  <div class="container fade-in">
+    <div class="section-header">
+      <div class="section-diamond"></div>
+      <h2 class="section-title">关于主播</h2>
+    </div>
+    <p class="section-sub">ABOUT THE HOST</p>
+    <div class="about-card">
+      <div class="about-host">
+        <div class="about-avatar">沐</div>
+        <div>
+          <div class="about-name">沐阳</div>
+          <div class="about-role">生命探索者 · 心灵摄影师 · INFP · 天津 &amp; 武当山</div>
+        </div>
+      </div>
+      <p class="about-text">
+        生命探索者，心灵摄影师，现在我把镜头对准了内在世界。数百小时的共创咨询经历让我相信：真正的成长发生在关系中，发生在被真正看见的瞬间。
       </p>
-
-      <a class="about-hero-link" href="about.html">
-        个人主页 · About
-        <span class="ahl-arrow">→</span>
+      <p class="about-text" style="margin-top:8px;">
+        这档播客是我的思考场域——关于连接与共情、创作与空性、身体的智慧。没有标准答案，只有真实的流动。
+      </p>
+      <a class="about-link" href="about.html">
+        探索更多
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
     </div>
   </div>
 </section>
 
-<!-- ═══ NOW PLAYING ═══ -->
-<section class="section-animus" style="padding-top:0;">
-  <div class="container fade-in">
-    <div class="section-header">
-      <div class="sh-diamond diamond glow"></div>
-      <div class="sh-lines">
-        <div class="sh-line"></div>
-        <div class="sh-line"></div>
-      </div>
-    </div>
-    <h2 class="section-title">正在播放</h2>
-    <p class="section-sub">NOW PLAYING</p>
-
-    <div class="bp-panel corner-brackets now-playing-panel">
-      <div class="cb-bottom"></div>
-
-      <div class="np-top">
-        <div class="np-badge">
-          <div class="np-dot"></div>
-          LIVE
-        </div>
-        <div class="np-ep-num">EP.8</div>
-      </div>
-
-      <div class="np-content">
-        <div class="np-thumb" id="npThumb">
-          <img id="npCover" src="cover-ep8.png" alt="封面" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none';document.getElementById('npThumbFallback').style.display='flex';">
-          <div id="npThumbFallback" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;background:rgba(255,255,255,0.3);">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10"/>
-              <polygon points="10,8 16,12 10,16"/>
-            </svg>
-          </div>
-        </div>
-
-        <div class="np-info">
-          <div class="np-title">一起聊聊，如何设计你的人生🌈</div>
-          <div class="np-guest">沐阳 · 共创沙龙</div>
-          <div class="np-desc">
-            这是一期关于人生设计的深度对话。我们如何从现有的生活轨迹中找到自己的方向？
-            什么才是真正属于自己的人生设计？不设限，不套模板，从真实的自己出发。
-          </div>
-        </div>
-      </div>
-
-      <div class="np-player" id="npPlayer">
-        <div class="progress-wrap" id="progressWrap">
-          <div class="progress-track" id="progressTrack">
-            <div class="progress-fill" id="progressFill"></div>
-            <div class="progress-thumb" id="progressThumb"></div>
-          </div>
-        </div>
-        <div class="time-row">
-          <span id="currentTime">22:15</span>
-          <span id="totalTime">63:48</span>
-        </div>
-        <div class="controls">
-          <button class="btn-ctrl btn-speed" id="speedBtn" title="播放速度" onclick="cycleSpeed()">1.0×</button>
-          <button class="btn-ctrl" id="skipBack" title="后退15秒" onclick="skipTime(-15)">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="1,4 1,10 7,10"/>
-              <path d="M3.51 15a9 9 0 1 0 .49-3.18"/>
-              <text x="8" y="16" font-size="6" fill="currentColor" stroke="none" font-family="sans-serif">15</text>
-            </svg>
-          </button>
-          <button class="btn-play" id="playBtn" title="播放/暂停" onclick="togglePlay()">
-            <svg id="playIcon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="5,3 19,12 5,21"/>
-            </svg>
-          </button>
-          <button class="btn-ctrl" id="skipFwd" title="前进30秒" onclick="skipTime(30)">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="23,4 23,10 17,10"/>
-              <path d="M20.49 15a9 9 0 1 1-.49-3.18"/>
-              <text x="8" y="16" font-size="6" fill="currentColor" stroke="none" font-family="sans-serif">30</text>
-            </svg>
-          </button>
-          <button class="btn-ctrl" title="下一集">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="5,4 15,12 5,20"/>
-              <line x1="19" y1="5" x2="19" y2="19"/>
-            </svg>
-          </button>
-          <div class="waveform" id="waveform" style="margin-left:12px;">
-            <div class="wave-bar" style="animation-delay:0s"></div>
-            <div class="wave-bar" style="animation-delay:0.1s"></div>
-            <div class="wave-bar" style="animation-delay:0.2s"></div>
-            <div class="wave-bar" style="animation-delay:0.15s"></div>
-            <div class="wave-bar" style="animation-delay:0.05s"></div>
-            <div class="wave-bar" style="animation-delay:0.25s"></div>
-            <div class="wave-bar" style="animation-delay:0.3s"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="container"><div class="divider-bp"><div class="d-line"></div><div class="d-dia"></div><div class="d-line"></div></div></div>
-<style>
-.divider-bp {
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  padding: 12px 0; position: relative; z-index: 1;
-}
-.divider-bp .d-line { height: 1px; width: 60px; background: var(--gray-300); }
-.divider-bp .d-dia { width: 8px; height: 8px; background: var(--gray-400); transform: rotate(45deg); }
-</style>
-
-<!-- ═══ EPISODES ═══ -->
-<section id="episodes" class="section-animus" style="padding-top:0;">
-  <div class="container fade-in">
-    <div class="section-header">
-      <div class="sh-diamond diamond glow"></div>
-      <div class="sh-lines">
-        <div class="sh-line"></div>
-        <div class="sh-line"></div>
-      </div>
-    </div>
-    <h2 class="section-title">所有单集</h2>
-    <p class="section-sub">EPISODES · 8 集</p>
-
-    <div class="bp-panel corner-brackets episodes-panel">
-      <div class="cb-bottom"></div>
-      <div class="ep-list" id="epList">
-        <!-- Episodes injected by JS -->
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="container"><div class="divider-bp"><div class="d-line"></div><div class="d-dia"></div><div class="d-line"></div></div></div>
-
-<!-- ═══ ABOUT HOST ═══ -->
-<section id="about" class="section-animus" style="padding-top:0;">
-  <div class="container fade-in">
-    <div class="section-header">
-      <div class="sh-diamond diamond glow"></div>
-      <div class="sh-lines">
-        <div class="sh-line"></div>
-        <div class="sh-line"></div>
-      </div>
-    </div>
-    <h2 class="section-title">关于主播</h2>
-    <p class="section-sub">ABOUT THE HOST</p>
-
-    <div class="bp-panel corner-brackets about-host-panel">
-      <div class="cb-bottom"></div>
-      <div class="host-info">
-        <div class="host-diamond"><span>沐</span></div>
-        <div>
-          <div class="host-name">沐阳</div>
-          <div class="host-role">探索者 · INFP · 天津 & 武当山</div>
-        </div>
-      </div>
-      <p class="about-text">
-        前摄影师，现在我把镜头对准了内在世界。数百小时的共创咨询经历让我相信：
-        真正的成长发生在关系中，发生在被真正看见的瞬间。
-      </p>
-      <p class="about-text">
-        这档播客是我的思考场域——关于连接与共情、创作与空性、身体的智慧。
-        没有标准答案，只有真实的流动。盖洛普优势：共情、和谐、连接、信仰、审慎。
-      </p>
-    </div>
-  </div>
-</section>
-
 <!-- ═══ FOOTER ═══ -->
-<footer class="fade-in">
-  <div class="footer-line">
-    <div class="fl"></div>
-    <div class="fl-dia"></div>
-    <div class="fl"></div>
-  </div>
+<footer class="footer fade-in">
+  <div class="footer-diamond"></div>
   <p class="footer-text">沐阳 · 2026 · 流动的人</p>
 </footer>
 
-</div>
-
-<!-- Audio Element (hidden from view, JS-controlled) -->
+<!-- ═══ AUDIO ELEMENT ═══ -->
 <audio id="audioPlayer" preload="auto"></audio>
 
 <script>
-// ═══ Audio & Episode Management ═══
+// ═══════════════════════════════════════
+// Data
+// ═══════════════════════════════════════
+
 var audio = document.getElementById('audioPlayer');
 var isPlaying = false;
+var _currentEpIdx = 0;
 
-const episodes = [
-  { num: 8, title: "一起聊聊，如何设计你的人生🌈", guest: null, date: "2026.05.24", duration: "115:30", tag: "成长", active: true, audio: "podcast-ep8.mp3", cover: "cover-ep8.png" },
+var episodes = [
+  { num: 8, title: "一起聊聊，如何设计你的人生🌈", guest: null, date: "2026.05.24", duration: "115:30", tag: "成长", audio: "podcast-ep8.mp3", cover: "cover-ep8.png" },
   { num: 7, title: "一段关系的终点，也是自己的起点", guest: null, date: "2026.05.04", duration: "51:22", tag: "关系" },
   { num: 6, title: "创作不是表达，是回归", guest: "对话 阿图", date: "2026.04.20", duration: "78:16", tag: "创作" },
   { num: 5, title: "什么叫做「够好了」？", guest: null, date: "2026.04.06", duration: "44:55", tag: "内在" },
@@ -798,88 +865,78 @@ const episodes = [
   { num: 1, title: "照片里的我，和真实的我", guest: null, date: "2026.02.09", duration: "62:07", tag: "摄影" },
 ];
 
-function renderEpisodes(eps) {
-  var list = document.getElementById('epList');
-  eps.forEach(function(ep) {
-    var item = document.createElement('div');
-    item.className = 'ep-item' + (ep.active ? ' active' : '');
-    item.onclick = function() {
-      document.querySelectorAll('.ep-item').forEach(function(e) { e.classList.remove('active'); });
-      this.classList.add('active');
-      document.querySelector('.np-title').textContent = ep.title;
-      document.querySelector('.np-guest').textContent = ep.guest || '沐阳 · 共创沙龙';
-      document.querySelector('.np-ep-num').textContent = 'EP.' + ep.num;
-      var coverImg = document.getElementById('npCover');
-      var fallback = document.getElementById('npThumbFallback');
-      if (ep.cover) {
-        coverImg.src = ep.cover;
-        coverImg.style.display = 'block';
-        fallback.style.display = 'none';
-      } else {
-        coverImg.style.display = 'none';
-        fallback.style.display = 'flex';
-      }
-      if (ep.audio) loadAudio(ep.audio);
-    };
-    var guestStr = ep.guest ? '<span>·</span><span>' + ep.guest + '</span>' : '';
-    item.innerHTML =
-      '<div class="ep-num">' + String(ep.num).padStart(2,'0') + '</div>' +
-      '<div class="ep-body">' +
-        '<div class="ep-title">' + ep.title + '</div>' +
-        '<div class="ep-meta">' +
-          '<span>' + ep.date + '</span>' + guestStr +
-          '<span>·</span><span class="ep-tag">' + ep.tag + '</span>' +
-        '</div>' +
-      '</div>' +
-      '<div class="ep-right">' +
-        '<span class="ep-duration">' + ep.duration + '</span>' +
-        '<div class="ep-play-dia"></div>' +
-      '</div>';
-    list.appendChild(item);
-  });
-  var activeEp = eps.find(function(e) { return e.active && e.audio; });
-  if (activeEp) loadAudio(activeEp.audio);
+var timelineData = [
+  { t: 0,    text: '开场：为什么"设计人生"不是"规划人生"', img: '', desc: '设计不是按图纸施工，而是像设计师一样，用好奇心、原型和迭代来探索人生的可能性。' },
+  { t: 215,  text: '被生活推着走的感觉从何而来？', img: '', desc: '当选择更多来自外界期待而非内心渴望，生活就变成了一种被动反应，而非主动创造。' },
+  { t: 520,  text: '设计思维第一步——从问题出发，而不是从答案出发', img: '', desc: '大多数人在找"正确答案"，但设计人生首先要找到"正确的问题"——问题定义了探索的方向。' },
+  { t: 810,  text: '你的"原型测试"：最小可行版本的人生尝试', img: '', desc: '与其在脑海中反复推演，不如用低成本的小实验去真实感受——一个周末、一次对话、一个短期项目，都是原型。' },
+  { t: 1080, text: '真实分享——我如何用半年测试了三种生活方式', img: '', desc: '半年时间里，用三个平行的生活原型来验证内心真正的渴望，而不是靠逻辑推理做决定。' },
+  { t: 1390, text: '"我应该是谁"到"我可以成为谁"——身份的松动', img: '', desc: '当我们把身份从"名词"变成"动词"，从固化标签中解放出来，人生的可能性就打开了。' },
+  { t: 1720, text: '当几条路都很好，怎么选？', img: '', desc: '不是因为选项都完美——而是因为害怕选错。选择困难背后往往是恐惧在说话。' },
+  { t: 2040, text: '恐惧背后的信号——你抗拒的不是选择本身', img: '', desc: '恐惧不是敌人，它是一个信使。每个让你退缩的瞬间背后，都藏着你真正在乎的东西。' },
+  { t: 2380, text: '核心工具：奥德赛计划详解', img: '', desc: '斯坦福人生设计课的核心工具——用三种平行版本的人生规划，打破"只有一条路"的思维惯性。' },
+  { t: 2790, text: '三个平行人生版本的对比与洞察', img: '', desc: '别只盯着差异——三个版本中共通的那条线，往往才是你真正无法放弃的核心价值。' },
+  { t: 3120, text: '如何面对他人的期待与评判', img: '', desc: '他人的期待是他们的人生剧本，不是你的。关键不是反抗它，而是看清它，然后做回自己。' },
+  { t: 3450, text: '小步试错 vs 大幅转向——什么时候该跳？', img: '', desc: '大多数时候，小步迭代就够了。但当你反复用同一个模式试了多次却毫无喜悦，那就是该跳的信号。' },
+  { t: 3870, text: '身体智慧：当你的身体比大脑更早知道答案', img: '', desc: '身体不会撒谎。肩膀的紧张、胃里的翻涌、莫名的疲惫——这些都是你的内在导航系统。' },
+  { t: 4200, text: '在场听众的提问与共创', img: '', desc: '现场听众的真实困惑与沐阳的回应，在对话中碰撞出新的视角与启发。' },
+  { t: 4890, text: '人生设计的三个核心原则', img: '', desc: '好奇心驱动探索、原型测试验证、重新定义问题——这三个原则构成了设计人生的底层框架。' },
+  { t: 5340, text: '给你的即刻行动建议', img: '', desc: '不用等到"准备好"，今天就做一件小小的实验。人生不是想清楚的，是试清楚的。' },
+  { t: 5700, text: '结尾 & 下期预告——关于关系的流动', img: '', desc: '关系的本质也是流动的。下期我们将探索如何在关系的流动中保持连接与自我。' },
+];
+
+// ═══════════════════════════════════════
+// Utility
+// ═══════════════════════════════════════
+
+function fmt(sec) {
+  var m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+  return m + ':' + String(s).padStart(2, '0');
 }
 
-function loadAudio(src) {
-  // ── Blob URL：先下载全文件再创建本地 Blob URL ──
-  // 解决 MP3 缺少 seek 表导致浏览器无法定位的问题
+// ═══════════════════════════════════════
+// Audio
+// ═══════════════════════════════════════
+
+function loadAudio(src, cb) {
+  if (!src) return;
   fetch(src)
     .then(function(r) { return r.blob(); })
     .then(function(blob) {
       var blobUrl = URL.createObjectURL(blob);
       audio.src = blobUrl;
       audio.load();
-      isPlaying = false;
-      updatePlayIcon();
-      document.getElementById('currentTime').textContent = '0:00';
-      document.getElementById('totalTime').textContent = '--:--';
-      _updateProgressUI(0);
-      document.getElementById('waveform').style.opacity = '0.3';
+      resetPlayerUI();
       audio.addEventListener('loadedmetadata', function() {
-        document.getElementById('totalTime').textContent = fmt(Math.floor(audio.duration));
+        document.getElementById('pbTotalTime').textContent = fmt(Math.floor(audio.duration));
+        if (cb) cb();
       }, { once: true });
     })
     .catch(function(e) {
-      // fallback to direct URL
       audio.src = src;
       audio.load();
-      isPlaying = false;
-      updatePlayIcon();
-      document.getElementById('currentTime').textContent = '0:00';
-      document.getElementById('totalTime').textContent = '--:--';
-      _updateProgressUI(0);
-      document.getElementById('waveform').style.opacity = '0.3';
+      resetPlayerUI();
       audio.addEventListener('loadedmetadata', function() {
-        document.getElementById('totalTime').textContent = fmt(Math.floor(audio.duration));
+        document.getElementById('pbTotalTime').textContent = fmt(Math.floor(audio.duration));
+        if (cb) cb();
       }, { once: true });
     });
 }
 
+function resetPlayerUI() {
+  isPlaying = false;
+  updateAllPlayIcons();
+  document.getElementById('pbCurrentTime').textContent = '0:00';
+  document.getElementById('pbTotalTime').textContent = '--:--';
+  _updateProgressUI(0);
+  setWaveOpacity(0.3);
+}
+
 function togglePlay() {
   if (!audio.src) {
-    var activeEp = episodes.find(function(e) { return e.audio; });
-    if (activeEp) loadAudio(activeEp.audio);
+    var ep = episodes[_currentEpIdx];
+    if (ep && ep.audio) loadAudio(ep.audio);
+    else return;
   }
   if (audio.paused) {
     audio.play().catch(function(){});
@@ -888,39 +945,51 @@ function togglePlay() {
     audio.pause();
     isPlaying = false;
   }
-  updatePlayIcon();
-  document.getElementById('waveform').style.opacity = isPlaying ? '1' : '0.3';
+  updateAllPlayIcons();
+  setWaveOpacity(isPlaying ? 1 : 0.3);
 }
 
-function updatePlayIcon() {
-  var icon = document.getElementById('playIcon');
-  icon.innerHTML = isPlaying
-    ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>'
-    : '<polygon points="5,3 19,12 5,21"/>';
+function updateAllPlayIcons() {
+  var playSvg = '<polygon points="5,3 19,12 5,21" fill="currentColor"/>';
+  var pauseSvg = '<rect x="6" y="4" width="4" height="16" fill="currentColor"/><rect x="14" y="4" width="4" height="16" fill="currentColor"/>';
+  var icon = isPlaying ? pauseSvg : playSvg;
+  document.getElementById('heroPlayIcon').innerHTML = icon;
+  document.getElementById('pbPlayIcon').innerHTML = icon;
+  document.getElementById('heroPlayText').textContent = isPlaying ? '暂停' : '开始收听';
 }
 
-// timeupdate 已移至进度条模块
+function setWaveOpacity(v) {
+  document.getElementById('pbWave').style.opacity = v;
+}
 
+audio.addEventListener('ended', function() {
+  isPlaying = false; updateAllPlayIcons(); setWaveOpacity(0.3);
+});
+audio.addEventListener('play', function() {
+  isPlaying = true; updateAllPlayIcons(); setWaveOpacity(1);
+});
+audio.addEventListener('pause', function() {
+  isPlaying = false; updateAllPlayIcons(); setWaveOpacity(0.3);
+});
 
-audio.addEventListener('ended', function() { isPlaying = false; updatePlayIcon(); document.getElementById('waveform').style.opacity = '0.3'; });
-audio.addEventListener('play', function() { isPlaying = true; updatePlayIcon(); document.getElementById('waveform').style.opacity = '1'; });
-audio.addEventListener('pause', function() { isPlaying = false; updatePlayIcon(); document.getElementById('waveform').style.opacity = '0.3'; });
+// ═══════════════════════════════════════
+// Progress Bar
+// ═══════════════════════════════════════
 
-// ═══ 进度条 — 双层保险 ═══
-var progressFill  = document.getElementById('progressFill');
-var progressThumb = document.getElementById('progressThumb');
-var progressTrack = document.getElementById('progressTrack');
-var progressWrap  = document.getElementById('progressWrap');
+var pbProgressFill  = document.getElementById('pbProgressFill');
+var pbProgressThumb = document.getElementById('pbProgressThumb');
+var pbProgressTrack = document.getElementById('pbProgressTrack');
+var pbProgressWrap  = document.getElementById('pbProgressWrap');
 var _dragging = false;
 
 function _updateProgressUI(pct) {
   var pp = (pct * 100).toFixed(2);
-  progressFill.style.width = pp + '%';
-  progressThumb.style.left = pp + '%';
+  pbProgressFill.style.width = pp + '%';
+  pbProgressThumb.style.left = pp + '%';
 }
 
 function _seekTo(clientX) {
-  var rect = progressTrack.getBoundingClientRect();
+  var rect = pbProgressTrack.getBoundingClientRect();
   var pct = (clientX - rect.left) / rect.width;
   pct = Math.max(0, Math.min(1, pct));
   if (!audio.duration || isNaN(audio.duration)) {
@@ -929,15 +998,13 @@ function _seekTo(clientX) {
   }
   audio.currentTime = pct * audio.duration;
   _updateProgressUI(pct);
-  document.getElementById('currentTime').textContent = fmt(Math.floor(audio.currentTime));
+  document.getElementById('pbCurrentTime').textContent = fmt(Math.floor(audio.currentTime));
 }
 
-// ═══ 进度条事件（mousedown + touchstart）═══
-// 绑定到 progressWrap（大热区），坐标用 progressTrack 计算
-progressWrap.addEventListener('mousedown', function(e) {
+pbProgressWrap.addEventListener('mousedown', function(e) {
   _dragging = true;
-  progressFill.classList.add('seeking');
-  progressThumb.classList.add('seeking');
+  pbProgressFill.classList.add('seeking');
+  pbProgressThumb.classList.add('seeking');
   _seekTo(e.clientX);
   e.preventDefault();
 });
@@ -948,13 +1015,13 @@ document.addEventListener('mousemove', function(e) {
 document.addEventListener('mouseup', function() {
   if (!_dragging) return;
   _dragging = false;
-  progressFill.classList.remove('seeking');
-  progressThumb.classList.remove('seeking');
+  pbProgressFill.classList.remove('seeking');
+  pbProgressThumb.classList.remove('seeking');
 });
-progressWrap.addEventListener('touchstart', function(e) {
+pbProgressWrap.addEventListener('touchstart', function(e) {
   _dragging = true;
-  progressFill.classList.add('seeking');
-  progressThumb.classList.add('seeking');
+  pbProgressFill.classList.add('seeking');
+  pbProgressThumb.classList.add('seeking');
   _seekTo(e.touches[0].clientX);
   e.preventDefault();
 }, { passive: false });
@@ -965,24 +1032,18 @@ document.addEventListener('touchmove', function(e) {
 document.addEventListener('touchend', function() {
   if (!_dragging) return;
   _dragging = false;
-  progressFill.classList.remove('seeking');
-  progressThumb.classList.remove('seeking');
+  pbProgressFill.classList.remove('seeking');
+  pbProgressThumb.classList.remove('seeking');
 });
-document.addEventListener('touchend', function() {
-  if (!_dragging) return;
-  _dragging = false;
-  progressFill.classList.remove('seeking');
-  progressThumb.classList.remove('seeking');
-});
-
-// timeupdate 已被移至下方
 
 audio.addEventListener('timeupdate', function() {
-  if (_dragging) return; // 拖动中不要覆盖
+  if (_dragging) return;
   if (audio.duration && !isNaN(audio.duration)) {
     var pct = audio.currentTime / audio.duration;
     _updateProgressUI(pct);
-    document.getElementById('currentTime').textContent = fmt(Math.floor(audio.currentTime));
+    document.getElementById('pbCurrentTime').textContent = fmt(Math.floor(audio.currentTime));
+    // Auto-highlight timeline item
+    highlightTimelineItem(audio.currentTime);
   }
 });
 
@@ -991,26 +1052,229 @@ function skipTime(s) {
   audio.currentTime = Math.max(0, Math.min(audio.duration, audio.currentTime + s));
 }
 
-function fmt(s) {
-  var m = Math.floor(s / 60), sec = Math.floor(s % 60);
-  return m + ':' + String(sec).padStart(2, '0');
-}
-
 var speeds = [0.75, 1.0, 1.25, 1.5, 2.0];
 var speedIdx = 1;
 function cycleSpeed() {
   speedIdx = (speedIdx + 1) % speeds.length;
   var rate = speeds[speedIdx];
   audio.playbackRate = rate;
-  document.getElementById('speedBtn').textContent = rate.toFixed(rate === 1 ? 1 : 2) + '\u00d7';
+  var label = rate.toFixed(rate === 1 ? 1 : 2) + '\u00d7';
+  document.getElementById('pbSpeedBtn').textContent = label;
 }
 
+// ═══════════════════════════════════════
+// Switch Episode
+// ═══════════════════════════════════════
+
+function switchEpisode(idx) {
+  _currentEpIdx = idx;
+  var ep = episodes[idx];
+
+  // Hero
+  document.getElementById('heroEpNum').textContent = 'EP.' + ep.num;
+  document.getElementById('heroTitle').textContent = ep.title;
+  document.getElementById('heroGuest').textContent = ep.guest || '沐阳 · 共创沙龙';
+  document.getElementById('heroDuration').textContent = ep.duration;
+
+  // Player bar
+  document.getElementById('pbTitle').textContent = ep.title;
+  document.getElementById('pbGuest').textContent = ep.guest || '沐阳 · 共创沙龙';
+
+  // Cover image
+  var heroBg = document.getElementById('heroBg');
+  var heroFallback = document.getElementById('heroFallback');
+  var pbCover = document.getElementById('pbCover');
+  var pbFallback = document.getElementById('pbThumbFallback');
+
+  if (ep.cover) {
+    heroBg.style.backgroundImage = 'url(' + ep.cover + ')';
+    heroBg.style.display = 'block';
+    heroFallback.style.display = 'none';
+    pbCover.src = ep.cover;
+    pbCover.style.display = 'block';
+    pbFallback.style.display = 'none';
+  } else {
+    heroBg.style.display = 'none';
+    heroFallback.style.display = 'block';
+    pbCover.style.display = 'none';
+    pbFallback.style.display = 'block';
+  }
+
+  // Highlight card
+  document.querySelectorAll('.ep-card').forEach(function(el, i) {
+    el.classList.toggle('active', i === idx);
+  });
+
+  // Load audio
+  if (ep.audio) loadAudio(ep.audio);
+}
+
+// ═══════════════════════════════════════
+// Render Episode Cards
+// ═══════════════════════════════════════
+
+function renderIntro() {
+  var el = document.getElementById('epIntro');
+  el.innerHTML =
+    '<p class="intro-text">' +
+      '这期播客，<strong>沐阳</strong>以斯坦福大学热门课程《人生设计课》为框架，' +
+      '带领一场线下共创沙龙。从"被生活推着走"的无力感切入，' +
+      '结合<strong>设计思维</strong>、<strong>原型测试</strong>和<strong>奥德赛计划</strong>三大工具，' +
+      '帮助你从"我应该是谁"转向"我可以成为谁"。' +
+      '<br>不管你是处于迷茫期、转折点，还是只是想换一种活法，这期节目都值得一听。' +
+    '</p>';
+}
+
+function renderEpisodeCards(eps) {
+  var grid = document.getElementById('epGrid');
+  grid.innerHTML = '';
+  document.getElementById('epCount').textContent = eps.length;
+  eps.forEach(function(ep, i) {
+    var realIdx = episodes.indexOf(ep);
+    var isPending = !ep.audio;
+    var card = document.createElement('div');
+    card.className = 'ep-card' + (realIdx === _currentEpIdx ? ' active' : '');
+    if (!isPending) {
+      card.onclick = function() { switchEpisode(realIdx); };
+    }
+    var pendingHTML = isPending ? '<span class="ep-card-pending">待更新</span>' : '';
+    var playHTML = isPending ? '' : '<div class="ep-card-play"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>';
+    card.innerHTML =
+      '<div class="ep-card-num">' + String(ep.num).padStart(2, '0') + '</div>' +
+      '<div class="ep-card-title">' + ep.title + pendingHTML + '</div>' +
+      '<div class="ep-card-meta">' +
+        '<span>' + ep.date + '</span>' +
+        '<span class="ep-card-tag">' + ep.tag + '</span>' +
+        '<span class="ep-card-duration">' + ep.duration + '</span>' +
+      '</div>' +
+      playHTML;
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════
+// Render Timeline Cards
+// ═══════════════════════════════════════
+
+function renderTimelineCards(items) {
+  var grid = document.getElementById('tlGrid');
+  items.forEach(function(item, i) {
+    var card = document.createElement('div');
+    card.className = 'tl-card';
+    card.setAttribute('data-seek', item.t);
+    card.onclick = function() { seekToTime(item.t); };
+
+    var descHTML = item.desc ? '<div class="tl-card-desc">' + item.desc + '</div>' : '';
+
+    card.innerHTML =
+      '<div class="tl-card-inner">' +
+        '<div class="tl-card-dot">·</div>' +
+        '<div class="tl-card-body">' +
+          '<div class="tl-card-time">' + fmt(item.t) + '</div>' +
+          '<div class="tl-card-text">' + item.text + '</div>' +
+          descHTML +
+        '</div>' +
+      '</div>';
+    grid.appendChild(card);
+  });
+}
+
+function seekToTime(sec) {
+  if (!audio.src || !audio.duration) return;
+  audio.currentTime = Math.min(sec, audio.duration);
+  if (audio.paused) {
+    audio.play().catch(function(){});
+    isPlaying = true;
+    updateAllPlayIcons();
+    setWaveOpacity(1);
+  }
+  _updateProgressUI(sec / audio.duration);
+  document.getElementById('pbCurrentTime').textContent = fmt(sec);
+  highlightTimelineItem(sec);
+}
+
+function highlightTimelineItem(currentSec) {
+  var bestEl = null, bestDist = Infinity;
+  document.querySelectorAll('.tl-card').forEach(function(el) {
+    var t = parseInt(el.getAttribute('data-seek'));
+    var dist = Math.abs(currentSec - t);
+    if (dist < bestDist) { bestDist = dist; bestEl = el; }
+    el.classList.remove('active');
+  });
+  if (bestEl && bestDist < 10) {
+    bestEl.classList.add('active');
+  }
+}
+
+// ═══════════════════════════════════════
+// Resources (本期干货)
+// ═══════════════════════════════════════
+
+var resources = [
+  { type: 'header', title: '金句精选' },
+  { type: 'quote', icon: '💬', title: '"人生设计的核心不是找到完美答案，而是学会提出更好的问题。"', desc: '—— 沐阳 · EP.8 核心金句' },
+  { type: 'quote', icon: '💬', title: '"恐惧不是敌人，它是一个信使。每个让你退缩的瞬间背后，都藏着你真正在乎的东西。"', desc: '—— 沐阳 · 第 34 分处' },
+  { type: 'quote', icon: '💬', title: '"不用等到准备好，今天就做一件小小的实验。人生不是想清楚的，是试清楚的。"', desc: '—— 沐阳 · EP.8 结尾寄语' },
+  { type: 'header', title: '推荐资料' },
+  { type: 'material', icon: '📋', title: '课程纪要', desc: '本期共创沙龙的文字纪要，包含奥德赛计划框架、原型测试方法等核心知识点。', link: 'https://scn3d34ng7o6.feishu.cn/docx/I33edh1ShonxDBx4FUzcFdsxnYf', linkText: '查看纪要', linkType: 'external' },
+  { type: 'material', icon: '🎞', title: '课件幻灯片', desc: '现场使用的 PPT 完整版，涵盖设计思维流程与案例拆解。', link: 'ep8-slides.pptx', linkText: '下载 (3.8MB)' },
+  { type: 'material', icon: '📖', title: '《斯坦福人生设计课》', desc: '推荐书籍', img: 'book-designing-your-life.png' },
+];
+
+function renderResources() {
+  var grid = document.getElementById('resGrid');
+  resources.forEach(function(r) {
+    var card = document.createElement('div');
+    card.className = 'res-card' + (r.type === 'quote' ? ' res-quote' : '');
+
+    var linkHTML = '';
+    if (r.link) {
+      var isExternal = r.linkType === 'external';
+      var attrs = isExternal ? ' target="_blank" rel="noopener"' : ' download';
+      var iconSVG = isExternal
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+      linkHTML = '<a class="res-card-link" href="' + r.link + '"' + attrs + '>' + r.linkText + iconSVG + '</a>';
+    }
+
+    var iconHTML = '<div class="res-card-icon">' + r.icon + '</div>';
+    var titleHTML = '<div class="res-card-title">' + r.title + '</div>';
+    var descHTML = r.desc ? '<div class="res-card-desc">' + r.desc + '</div>' : '';
+
+    // Section header
+    if (r.type === 'header') {
+      card.className = 'res-header';
+      card.innerHTML = '<span>' + r.title + '</span>';
+    // Quote type uses a different layout (no icon)
+    } else if (r.type === 'quote') {
+      card.innerHTML = titleHTML + descHTML;
+    } else if (r.img) {
+      card.classList.add('res-card-cover');
+      card.innerHTML =
+        '<div class="res-cover-img"><img src="' + r.img + '" alt="" loading="lazy"></div>' +
+        '<div class="res-cover-body">' + titleHTML + descHTML + linkHTML + '</div>';
+    } else {
+      card.innerHTML = iconHTML + titleHTML + descHTML + linkHTML;
+    }
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════
 // Init
-renderEpisodes(episodes);
+// ═══════════════════════════════════════
+
+renderIntro();
+renderEpisodeCards(episodes);
+renderTimelineCards(timelineData);
+renderResources();
+switchEpisode(0); // Load first episode
 
 // Fade-in
 var observer = new IntersectionObserver(function(entries) {
-  entries.forEach(function(entry) { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) entry.target.classList.add('visible');
+  });
 }, { threshold: 0.08 });
 document.querySelectorAll('.fade-in').forEach(function(el) { observer.observe(el); });
 setTimeout(function() {
