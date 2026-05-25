@@ -341,7 +341,8 @@ nav {
 }
 
 .progress-wrap {
-  position: relative; margin-bottom: 8px; cursor: pointer; padding: 6px 0;
+  position: relative; margin-bottom: 8px; cursor: pointer; padding: 10px 0;
+  -webkit-user-select: none; user-select: none;
 }
 .progress-bg {
   position: relative; width: 100%; height: 3px;
@@ -633,7 +634,7 @@ footer {
       </div>
 
       <div class="np-player">
-        <div class="progress-wrap" id="progressWrap" onclick="progressClick(event)">
+        <div class="progress-wrap" id="progressWrap">
           <div class="progress-bg" id="progressBg">
             <div class="progress-fill" id="progressFill"></div>
             <div class="progress-dot" id="progressDot"></div>
@@ -878,14 +879,42 @@ audio.addEventListener('ended', function() { isPlaying = false; updatePlayIcon()
 audio.addEventListener('play', function() { isPlaying = true; updatePlayIcon(); document.getElementById('waveform').style.opacity = '1'; });
 audio.addEventListener('pause', function() { isPlaying = false; updatePlayIcon(); document.getElementById('waveform').style.opacity = '0.3'; });
 
-function progressClick(e) {
+// ═══ Progress seek（点击 + 拖动）═══
+var _seeking = false;
+
+function _seekTo(clientX) {
   if (!audio.duration || isNaN(audio.duration)) return;
   var bg = document.getElementById('progressBg');
   var rect = bg.getBoundingClientRect();
-  var pct = (e.clientX - rect.left) / rect.width;
+  var pct = (clientX - rect.left) / rect.width;
   pct = Math.max(0, Math.min(1, pct));
   audio.currentTime = pct * audio.duration;
 }
+
+function progressClick(e) { _seekTo(e.clientX); }
+
+(function() {
+  var wrap = document.getElementById('progressWrap');
+  wrap.addEventListener('mousedown', function(e) {
+    _seeking = true;
+    _seekTo(e.clientX);
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (_seeking) { _seekTo(e.clientX); }
+  });
+  document.addEventListener('mouseup', function() { _seeking = false; });
+  // 触控支持
+  wrap.addEventListener('touchstart', function(e) {
+    _seeking = true;
+    _seekTo(e.touches[0].clientX);
+    e.preventDefault();
+  }, { passive: false });
+  document.addEventListener('touchmove', function(e) {
+    if (_seeking) { _seekTo(e.touches[0].clientX); }
+  }, { passive: false });
+  document.addEventListener('touchend', function() { _seeking = false; });
+})();
 
 function skipTime(s) {
   if (!audio.duration) return;
