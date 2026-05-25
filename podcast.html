@@ -901,15 +901,27 @@ function fmt(sec) {
 function loadAudio(src, cb) {
   if (!src) return;
   resetPlayerUI();
-  audio.src = src;
-  audio.load();
-  audio.addEventListener('canplay', function() {
-    if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
-      document.getElementById('pbTotalTime').textContent = fmt(Math.floor(audio.duration));
+  // 清理旧的事件监听
+  if (_metaHandler) audio.removeEventListener('loadedmetadata', _metaHandler);
+  if (_errHandler) audio.removeEventListener('error', _errHandler);
+  _metaHandler = function() {
+    var d = audio.duration;
+    if (d && !isNaN(d) && isFinite(d)) {
+      document.getElementById('pbTotalTime').textContent = fmt(Math.floor(d));
     }
     if (cb) cb();
-  }, { once: true });
+  };
+  _errHandler = function(e) {
+    console.error('audio error:', audio.error);
+    document.getElementById('pbTotalTime').textContent = 'ERR';
+  };
+  audio.addEventListener('loadedmetadata', _metaHandler);
+  audio.addEventListener('error', _errHandler);
+  audio.src = src;
+  audio.load();
 }
+
+var _metaHandler = null, _errHandler = null;
 
 function resetPlayerUI() {
   isPlaying = false;
@@ -923,19 +935,32 @@ function resetPlayerUI() {
 function togglePlay() {
   if (!audio.src) {
     var ep = episodes[_currentEpIdx];
-    if (ep && ep.audio) loadAudio(ep.audio);
-    else return;
+    if (ep && ep.audio) {
+      _loadedPromise = new Promise(function(resolve) {
+        loadAudio(ep.audio, resolve);
+      });
+    } else { return; }
   }
-  if (audio.paused) {
-    audio.play().catch(function(){});
-    isPlaying = true;
+  var doPlay = function() {
+    if (audio.paused) {
+      var p = audio.play();
+      if (p) p.catch(function(e) { console.error('play error:', e); });
+      isPlaying = true;
+    } else {
+      audio.pause();
+      isPlaying = false;
+    }
+    updateAllPlayIcons();
+    setWaveOpacity(isPlaying ? 1 : 0.3);
+  };
+  if (_loadedPromise) {
+    _loadedPromise.then(function() { _loadedPromise = null; doPlay(); });
   } else {
-    audio.pause();
-    isPlaying = false;
+    doPlay();
   }
-  updateAllPlayIcons();
-  setWaveOpacity(isPlaying ? 1 : 0.3);
 }
+
+var _loadedPromise = null;
 
 function updateAllPlayIcons() {
   var playSvg = '<polygon points="5,3 19,12 5,21" fill="currentColor"/>';
