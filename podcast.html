@@ -935,32 +935,20 @@ function resetPlayerUI() {
 function togglePlay() {
   if (!audio.src) {
     var ep = episodes[_currentEpIdx];
-    if (ep && ep.audio) {
-      _loadedPromise = new Promise(function(resolve) {
-        loadAudio(ep.audio, resolve);
-      });
-    } else { return; }
+    if (ep && ep.audio) loadAudio(ep.audio);
+    else return;
   }
-  var doPlay = function() {
-    if (audio.paused) {
-      var p = audio.play();
-      if (p) p.catch(function(e) { console.error('play error:', e); });
-      isPlaying = true;
-    } else {
-      audio.pause();
-      isPlaying = false;
-    }
-    updateAllPlayIcons();
-    setWaveOpacity(isPlaying ? 1 : 0.3);
-  };
-  if (_loadedPromise) {
-    _loadedPromise.then(function() { _loadedPromise = null; doPlay(); });
+  if (audio.paused) {
+    var p = audio.play();
+    if (p) p.catch(function(e) { console.error('play error:', e); });
+    isPlaying = true;
   } else {
-    doPlay();
+    audio.pause();
+    isPlaying = false;
   }
+  updateAllPlayIcons();
+  setWaveOpacity(isPlaying ? 1 : 0.3);
 }
-
-var _loadedPromise = null;
 
 function updateAllPlayIcons() {
   var playSvg = '<polygon points="5,3 19,12 5,21" fill="currentColor"/>';
