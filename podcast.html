@@ -348,12 +348,12 @@ nav {
   -webkit-user-select: none; user-select: none;
 }
 .progress-track {
-  width: 100%; height: 6px;
+  width: 100%; height: 8px;
   background: rgba(180,180,180,0.3);
-  border-radius: 3px;
+  border-radius: 4px;
   position: relative;
   overflow: visible;
-  cursor: pointer;
+  pointer-events: none; /* 事件由 wrap 处理 */
 }
 .progress-fill {
   position: absolute; left: 0; top: 0; height: 100%;
@@ -886,10 +886,11 @@ audio.addEventListener('ended', function() { isPlaying = false; updatePlayIcon()
 audio.addEventListener('play', function() { isPlaying = true; updatePlayIcon(); document.getElementById('waveform').style.opacity = '1'; });
 audio.addEventListener('pause', function() { isPlaying = false; updatePlayIcon(); document.getElementById('waveform').style.opacity = '0.3'; });
 
-// ═══ 进度条（Pointer Events + setPointerCapture）═══
+// ═══ 进度条（mousedown + touchstart，通杀全平台）═══
 var progressFill  = document.getElementById('progressFill');
 var progressThumb = document.getElementById('progressThumb');
 var progressTrack = document.getElementById('progressTrack');
+var progressWrap  = document.getElementById('progressWrap');
 var _dragging = false;
 
 function _updateProgressUI(pct) {
@@ -903,7 +904,6 @@ function _handleSeek(clientX) {
   var pct = (clientX - rect.left) / rect.width;
   pct = Math.max(0, Math.min(1, pct));
   if (!audio.duration || isNaN(audio.duration)) {
-    // 音频还没加载完，只更新 UI 不 seek
     _updateProgressUI(pct);
     return;
   }
@@ -912,27 +912,37 @@ function _handleSeek(clientX) {
   document.getElementById('currentTime').textContent = fmt(Math.floor(audio.currentTime));
 }
 
-progressTrack.addEventListener('pointerdown', function(e) {
+// mousedown — 最基础，全平台通用
+progressWrap.addEventListener('mousedown', function(e) {
   _dragging = true;
-  this.setPointerCapture(e.pointerId);
   progressFill.classList.add('seeking');
   progressThumb.classList.add('seeking');
   _handleSeek(e.clientX);
   e.preventDefault();
 });
-
-progressTrack.addEventListener('pointermove', function(e) {
+document.addEventListener('mousemove', function(e) {
   if (!_dragging) return;
   _handleSeek(e.clientX);
 });
-
-progressTrack.addEventListener('pointerup', function(e) {
+document.addEventListener('mouseup', function() {
   _dragging = false;
   progressFill.classList.remove('seeking');
   progressThumb.classList.remove('seeking');
 });
 
-progressTrack.addEventListener('pointercancel', function(e) {
+// touchstart — 触控
+progressWrap.addEventListener('touchstart', function(e) {
+  _dragging = true;
+  progressFill.classList.add('seeking');
+  progressThumb.classList.add('seeking');
+  _handleSeek(e.touches[0].clientX);
+  e.preventDefault();
+}, { passive: false });
+document.addEventListener('touchmove', function(e) {
+  if (!_dragging) return;
+  _handleSeek(e.touches[0].clientX);
+}, { passive: false });
+document.addEventListener('touchend', function() {
   _dragging = false;
   progressFill.classList.remove('seeking');
   progressThumb.classList.remove('seeking');

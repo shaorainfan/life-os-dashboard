@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<title>进度条测试</title>
+<style>
+body{font-family:sans-serif;margin:40px;color:#222;background:#f0f0f0}
+h2{margin-bottom:16px}
+#bar{border:2px solid #c0392b;padding:12px;margin-bottom:8px;cursor:pointer;touch-action:none;user-select:none}
+#track{width:100%;height:12px;background:#ccc;border-radius:6px;position:relative;overflow:visible}
+#fill{position:absolute;left:0;top:0;height:100%;background:#c0392b;border-radius:6px;pointer-events:none}
+#thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:#c0392b;pointer-events:none}
+#time{display:flex;justify-content:space-between;font-size:14px;color:#666}
+#log{background:#fff;padding:12px;border-radius:4px;margin-top:16px;font-family:monospace;font-size:13px;white-space:pre-wrap;max-height:200px;overflow-y:auto}
+#testBtn{padding:8px 20px;margin:8px 4px;cursor:pointer}
+.green{color:green}
+.red{color:red}
+</style></head><body>
+<h2>进度条测试（极简版）</h2>
+<button id="playBtn" onclick="togglePlay()">▶ 播放</button>
+<button id="testBtn" onclick="testSeek()">JS 内直接 seek 到 30s</button>
+<button onclick="testSeek60()">JS 内直接 seek 到 60s</button>
+<div id="bar">
+  <div id="track"><div id="fill"></div><div id="thumb"></div></div>
+</div>
+<div id="time"><span id="cur">0:00</span><span id="tot">--:--</span></div>
+<div id="log">日志：</div>
+<audio id="audio" preload="auto" src="podcast-ep8.mp3"></audio>
+<script>
+var a=document.getElementById('audio');
+var fill=document.getElementById('fill');
+var thumb=document.getElementById('thumb');
+var track=document.getElementById('track');
+var bar=document.getElementById('bar');
+var logE=document.getElementById('log');
+var seeking=false;
+
+function L(s){logE.textContent+='\n'+s;logE.scrollTop=logE.scrollHeight}
+function F(s){var m=Math.floor(s/60);return m+':'+String(Math.floor(s%60)).padStart(2,'0')}
+function setFill(pct){var p=(pct*100).toFixed(1);fill.style.width=p+'%';thumb.style.left=p+'%'}
+
+function doSeek(clientX){
+  var r=track.getBoundingClientRect();
+  var pct=Math.max(0,Math.min(1,(clientX-r.left)/r.width));
+  L('  pct='+pct.toFixed(3)+' → seek '+(pct*a.duration).toFixed(1)+'s');
+  a.currentTime=pct*a.duration;
+  setFill(a.currentTime/a.duration);
+  document.getElementById('cur').textContent=F(a.currentTime);
+}
+
+// mousedown — 最基础，全平台通用
+bar.addEventListener('mousedown',function(e){
+  L('👇 mousedown clientX='+e.clientX);
+  seeking=true; doSeek(e.clientX); e.preventDefault();
+});
+document.addEventListener('mousemove',function(e){
+  if(!seeking)return; doSeek(e.clientX);
+});
+document.addEventListener('mouseup',function(){
+  if(seeking){seeking=false;L('👆 mouseup')}
+});
+
+// touchstart — 触控
+bar.addEventListener('touchstart',function(e){
+  L('👇 touchstart');
+  seeking=true; doSeek(e.touches[0].clientX); e.preventDefault();
+}, {passive:false});
+document.addEventListener('touchmove',function(e){
+  if(!seeking)return; doSeek(e.touches[0].clientX);
+}, {passive:false});
+document.addEventListener('touchend',function(){
+  if(seeking){seeking=false;L('👆 touchend')}
+});
+
+var playing=false;
+function togglePlay(){
+  if(playing){a.pause();playing=false;document.getElementById('playBtn').textContent='▶ 播放'}
+  else{a.play().then(function(){playing=true;document.getElementById('playBtn').textContent='⏸ 暂停';L('▶ 开始播放')}).catch(function(e){L('❌ 播放失败: '+e.message)})}
+}
+
+a.addEventListener('timeupdate',function(){
+  if(seeking)return;
+  if(a.duration){
+    setFill(a.currentTime/a.duration);
+    document.getElementById('cur').textContent=F(a.currentTime);
+  }
+});
+
+a.addEventListener('loadedmetadata',function(){
+  document.getElementById('tot').textContent=F(a.duration);
+  L('✅ 音频加载完成 duration='+a.duration+'s');
+});
+
+a.addEventListener('error',function(){L('❌ 音频加载失败!')});
+a.addEventListener('canplay',function(){L('▶ canplay')});
+
+function testSeek(){a.currentTime=30;L('🔧 testSeek(30s) -> currentTime='+a.currentTime);}
+function testSeek60(){a.currentTime=60;L('🔧 testSeek(60s) -> currentTime='+a.currentTime);}
+
+L('📄 页面就绪');
+</script></body></html>
