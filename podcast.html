@@ -340,28 +340,57 @@ nav {
   border-top: 1px solid rgba(180,180,180,0.3);
 }
 
+/* ── 原生 range 进度条，彻底替换自制版 ── */
 .progress-wrap {
-  position: relative; margin-bottom: 8px; cursor: pointer; padding: 10px 0;
+  position: relative; margin-bottom: 8px;
   -webkit-user-select: none; user-select: none;
 }
+.progress-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%; height: 20px;
+  background: transparent;
+  cursor: pointer;
+  display: block;
+  margin: 0; padding: 0;
+  outline: none; border: none;
+}
+/* track */
+.progress-range::-webkit-slider-runnable-track {
+  height: 3px;
+  background: rgba(180,180,180,0.3);
+  border-radius: 2px;
+}
+.progress-range::-moz-range-track {
+  height: 3px;
+  background: rgba(180,180,180,0.3);
+  border-radius: 2px;
+}
+/* thumb */
+.progress-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 10px var(--red-glow);
+  margin-top: -4.5px;
+  cursor: pointer;
+}
+.progress-range::-moz-range-thumb {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 10px var(--red-glow);
+  border: none;
+  cursor: pointer;
+}
+/* 已播放部分红色填充（JS 动态写 background） */
 .progress-bg {
   position: relative; width: 100%; height: 3px;
-  background: rgba(180,180,180,0.25);
-  overflow: visible; cursor: pointer;
+  display: none; /* 不再使用，隐藏 */
 }
-.progress-fill {
-  height: 100%; width: 35%;
-  background: var(--red);
-  box-shadow: 0 0 6px var(--red-glow);
-  transition: width 0.1s; pointer-events: none;
-}
-.progress-dot {
-  position: absolute; top: 50%; left: 35%;
-  transform: translate(-50%, -50%);
-  width: 10px; height: 10px; border-radius: 50%;
-  background: var(--red); box-shadow: 0 0 10px var(--red-glow);
-  pointer-events: none;
-}
+.progress-fill { display: none; }
+.progress-dot  { display: none; }
 
 .time-row {
   display: flex; justify-content: space-between;
@@ -635,10 +664,8 @@ footer {
 
       <div class="np-player">
         <div class="progress-wrap" id="progressWrap">
-          <div class="progress-bg" id="progressBg">
-            <div class="progress-fill" id="progressFill"></div>
-            <div class="progress-dot" id="progressDot"></div>
-          </div>
+          <input type="range" class="progress-range" id="progressRange"
+                 min="0" max="1000" value="0" step="1">
         </div>
         <div class="time-row">
           <span id="currentTime">22:15</span>
@@ -834,10 +861,10 @@ function loadAudio(src) {
   isPlaying = false;
   updatePlayIcon();
   document.getElementById('currentTime').textContent = '0:00';
-  document.getElementById('progressFill').style.width = '0%';
-  document.getElementById('progressDot').style.left = '0%';
-  document.getElementById('waveform').style.opacity = '0.3';
   document.getElementById('totalTime').textContent = '--:--';
+  var pr = document.getElementById('progressRange');
+  if (pr) { pr.value = 0; updateRangeTrack(0); }
+  document.getElementById('waveform').style.opacity = '0.3';
   audio.addEventListener('loadedmetadata', function() {
     document.getElementById('totalTime').textContent = fmt(Math.floor(audio.duration));
   }, { once: true });
@@ -866,55 +893,44 @@ function updatePlayIcon() {
     : '<polygon points="5,3 19,12 5,21"/>';
 }
 
-audio.addEventListener('timeupdate', function() {
-  if (audio.duration) {
-    var pct = (audio.currentTime / audio.duration * 100).toFixed(2);
-    document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('progressDot').style.left = pct + '%';
-    document.getElementById('currentTime').textContent = fmt(Math.floor(audio.currentTime));
-  }
-});
+// timeupdate 已移至进度条模块
+
 
 audio.addEventListener('ended', function() { isPlaying = false; updatePlayIcon(); document.getElementById('waveform').style.opacity = '0.3'; });
 audio.addEventListener('play', function() { isPlaying = true; updatePlayIcon(); document.getElementById('waveform').style.opacity = '1'; });
 audio.addEventListener('pause', function() { isPlaying = false; updatePlayIcon(); document.getElementById('waveform').style.opacity = '0.3'; });
 
-// ═══ Progress seek（点击 + 拖动）═══
-var _seeking = false;
+// ═══ 进度条（原生 range，100% 可拖动）═══
+var progressRange = document.getElementById('progressRange');
 
-function _seekTo(clientX) {
-  if (!audio.duration || isNaN(audio.duration)) return;
-  var bg = document.getElementById('progressBg');
-  var rect = bg.getBoundingClientRect();
-  var pct = (clientX - rect.left) / rect.width;
-  pct = Math.max(0, Math.min(1, pct));
-  audio.currentTime = pct * audio.duration;
+function updateRangeTrack(val) {
+  // 已播放部分用红色填充
+  var pct = (val / 1000 * 100).toFixed(2);
+  progressRange.style.background =
+    'linear-gradient(to right, var(--red) ' + pct + '%, rgba(180,180,180,0.3) ' + pct + '%)';
 }
 
-function progressClick(e) { _seekTo(e.clientX); }
+progressRange.addEventListener('input', function() {
+  if (!audio.duration || isNaN(audio.duration)) return;
+  var pct = this.value / 1000;
+  audio.currentTime = pct * audio.duration;
+  updateRangeTrack(this.value);
+  document.getElementById('currentTime').textContent = fmt(Math.floor(audio.currentTime));
+});
 
-(function() {
-  var wrap = document.getElementById('progressWrap');
-  wrap.addEventListener('mousedown', function(e) {
-    _seeking = true;
-    _seekTo(e.clientX);
-    e.preventDefault();
-  });
-  document.addEventListener('mousemove', function(e) {
-    if (_seeking) { _seekTo(e.clientX); }
-  });
-  document.addEventListener('mouseup', function() { _seeking = false; });
-  // 触控支持
-  wrap.addEventListener('touchstart', function(e) {
-    _seeking = true;
-    _seekTo(e.touches[0].clientX);
-    e.preventDefault();
-  }, { passive: false });
-  document.addEventListener('touchmove', function(e) {
-    if (_seeking) { _seekTo(e.touches[0].clientX); }
-  }, { passive: false });
-  document.addEventListener('touchend', function() { _seeking = false; });
-})();
+audio.addEventListener('timeupdate', function() {
+  if (audio.duration && !isNaN(audio.duration)) {
+    var val = Math.round(audio.currentTime / audio.duration * 1000);
+    progressRange.value = val;
+    updateRangeTrack(val);
+    document.getElementById('currentTime').textContent = fmt(Math.floor(audio.currentTime));
+  }
+});
+
+// 保留旧的 progressClick/progressFill/progressDot 引用防止报错
+function progressClick() {}
+var _seeking = false;
+function _seekTo() {}
 
 function skipTime(s) {
   if (!audio.duration) return;
