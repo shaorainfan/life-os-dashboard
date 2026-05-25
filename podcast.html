@@ -646,13 +646,14 @@ footer {
         </div>
       </div>
 
-      <div class="np-player">
-        <div class="progress-wrap" id="progressWrap">
-          <div class="progress-track" id="progressTrack">
+      <div class="np-player" id="npPlayer">
+        <div class="progress-wrap" id="progressWrap" onmousedown="debugProgressClick(event)" ontouchstart="debugProgressClick(event)">
+          <div class="progress-track" id="progressTrack" style="background:rgba(255,0,0,0.15);">
             <div class="progress-fill" id="progressFill"></div>
             <div class="progress-thumb" id="progressThumb"></div>
           </div>
         </div>
+        <div id="debugHit" style="display:none;position:fixed;top:10px;right:10px;background:#c0392b;color:white;padding:6px 14px;border-radius:4px;font:bold 14px sans-serif;z-index:99999;">HIT!</div>
         <div class="time-row">
           <span id="currentTime">22:15</span>
           <span id="totalTime">63:48</span>
@@ -885,7 +886,7 @@ audio.addEventListener('ended', function() { isPlaying = false; updatePlayIcon()
 audio.addEventListener('play', function() { isPlaying = true; updatePlayIcon(); document.getElementById('waveform').style.opacity = '1'; });
 audio.addEventListener('pause', function() { isPlaying = false; updatePlayIcon(); document.getElementById('waveform').style.opacity = '0.3'; });
 
-// ═══ 进度条（mousedown + touchstart，通杀全平台）═══
+// ═══ 进度条 — 双层保险 ═══
 var progressFill  = document.getElementById('progressFill');
 var progressThumb = document.getElementById('progressThumb');
 var progressTrack = document.getElementById('progressTrack');
@@ -898,7 +899,7 @@ function _updateProgressUI(pct) {
   progressThumb.style.left = pp + '%';
 }
 
-function _handleSeek(clientX) {
+function _seekTo(clientX) {
   var rect = progressTrack.getBoundingClientRect();
   var pct = (clientX - rect.left) / rect.width;
   pct = Math.max(0, Math.min(1, pct));
@@ -911,45 +912,44 @@ function _handleSeek(clientX) {
   document.getElementById('currentTime').textContent = fmt(Math.floor(audio.currentTime));
 }
 
-// mousedown — 挂在 body 上，手动判断是否在进度条区域
-document.body.addEventListener('mousedown', function(e) {
-  var r = progressTrack.getBoundingClientRect();
-  // 扩大判定范围（±12px 容错）
-  if (e.clientX < r.left - 5 || e.clientX > r.right + 5 ||
-      e.clientY < r.top - 12 || e.clientY > r.bottom + 12) return;
+// 调试标记
+function debugProgressClick(e) {
+  var dbg = document.getElementById('debugHit');
+  dbg.style.display = 'block';
+  dbg.textContent = (e.type || 'click') + ' @ ' + (e.clientX || 0).toFixed(0);
+  setTimeout(function(){ dbg.style.display = 'none'; }, 600);
+  // 实际 seek
   _dragging = true;
   progressFill.classList.add('seeking');
   progressThumb.classList.add('seeking');
-  _handleSeek(e.clientX);
+  _seekTo(e.clientX || (e.touches && e.touches[0].clientX) || 0);
   e.preventDefault();
-});
+  e.stopPropagation();
+}
+
+// document-level 拖动
 document.addEventListener('mousemove', function(e) {
   if (!_dragging) return;
-  _handleSeek(e.clientX);
+  _seekTo(e.clientX);
 });
 document.addEventListener('mouseup', function() {
+  if (!_dragging) return;
+  _dragging = false;
+  progressFill.classList.remove('seeking');
+  progressThumb.classList.remove('seeking');
+});
+document.addEventListener('touchmove', function(e) {
+  if (!_dragging) return;
+  _seekTo(e.touches[0].clientX);
+}, { passive: false });
+document.addEventListener('touchend', function() {
+  if (!_dragging) return;
   _dragging = false;
   progressFill.classList.remove('seeking');
   progressThumb.classList.remove('seeking');
 });
 
-// touchstart — 触控
-progressWrap.addEventListener('touchstart', function(e) {
-  _dragging = true;
-  progressFill.classList.add('seeking');
-  progressThumb.classList.add('seeking');
-  _handleSeek(e.touches[0].clientX);
-  e.preventDefault();
-}, { passive: false });
-document.addEventListener('touchmove', function(e) {
-  if (!_dragging) return;
-  _handleSeek(e.touches[0].clientX);
-}, { passive: false });
-document.addEventListener('touchend', function() {
-  _dragging = false;
-  progressFill.classList.remove('seeking');
-  progressThumb.classList.remove('seeking');
-});
+// timeupdate 已被移至下方
 
 audio.addEventListener('timeupdate', function() {
   if (_dragging) return; // 拖动中不要覆盖
