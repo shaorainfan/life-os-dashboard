@@ -698,6 +698,65 @@ body::after {
   margin-top: 6px; opacity: 0.45;
 }
 
+/* ========== 产品清单 ========== */
+.products-panel { padding: 36px 36px; }
+.products-intro {
+  font-size: 0.82rem; color: var(--gray-700); letter-spacing: 1px;
+  line-height: 1.85; margin-bottom: 10px;
+}
+.products-source {
+  font-size: 0.72rem; color: var(--gray-500); letter-spacing: 1px;
+  margin-bottom: 32px; padding-bottom: 20px;
+  border-bottom: 1px solid rgba(180,180,180,0.35);
+}
+.products-source .ps-highlight { color: var(--red); font-weight: 500; }
+
+.products-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+@media (max-width: 560px) { .products-grid { grid-template-columns: 1fr; } }
+
+.product-card {
+  background: rgba(255,255,255,0.5);
+  border: 1px solid rgba(180,180,180,0.4);
+  padding: 28px 24px; position: relative; overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+}
+.product-card::before {
+  content: ''; position: absolute; top: 8px; left: 8px;
+  width: 10px; height: 10px; border-top: 1px solid var(--gray-400); border-left: 1px solid var(--gray-400);
+}
+.product-card::after {
+  content: ''; position: absolute; bottom: 8px; right: 8px;
+  width: 10px; height: 10px; border-bottom: 1px solid var(--gray-400); border-right: 1px solid var(--gray-400);
+}
+.product-card .card-glass {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 40%),
+    linear-gradient(-45deg, transparent 55%, rgba(180,185,190,0.12) 100%);
+}
+.product-card:hover {
+  border-color: var(--red);
+  box-shadow:
+    0 8px 28px rgba(0,0,0,0.07),
+    inset 0 1px 0 rgba(255,255,255,0.5);
+  transform: translateY(-3px);
+}
+
+.product-card .pc-icon {
+  width: 12px; height: 12px; background: var(--red);
+  transform: rotate(45deg); margin-bottom: 16px;
+  box-shadow: 0 0 10px var(--red-glow);
+}
+.product-card h3 {
+  font-size: 0.9rem; font-weight: 500; letter-spacing: 3px;
+  margin-bottom: 10px; color: var(--gray-800);
+}
+.product-card p {
+  font-size: 0.78rem; color: var(--gray-600); line-height: 1.75; letter-spacing: 0.5px;
+}
+
 /* ========== 分割线 ========== */
 .divider-bp {
   display: flex; align-items: center; justify-content: center; gap: 10px;
@@ -837,7 +896,7 @@ body::after {
 
 @media (max-width: 640px) {
   .hero-inner { padding: 44px 28px; max-width: 92vw; }
-  .about-panel, .gallup-panel, .topo-panel, .animus-panel, .wish-panel { padding: 28px 18px; }
+  .about-panel, .gallup-panel, .topo-panel, .animus-panel, .wish-panel, .products-panel { padding: 28px 18px; }
   .animus-panel { padding-left: 10px; }
   .animus-cat, .animus-sub, .animus-header, .animus-footer, .animus-panel .ap-column { padding-left: 0; }
   .animus-panel .ap-column { display: none; }
@@ -1071,6 +1130,56 @@ body::after {
           <span class="diamond red" style="width:6px;height:6px;box-shadow:0 0 8px var(--red-glow);"></span>
           <span class="diamond red" style="width:6px;height:6px;box-shadow:0 0 8px var(--red-glow);"></span>
           <span style="color:var(--red);">三角互撑 · 持续循环</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-bp"><div class="d-line"></div><div class="d-dia"></div><div class="d-line"></div></div>
+
+<!-- ====== 产品清单 ====== -->
+<section class="section-animus">
+  <div class="container fade-in">
+    <div class="section-header">
+      <div class="sh-diamond diamond glow"></div>
+      <div class="sh-lines">
+        <div class="sh-line"></div>
+        <div class="sh-line"></div>
+      </div>
+    </div>
+    <h2 class="section-title">产品清单</h2>
+    <p class="section-sub">PRODUCTS</p>
+
+    <div class="bp-panel corner-brackets products-panel">
+      <div class="cb-bottom"></div>
+      <p class="products-intro">这里是沐阳创作的产品清单，已经全部投入使用，持续赋能生活中。</p>
+      <p class="products-source">它们均来自于沐阳在<span class="ps-highlight">《1v1 生命创作咨询》</span>服务中的灵感</p>
+
+      <div class="products-grid">
+        <div class="product-card">
+          <div class="card-glass"></div>
+          <div class="pc-icon"></div>
+          <h3>INFP↔INTP 沟通转译器</h3>
+          <p>精准转译不同 MBTI 人格的表达逻辑，减少语言信息错位带来的沟通障碍。</p>
+        </div>
+        <div class="product-card">
+          <div class="card-glass"></div>
+          <div class="pc-icon"></div>
+          <h3>Life Buddy 生命状态仪表盘</h3>
+          <p>像仪表盘一样可视化你的精力、情绪、健康等全维度生命数据，促进生命整合与行动。</p>
+        </div>
+        <div class="product-card">
+          <div class="card-glass"></div>
+          <div class="pc-icon"></div>
+          <h3>沐阳设计人生工作坊</h3>
+          <p>用设计思维拆解人生困境，把迷茫的日常变成可落地、可迭代的鲜活人生项目。</p>
+        </div>
+        <div class="product-card">
+          <div class="card-glass"></div>
+          <div class="pc-icon"></div>
+          <h3>人类经验蒸馏器</h3>
+          <p>用 AI 技术蒸馏身边优秀者的知识、技能与思维方式，把他人的宝贵经验变成你随时调用的专属能力库。</p>
         </div>
       </div>
     </div>
