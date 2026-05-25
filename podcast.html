@@ -912,22 +912,47 @@ function _seekTo(clientX) {
   document.getElementById('currentTime').textContent = fmt(Math.floor(audio.currentTime));
 }
 
-// 调试标记
+// ═══ 音频事件哨兵 ═══
+var _dbg = document.getElementById('debugHit');
+var _monitor = 0;
+function _dbgShow(msg) {
+  _dbg.style.display = 'block';
+  _dbg.textContent = msg;
+  if (_monitor) clearTimeout(_monitor);
+  _monitor = setTimeout(function(){ _dbg.style.display = 'none'; }, 4000);
+}
+// 监控 seeking / seeked / error / loadstart / 时间突变
+audio.addEventListener('seeking', function() { _dbgShow('⏳ seeking → ct=' + audio.currentTime.toFixed(1)); });
+audio.addEventListener('seeked',  function() { _dbgShow('✅ seeked → ct=' + audio.currentTime.toFixed(1)); });
+audio.addEventListener('error',   function() { _dbgShow('❌ AUDIO ERROR: code=' + audio.error?.code + ' msg=' + audio.error?.message); });
+audio.addEventListener('loadstart', function() { _dbgShow('🔄 loadstart! (src changed?) ct=' + audio.currentTime.toFixed(1)); });
+audio.addEventListener('stalled', function() { _dbgShow('⏸ stalled ct=' + audio.currentTime.toFixed(1)); });
+audio.addEventListener('waiting', function() { _dbgShow('⌛ waiting ct=' + audio.currentTime.toFixed(1)); });
+audio.addEventListener('emptied', function() { _dbgShow('🗑 emptied! ct=' + audio.currentTime.toFixed(1)); });
+audio.addEventListener('abort',   function() { _dbgShow('🚫 abort! ct=' + audio.currentTime.toFixed(1)); });
+audio.addEventListener('suspend', function() { /* 太多太吵，略过 */ });
+// 监控 currentTime 突变（每秒检查）
+var _lastCt = -1;
+setInterval(function() {
+  if (audio.error) { _dbgShow('❌ ERROR STATE code=' + audio.error.code); return; }
+  if (_lastCt > 10 && audio.currentTime < 1 && audio.readyState < 3) {
+    _dbgShow('⚠ ct JUMP: ' + _lastCt.toFixed(1) + '→' + audio.currentTime.toFixed(1) + ' rdy=' + audio.readyState);
+  }
+  _lastCt = audio.currentTime;
+}, 1000);
+
+// ═══ 进度条点击 ═══
 function debugProgressClick(e) {
   var rect = progressTrack.getBoundingClientRect();
   var pct = (e.clientX - rect.left) / rect.width;
   pct = Math.max(0, Math.min(1, pct));
   var targetSec = audio.duration ? (pct * audio.duration).toFixed(0) : '--';
-  var dbg = document.getElementById('debugHit');
-  dbg.style.display = 'block';
-  dbg.textContent =
+  _dbgShow(
     'click@' + e.clientX.toFixed(0) +
-    ' track[' + rect.left.toFixed(0) + '-' + rect.right.toFixed(0) + ']' +
     ' pct=' + (pct*100).toFixed(1) + '%' +
-    ' → ' + targetSec + 's' +
-    ' dur=' + (audio.duration||0).toFixed(1);
-  setTimeout(function(){ dbg.style.display = 'none'; }, 2500);
-  // 实际 seek
+    ' → seek ' + targetSec + 's' +
+    ' (dur=' + (audio.duration||0).toFixed(1) + ' readyState=' + audio.readyState + ')'
+  );
   _dragging = true;
   progressFill.classList.add('seeking');
   progressThumb.classList.add('seeking');
@@ -935,6 +960,9 @@ function debugProgressClick(e) {
   e.preventDefault();
   e.stopPropagation();
 }
+
+// 5分钟后停止哨兵（减少 log 噪音）
+setTimeout(function() { _lastCt = -1; clearInterval(_monitor); }, 300000);
 
 // document-level 拖动
 document.addEventListener('mousemove', function(e) {
