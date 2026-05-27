@@ -965,6 +965,63 @@ a.product-card-link:hover {
 .divider-bp .d-line { height: 1px; width: 60px; background: var(--gray-300); }
 .divider-bp .d-dia { width: 8px; height: 8px; background: var(--gray-400); transform: rotate(45deg); }
 
+/* ========== 播客入口卡片 ========== */
+.podcast-mini {
+  display: flex; align-items: center; justify-content: center; padding: 0 24px;
+  position: relative; z-index: 1;
+}
+.podcast-mini-link {
+  display: flex; align-items: center; gap: 14px;
+  max-width: 400px; width: 100%;
+  padding: 14px 20px;
+  background: rgba(255,255,255,0.45);
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.3s;
+  position: relative; overflow: hidden;
+}
+.podcast-mini-link::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(107,124,94,0.03) 2px, rgba(107,124,94,0.03) 4px);
+  pointer-events: none;
+}
+.podcast-mini-link::after {
+  content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%;
+  background: #6b7c5e; opacity: 0.5; border-radius: 3px 0 0 3px;
+}
+.podcast-mini-link:hover {
+  border-color: #6b7c5e;
+  background: rgba(255,255,255,0.7);
+  box-shadow: 0 2px 12px rgba(107,124,94,0.08);
+  transform: translateY(-1px);
+}
+.podcast-mini-link:hover::after { opacity: 0.85; }
+.podcast-mini-icon {
+  flex-shrink: 0; width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0.65;
+}
+.podcast-mini-body { flex: 1; min-width: 0; }
+.podcast-mini-title {
+  font-size: 0.82rem; font-weight: 600; color: var(--gray-800);
+  letter-spacing: 1.5px; line-height: 1.3;
+}
+.podcast-mini-sub {
+  font-size: 0.68rem; color: var(--gray-500); letter-spacing: 1px;
+  margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.podcast-mini-arrow {
+  flex-shrink: 0; color: var(--gray-400); transition: all 0.3s;
+}
+.podcast-mini-link:hover .podcast-mini-arrow { color: #6b7c5e; transform: translateX(2px); }
+@media (max-width: 640px) {
+  .podcast-mini-link { padding: 12px 14px; gap: 10px; max-width: 100%; }
+  .podcast-mini-icon { width: 28px; height: 28px; }
+  .podcast-mini-title { font-size: 0.76rem; }
+}
+
 /* ========== 编年史 ========== */
 .chronicle-panel {
   padding: 36px 36px;
@@ -1209,6 +1266,22 @@ a.product-card-link:hover {
 </section>
 
 <div class="divider-bp"><div class="d-line"></div><div class="d-dia"></div><div class="d-line"></div></div>
+
+<!-- 播客入口 Mini -->
+<div class="podcast-mini">
+  <a href="podcast.html" class="podcast-mini-link">
+    <div class="podcast-mini-icon">
+      <svg viewBox="0 0 32 32" width="32" height="32"><circle cx="16" cy="16" r="14" fill="none" stroke="#6b7c5e" stroke-width="1.2" opacity="0.5"/><path d="M12 11 L20 16 L12 21 Z" fill="#6b7c5e" opacity="0.55"/></svg>
+    </div>
+    <div class="podcast-mini-body">
+      <div class="podcast-mini-title">流动的人 · 播客</div>
+      <div class="podcast-mini-sub">EP.8 人生设计课 / 新出路 · 创造计划</div>
+    </div>
+    <span class="podcast-mini-arrow">
+      <svg viewBox="0 0 16 16" width="14" height="14"><path d="M6 3 L11 8 L6 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
+  </a>
+</div>
 
 <!-- ====== 能力环 ====== -->
 <section class="section-animus">
