@@ -916,14 +916,18 @@ a.product-card-link:hover {
 }
 
 /* Silhouette */
-.ability-ring-card .ar-silhouette {
+.ability-ring-card .ar-silhouette-img {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  z-index: 3; opacity: 0.65;
+  z-index: 3; opacity: 0.75;
+  width: 72px; height: 72px;
+  object-fit: contain; object-position: center;
+  mix-blend-mode: multiply;
+  filter: brightness(0.15) saturate(0) contrast(1.2);
   transition: opacity 0.4s, filter 0.4s;
 }
-.ability-ring-card:hover .ar-silhouette {
-  opacity: 0.9;
-  filter: drop-shadow(0 0 8px rgba(140,40,220,0.5)) drop-shadow(0 0 16px rgba(192,57,43,0.3));
+.ability-ring-card:hover .ar-silhouette-img {
+  opacity: 0.92;
+  filter: brightness(0.1) saturate(0) contrast(1.3);
 }
 
 /* Text */
@@ -1261,68 +1265,7 @@ a.product-card-link:hover {
           <div class="ar-ring-runes"></div>
           <div class="ar-ring-core"></div>
           <div class="ar-ring-inner"></div>
-          <svg class="ar-silhouette" viewBox="0 0 60 68" width="60" height="68">
-            <defs>
-              <pattern id="hatch" patternUnits="userSpaceOnUse" width="3" height="3" patternTransform="rotate(-35)">
-                <line x1="0" y1="0" x2="0" y2="3" stroke="var(--red)" stroke-width="0.35" opacity="0.4"/>
-              </pattern>
-              <filter id="silGlow">
-                <feGaussianBlur stdDeviation="0.6" result="blur"/>
-                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-              </filter>
-            </defs>
-            <!-- Nightwing front-facing bust silhouette — traced from reference -->
-            <!-- Main body outline -->
-            <path d="
-              M 30,1
-              C 33.5,1 37,1.6 39.8,3
-              C 41.3,3.8 42.3,5 42.5,6.5
-              C 42.4,7.8 41.8,8.8 40.5,9.5
-              C 39.5,10 39,10.8 39.5,11.5
-              C 40,12.2 40.8,13 41.8,14
-              C 42.5,15 42.5,16 41.5,17
-              C 40.5,18 39.5,19 38.5,20
-              C 36.5,21.5 34,23 31.8,24
-              C 31,24.5 30.5,25 30.2,25.8
-              C 30,26.5 29.8,27.5 29.8,28.5
-              C 30.5,29.2 31.5,30 33,31
-              C 35.5,33 38,35.5 40.5,38.5
-              C 43,41.5 45.5,45 47.5,49
-              C 49.5,53 51,57 52,61
-              L 52.8,65.5
-              L 53,67.5
-              L 45,67.8
-              C 43,64 40.5,61 37.8,58.5
-              C 35,56 32.5,54 30.5,52.8
-              C 30,52.5 29.5,52.5 29.5,52.8
-              C 27.5,54 25,56 22.2,58.5
-              C 19.5,61 17,64 15,67.8
-              L 7,67.5
-              L 7.2,65.5
-              C 8,61 9,57 11,53
-              C 12.5,49 14.5,45.5 17,41.5
-              C 19.5,38.5 22,35.5 24.5,33
-              C 26.5,31 28,29.5 29.5,28.5
-              C 29.5,27.5 29.3,26.5 29,25.8
-              C 28.8,25 28.2,24.5 27.5,24
-              C 25.2,23 23,21.5 21,20
-              C 20,19 19,18 18,17
-              C 17,16 17,15 18,14
-              C 18.8,13 19.5,12.2 20,11.5
-              C 20.2,10.8 19.8,10 19,9.5
-              C 18,8.8 17.5,7.8 17.2,6.5
-              C 17.3,5 18.3,3.8 19.8,3
-              C 22.5,1.6 26.5,1 30,1
-              Z
-            " fill="url(#hatch)" stroke="var(--red)" stroke-width="0.5" opacity="0.78" filter="url(#silGlow)" stroke-linejoin="round"/>
-            <!-- Nightwing chest emblem — inverted V wings -->
-            <path d="
-              M 23,34 L 27,37 L 30,33 L 33,37 L 37,34
-              L 39,37 L 42,40 L 44,43 L 40,47 L 37,43 L 34,39 L 30,44
-              L 26,39 L 23,43 L 20,47 L 16,43 L 18,40 L 21,37
-              Z
-            " fill="none" stroke="#e8dccb" stroke-width="0.6" opacity="0.3" stroke-linejoin="round"/>
-          </svg>
+          <img class="ar-silhouette-img" src="hero-silhouette.png" alt="英雄剪影">
         </div>
         <h3>沐阳个人能力环</h3>
         <p class="ar-sub">漫威宇宙版 · 多维能力雷达可视化</p>
