@@ -85,6 +85,7 @@
   .pie-svg {
     width: 640px;
     height: 640px;
+    min-width: 560px;
     filter: drop-shadow(0 0 28px rgba(0,230,118,0.1));
   }
 
@@ -200,11 +201,11 @@
   @media (max-width: 900px) {
     .main-layout { flex-direction: column; align-items: center; gap: 24px; }
     .details-panel { min-width: auto; width: 100%; max-width: 480px; }
-    .pie-svg { width: 100%; max-width: 640px; height: auto; }
+    .pie-svg { width: 100%; max-width: 640px; min-width: 400px; height: auto; }
     .pie-block { padding: 0 8px; }
   }
   @media (max-width: 600px) {
-    .pie-svg { width: 100%; max-width: 640px; height: auto; }
+    .pie-svg { width: 100%; max-width: 640px; min-width: 340px; height: auto; }
     .details-panel { width: 100%; max-width: 420px; }
     .header h1 { font-size: 20px; }
     .pie-block { padding: 0 4px; }
@@ -266,34 +267,34 @@
         <circle cx="340" cy="340" r="60" fill="none" stroke="rgba(0,230,118,0.12)" stroke-width="1.5"/>
 
         <!-- Center text: 能力环 -->
-        <text x="340" y="347" text-anchor="middle" font-size="18" fill="#4a8c6a" font-family="'Noto Sans SC',sans-serif" font-weight="900" letter-spacing="5">能力环</text>
+        <text x="340" y="347" text-anchor="middle" font-size="24" fill="#4a8c6a" font-family="'Noto Sans SC',sans-serif" font-weight="900" letter-spacing="6">能力环</text>
 
         <!-- === OUTER LABELS (no rect backgrounds — text only with connector lines) === -->
 
         <!-- 神秘客 27% — mid=-41.4° -->
         <line x1="453" y1="241" x2="533" y2="175" stroke="#69f0ae" stroke-width="2" stroke-dasharray="5 4" opacity="0.45"/>
-        <text x="533" y="162" font-size="28" fill="#69f0ae" font-family="'Noto Sans SC',sans-serif" font-weight="900" text-anchor="middle">🔮 神秘客</text>
-        <text x="533" y="188" font-size="20" fill="rgba(255,255,255,0.48)" font-family="'Noto Sans SC',sans-serif" text-anchor="middle">27% · 共情聚合</text>
+        <text x="533" y="156" font-size="38" fill="#69f0ae" font-family="'Noto Sans SC',sans-serif" font-weight="900" text-anchor="middle">🔮 神秘客</text>
+        <text x="533" y="188" font-size="26" fill="rgba(255,255,255,0.48)" font-family="'Noto Sans SC',sans-serif" text-anchor="middle">27% · 共情聚合</text>
 
         <!-- 蚁人 22% — mid=46.8° -->
         <line x1="443" y1="449" x2="516" y2="532" stroke="#ff5252" stroke-width="2" stroke-dasharray="5 4" opacity="0.45"/>
-        <text x="516" y="519" font-size="28" fill="#ff5252" font-family="'Noto Sans SC',sans-serif" font-weight="900" text-anchor="middle">⚙️ 蚁人</text>
-        <text x="516" y="545" font-size="20" fill="rgba(255,255,255,0.48)" font-family="'Noto Sans SC',sans-serif" text-anchor="middle">22% · 原型落地</text>
+        <text x="516" y="515" font-size="38" fill="#ff5252" font-family="'Noto Sans SC',sans-serif" font-weight="900" text-anchor="middle">⚙️ 蚁人</text>
+        <text x="516" y="547" font-size="26" fill="rgba(255,255,255,0.48)" font-family="'Noto Sans SC',sans-serif" text-anchor="middle">22% · 原型落地</text>
 
         <!-- 星爵 22% — mid=126.0° -->
         <line x1="252" y1="461" x2="189" y2="553" stroke="#ffab40" stroke-width="2" stroke-dasharray="5 4" opacity="0.45"/>
-        <text x="189" y="540" font-size="28" fill="#ffab40" font-family="'Noto Sans SC',sans-serif" font-weight="900" text-anchor="middle">🎶 星爵</text>
-        <text x="189" y="566" font-size="20" fill="rgba(255,255,255,0.48)" font-family="'Noto Sans SC',sans-serif" text-anchor="middle">22% · 创意驱动</text>
+        <text x="189" y="536" font-size="38" fill="#ffab40" font-family="'Noto Sans SC',sans-serif" font-weight="900" text-anchor="middle">🎶 星爵</text>
+        <text x="189" y="568" font-size="26" fill="rgba(255,255,255,0.48)" font-family="'Noto Sans SC',sans-serif" text-anchor="middle">22% · 创意驱动</text>
 
         <!-- 模仿大师 20% — mid=201.6° -->
         <line x1="201" y1="285" x2="101" y2="250" stroke="#999999" stroke-width="2" stroke-dasharray="5 4" opacity="0.45"/>
-        <text x="101" y="237" font-size="28" fill="#c0c0c0" font-family="'Noto Sans SC',sans-serif" font-weight="900" text-anchor="middle">🔄 模仿大师</text>
-        <text x="101" y="263" font-size="20" fill="rgba(255,255,255,0.48)" font-family="'Noto Sans SC',sans-serif" text-anchor="middle">20% · 镜像学习</text>
+        <text x="101" y="233" font-size="38" fill="#c0c0c0" font-family="'Noto Sans SC',sans-serif" font-weight="900" text-anchor="middle">🔄 模仿大师</text>
+        <text x="101" y="265" font-size="26" fill="rgba(255,255,255,0.48)" font-family="'Noto Sans SC',sans-serif" text-anchor="middle">20% · 镜像学习</text>
 
         <!-- 美国队长 9% — mid=253.8° -->
         <line x1="298" y1="196" x2="268" y2="124" stroke="#ff1744" stroke-width="2" stroke-dasharray="5 4" opacity="0.45"/>
-        <text x="268" y="111" font-size="28" fill="#64b5f6" font-family="'Noto Sans SC',sans-serif" font-weight="900" text-anchor="middle">🛡️ 美国队长</text>
-        <text x="268" y="137" font-size="20" fill="rgba(255,255,255,0.48)" font-family="'Noto Sans SC',sans-serif" text-anchor="middle">9% · 价值锚点</text>
+        <text x="268" y="105" font-size="38" fill="#64b5f6" font-family="'Noto Sans SC',sans-serif" font-weight="900" text-anchor="middle">🛡️ 美国队长</text>
+        <text x="268" y="137" font-size="26" fill="rgba(255,255,255,0.48)" font-family="'Noto Sans SC',sans-serif" text-anchor="middle">9% · 价值锚点</text>
       </svg>
     </div>
 
