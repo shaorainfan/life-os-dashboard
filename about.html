@@ -444,11 +444,11 @@ body::after {
   aspect-ratio: 1;
 }
 .am-right .topo-panel { height: 100%; padding: 28px 20px; }
-.am-right .topo-intro { font-size: 0.72rem; margin-bottom: 20px; }
+.am-right .topo-intro { font-size: 0.88rem; margin-bottom: 20px; }
 .am-right .topo-svg-wrap { margin: 0; }
 .am-right .topo-svg-wrap svg { height: 260px; }
 .am-right .topo-bottom { margin-top: 12px; }
-.am-right .topo-bridge { font-size: 0.72rem; }
+.am-right .topo-bridge { font-size: 0.85rem; }
 @media (max-width: 640px) {
   .ability-matrix-row { flex-direction: column; gap: 16px; }
   .am-left { flex: 0 0 auto; aspect-ratio: auto; }
@@ -461,7 +461,7 @@ body::after {
   padding: 36px 24px;
 }
 .topo-intro {
-  font-size: 0.78rem; color: var(--gray-500); letter-spacing: 2px;
+  font-size: 0.95rem; color: var(--gray-500); letter-spacing: 2px;
   margin-bottom: 36px; text-align: center;
 }
 
@@ -500,7 +500,7 @@ body::after {
 }
 .topo-bridge {
   display: flex; align-items: center; gap: 14px;
-  font-size: 0.7rem; letter-spacing: 3px; color: var(--gray-500);
+  font-size: 0.85rem; letter-spacing: 3px; color: var(--gray-500);
 }
 
 /* ========== ANIMUS 能力矩阵 ========== */
@@ -926,15 +926,15 @@ a.product-card-link:hover {
 
 /* Text */
 .ability-ring-card h3 {
-  font-size: 0.95rem; font-weight: 500; letter-spacing: 3px;
+  font-size: 1.15rem; font-weight: 500; letter-spacing: 3px;
   color: var(--gray-800); margin-bottom: 8px; position: relative; z-index: 2;
 }
 .ability-ring-card .ar-sub {
-  font-size: 0.72rem; color: var(--gray-500); letter-spacing: 2px;
+  font-size: 0.9rem; color: var(--gray-500); letter-spacing: 2px;
   position: relative; z-index: 2;
 }
 .ability-ring-card .ar-hint {
-  font-size: 0.7rem; color: var(--red); letter-spacing: 2px; margin-top: 20px;
+  font-size: 0.88rem; color: var(--red); letter-spacing: 2px; margin-top: 20px;
   opacity: 0; transition: opacity 0.4s; position: relative; z-index: 2;
 }
 .ability-ring-card:hover .ar-hint { opacity: 1; }
@@ -1134,6 +1134,7 @@ a.product-card-link:hover {
   padding: 28px 28px 20px;
   position: relative;
   height: 100%;
+  display: flex; flex-direction: column;
 }
 .podcast-chronicle .pc-inner::before {
   content: ''; position: absolute; top: 0; left: 12px; right: 12px; height: 1px;
@@ -1146,6 +1147,24 @@ a.product-card-link:hover {
 }
 .podcast-chronicle .pc-list {
   display: flex; flex-direction: column;
+  flex: 1; justify-content: space-between;
+  position: relative;
+}
+/* AC2 DNA序列时间线 */
+.podcast-chronicle .pc-list::before {
+  content: '';
+  position: absolute;
+  left: 59px;
+  top: 11px; bottom: 11px;
+  width: 1px;
+  background: linear-gradient(to bottom,
+    var(--red) 0%,
+    rgba(192,57,43,0.4) 15%,
+    rgba(192,57,43,0.15) 50%,
+    rgba(192,57,43,0.05) 100%
+  );
+  box-shadow: 0 0 6px rgba(192,57,43,0.12);
+  z-index: 0;
 }
 .podcast-chronicle .pc-row {
   display: flex; align-items: center; gap: 14px;
@@ -1166,6 +1185,7 @@ a.product-card-link:hover {
   width: 6px; height: 6px; background: var(--gray-300);
   transform: rotate(45deg);
   transition: background 0.25s, box-shadow 0.25s;
+  position: relative; z-index: 1;
 }
 .podcast-chronicle .pc-row .ch-title {
   font-size: 0.72rem; font-weight: 300; letter-spacing: 2px;
@@ -1614,7 +1634,7 @@ a.product-card-link:hover {
           <div class="animus-cat">
             <div class="animus-cat-title">关系优势</div>
             <div class="animus-rows">
-              <div class="animus-row active"><div class="ar-dia"></div><span class="ar-name">共情倾听</span></div>
+              <div class="animus-row"><div class="ar-dia"></div><span class="ar-name">共情倾听</span></div>
               <div class="animus-row"><div class="ar-dia"></div><span class="ar-name">深度信任</span></div>
               <div class="animus-row"><div class="ar-dia"></div><span class="ar-name">以人为本</span></div>
             </div>
@@ -1654,7 +1674,7 @@ a.product-card-link:hover {
       <div class="am-right">
         <div class="bp-panel corner-brackets topo-panel">
           <div class="cb-bottom"></div>
-          <p class="topo-label" style="font-size:0.65rem;font-weight:600;letter-spacing:3px;color:var(--red);text-transform:uppercase;text-align:center;margin-bottom:14px;">TOPOLOGY · 能力拓扑</p>
+          <p class="topo-label" style="font-size:0.8rem;font-weight:600;letter-spacing:3px;color:var(--red);text-transform:uppercase;text-align:center;margin-bottom:14px;">TOPOLOGY · 能力拓扑</p>
           <p class="topo-intro">关系优势为根，创作能力为枝，场域营造为形——三角互撑，彼此赋能</p>
           <div class="topo-svg-wrap">
             <svg viewBox="0 0 660 370" width="100%" height="260">
@@ -1726,10 +1746,10 @@ a.product-card-link:hover {
               <line class="topo-connect" x1="576" y1="285" x2="610" y2="285" stroke="#999" stroke-width="0.8" opacity="0.35"/>
               <rect class="topo-sat" x="546" y="312" width="6" height="6" fill="#999" rx="1" transform="rotate(45,549,315)"/>
               <!-- 标签 -->
-              <text x="350" y="118" text-anchor="middle" fill="#777" font-size="22" font-weight="600" letter-spacing="6">关系优势</text>
-              <text x="102" y="318" text-anchor="middle" fill="#777" font-size="22" font-weight="600" letter-spacing="6">创作能力</text>
-              <text x="598" y="318" text-anchor="middle" fill="#777" font-size="22" font-weight="600" letter-spacing="6">场域营造</text>
-              <text x="350" y="248" text-anchor="middle" fill="#c0392b" font-size="15" font-weight="600" letter-spacing="5" opacity="0.65">交汇</text>
+              <text x="350" y="118" text-anchor="middle" fill="#777" font-size="28" font-weight="600" letter-spacing="6">关系优势</text>
+              <text x="102" y="318" text-anchor="middle" fill="#777" font-size="28" font-weight="600" letter-spacing="6">创作能力</text>
+              <text x="598" y="318" text-anchor="middle" fill="#777" font-size="28" font-weight="600" letter-spacing="6">场域营造</text>
+              <text x="350" y="248" text-anchor="middle" fill="#c0392b" font-size="20" font-weight="600" letter-spacing="5" opacity="0.65">交汇</text>
             </svg>
           </div>
           <div class="topo-bottom">
