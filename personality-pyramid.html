@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>沐阳个人能力环 · 漫威宇宙版</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #080a10;
+    color: #c8d4e4;
+    font-family: 'Noto Sans SC', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 30px 20px;
+    overflow-x: hidden;
+  }
+
+  .cosmic-bg {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(0, 230, 118, 0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(30, 80, 150, 0.08) 0%, transparent 50%),
+      linear-gradient(180deg, #080a10 0%, #0a0d18 40%, #0c1020 100%);
+    z-index: -3;
+  }
+  .nebula {
+    position: fixed; top: 5%; left: 10%; width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(0,230,118,0.04) 0%, transparent 70%);
+    filter: blur(40px); z-index: -2;
+  }
+  .nebula-2 {
+    position: fixed; bottom: 15%; right: 5%; width: 400px; height: 250px;
+    background: radial-gradient(circle, rgba(30,100,200,0.05) 0%, transparent 70%);
+    filter: blur(50px); z-index: -2;
+  }
+  .stars-canvas {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: -1; pointer-events: none;
+  }
+
+  .container { width: 1080px; max-width: 100%; display: flex; flex-direction: column; align-items: center; }
+
+  /* Header */
+  .header { text-align: center; margin-bottom: 24px; }
+  .header h1 {
+    font-size: 26px; font-weight: 900; color: #e0e6f0; letter-spacing: 4px;
+    text-shadow: 0 0 40px rgba(0,230,118,0.15), 0 0 80px rgba(211,47,47,0.08);
+  }
+  .header .sub { font-size: 12px; color: #5a7088; margin-top: 6px; letter-spacing: 3px; font-weight: 300; }
+  .divider-glow {
+    width: 220px; height: 2px; margin: 12px auto 28px; border-radius: 2px;
+    background: linear-gradient(90deg, transparent, rgba(0,230,118,0.35), rgba(255,171,64,0.45), rgba(0,230,118,0.35), transparent);
+    box-shadow: 0 0 12px rgba(0,230,118,0.15);
+  }
+
+  /* Main layout */
+  .main-layout {
+    display: flex;
+    gap: 36px;
+    align-items: flex-start;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+
+  /* ===== PIE CHART BLOCK ===== */
+  .pie-block {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+  }
+  .pie-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #5a7088;
+    letter-spacing: 3px;
+  }
+  .pie-svg {
+    width: 480px;
+    height: 480px;
+    filter: drop-shadow(0 0 20px rgba(0,230,118,0.08));
+  }
+
+  /* ===== DETAIL CARDS ===== */
+  .details-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    min-width: 300px;
+  }
+
+  .detail-card {
+    padding: 13px 15px 13px 15px;
+    border-radius: 6px;
+    border: 1px solid;
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateX(12px);
+    animation: slideIn 0.45s ease forwards;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+  }
+  .card-body { flex: 1; min-width: 0; }
+  .card-emblem {
+    width: 72px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.55;
+    margin-left: 10px;
+  }
+  .card-emblem svg { width: 64px; height: 64px; }
+  .detail-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 6px 6px 0 0;
+  }
+
+  /* 美国队长 - 盾牌蓝 #1565c0 / 亮红 #ff1744 */
+  .card-l1 { animation-delay: 0.05s; background: linear-gradient(135deg, rgba(21,101,192,0.08), rgba(21,101,192,0.01)); border-color: rgba(21,101,192,0.22); }
+  .card-l1::before { background: linear-gradient(90deg, #1565c0, #ff1744, transparent); }
+  /* 模仿大师 - 深灰黑 #424242 / 亮白 #ffffff */
+  .card-l2 { animation-delay: 0.11s; background: linear-gradient(135deg, rgba(66,66,66,0.08), rgba(66,66,66,0.01)); border-color: rgba(255,255,255,0.10); }
+  .card-l2::before { background: linear-gradient(90deg, #424242, #ffffff, transparent); }
+  /* 星爵 - 复古酒红 #ad1457 / 金色 #ffab40 */
+  .card-l3 { animation-delay: 0.17s; background: linear-gradient(135deg, rgba(173,20,87,0.08), rgba(173,20,87,0.01)); border-color: rgba(173,20,87,0.22); }
+  .card-l3::before { background: linear-gradient(90deg, #ad1457, #ffab40, transparent); }
+  /* 蚁人 - 战衣猩红 #d32f2f / 亮红 #ff5252 */
+  .card-l4 { animation-delay: 0.23s; background: linear-gradient(135deg, rgba(211,47,47,0.08), rgba(211,47,47,0.01)); border-color: rgba(211,47,47,0.22); }
+  .card-l4::before { background: linear-gradient(90deg, #d32f2f, #ff5252, transparent); }
+  /* 神秘客 - 全息荧光绿 #00e676 / 浅亮绿 #69f0ae */
+  .card-l5 { animation-delay: 0.29s; background: linear-gradient(135deg, rgba(0,230,118,0.08), rgba(0,230,118,0.01)); border-color: rgba(0,230,118,0.22); }
+  .card-l5::before { background: linear-gradient(90deg, #00e676, #69f0ae, transparent); }
+
+  @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+
+  .card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .card-icon { font-size: 17px; }
+  .card-title-group { flex: 1; }
+  .card-name { font-size: 14px; font-weight: 700; }
+  .card-l1 .card-name { color: #5c9ae6; }
+  .card-l2 .card-name { color: #b0b0b0; }
+  .card-l3 .card-name { color: #c46894; }
+  .card-l4 .card-name { color: #c47070; }
+  .card-l5 .card-name { color: #58b888; }
+
+  .card-pct-badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.5px; }
+  .card-l1 .card-pct-badge { background: rgba(21,101,192,0.12); color: #5c9ae6; }
+  .card-l2 .card-pct-badge { background: rgba(255,255,255,0.05); color: #b0b0b0; }
+  .card-l3 .card-pct-badge { background: rgba(173,20,87,0.12); color: #c46894; }
+  .card-l4 .card-pct-badge { background: rgba(211,47,47,0.12); color: #c47070; }
+  .card-l5 .card-pct-badge { background: rgba(0,230,118,0.12); color: #58b888; }
+
+  .card-label { font-size: 9.5px; opacity: 0.45; letter-spacing: 0.5px; }
+
+  .trait-item { margin-bottom: 6px; } .trait-item:last-child { margin-bottom: 0; }
+  .t-name { font-weight: 600; font-size: 11.5px; margin-top: 2px; }
+  .card-l1 .t-name { color: #7aabe0; }
+  .card-l2 .t-name { color: #a0a0a0; }
+  .card-l3 .t-name { color: #c080a0; }
+  .card-l4 .t-name { color: #c08080; }
+  .card-l5 .t-name { color: #78b898; }
+  .t-desc { font-size: 10.5px; color: #7a90a8; line-height: 1.45; margin-top: 1px; }
+  .t-src { font-size: 9px; color: #3d5570; line-height: 1.4; margin-top: 1px; padding-left: 8px; border-left: 1.5px solid; }
+  .card-l1 .t-src { border-left-color: rgba(21,101,192,0.25); }
+  .card-l2 .t-src { border-left-color: rgba(255,255,255,0.10); }
+  .card-l3 .t-src { border-left-color: rgba(173,20,87,0.20); }
+  .card-l4 .t-src { border-left-color: rgba(211,47,47,0.20); }
+  .card-l5 .t-src { border-left-color: rgba(0,230,118,0.20); }
+  .bracket { color: #304050; }
+
+  /* Footer */
+  .footer-area { margin-top: 28px; text-align: center; }
+  .tagline { font-size: 15px; font-weight: 700; letter-spacing: 6px; color: #c0c8d8; text-shadow: 0 0 16px rgba(0,230,118,0.12); }
+  .tagline .dot { color: #b83232; margin: 0 3px; }
+  .footer-sub { font-size: 9px; color: #304050; margin-top: 8px; letter-spacing: 2px; }
+  .back-home {
+    display: inline-block; margin-top: 18px; padding: 8px 28px;
+    font-size: 14px; font-weight: 600; letter-spacing: 3px;
+    color: #69f0ae; border: 1px solid rgba(105,240,174,0.25);
+    border-radius: 20px; text-decoration: none;
+    background: rgba(0,230,118,0.06);
+    transition: all 0.3s ease;
+  }
+  .back-home:hover {
+    background: rgba(0,230,118,0.14);
+    border-color: rgba(105,240,174,0.5);
+    box-shadow: 0 0 16px rgba(0,230,118,0.15);
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .main-layout { flex-direction: column; align-items: center; gap: 24px; }
+    .details-panel { min-width: auto; width: 100%; max-width: 480px; }
+    .pie-svg { width: 380px; height: 380px; }
+  }
+  @media (max-width: 600px) {
+    .pie-svg { width: 320px; height: 320px; }
+    .details-panel { width: 100%; max-width: 420px; }
+    .header h1 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cosmic-bg"></div>
+<canvas class="stars-canvas" id="starfield"></canvas>
+<div class="nebula"></div><div class="nebula-2"></div>
+
+<div class="container">
+  <div class="header">
+    <h1>✨ 沐阳个人能力环 · 漫威宇宙版</h1>
+    <div class="sub">INFP × 盖洛普优势 × 漫威英雄映射</div>
+  </div>
+  <div class="divider-glow"></div>
+
+  <div class="main-layout">
+
+    <!-- === PIE CHART BLOCK === -->
+    <div class="pie-block">
+      <div class="pie-title">能 力 环</div>
+      <!-- viewBox 扩大到 -280，确保外围标签不被裁切 -->
+      <svg class="pie-svg" viewBox="-360 -320 720 640">
+        <defs>
+          <filter id="mysterioGlow">
+            <feGaussianBlur stdDeviation="5" result="blur"/>
+            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+          </filter>
+          <filter id="antmanGlow">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+          </filter>
+        </defs>
+
+        <!--
+          Animus暗底荧光配色 - 高级暗调版
+          降低填充不透明度，让深色背景透出，呈现高级感
+        -->
+
+        <!-- S1: 神秘客 27% (97.2°) from -90° to 7.2° -->
+        <path d="M0,0 L0,-120 A120,120 0 0,1 119.05,15.04 Z" fill="#00e676" opacity="0.35" filter="url(#mysterioGlow)"/>
+        <path d="M0,0 L0,-120 A120,120 0 0,1 119.05,15.04 Z" fill="none" stroke="#69f0ae" stroke-width="1.5" opacity="0.7"/>
+
+        <!-- S2: 蚁人 22% (79.2°) from 7.2° to 86.4° -->
+        <path d="M0,0 L119.05,15.04 A120,120 0 0,1 7.54,119.76 Z" fill="#d32f2f" opacity="0.32" filter="url(#antmanGlow)"/>
+        <path d="M0,0 L119.05,15.04 A120,120 0 0,1 7.54,119.76 Z" fill="none" stroke="#ff5252" stroke-width="1.5" opacity="0.7"/>
+
+        <!-- S3: 星爵 22% (79.2°) from 86.4° to 165.6° -->
+        <path d="M0,0 L7.54,119.76 A120,120 0 0,1 -116.23,29.85 Z" fill="#ad1457" opacity="0.30"/>
+        <path d="M0,0 L7.54,119.76 A120,120 0 0,1 -116.23,29.85 Z" fill="none" stroke="#ffab40" stroke-width="1.5" opacity="0.65"/>
+
+        <!-- S4: 模仿大师 20% (72°) from 165.6° to 237.6° -->
+        <path d="M0,0 L-116.23,29.85 A120,120 0 0,1 -64.18,-101.40 Z" fill="#424242" opacity="0.45"/>
+        <path d="M0,0 L-116.23,29.85 A120,120 0 0,1 -64.18,-101.40 Z" fill="none" stroke="#888888" stroke-width="1.5" opacity="0.6"/>
+
+        <!-- S5: 美国队长 9% (32.4°) from 237.6° to 270° -->
+        <path d="M0,0 L-64.18,-101.40 A120,120 0 0,1 0,-120 Z" fill="#1565c0" opacity="0.32"/>
+        <path d="M0,0 L-64.18,-101.40 A120,120 0 0,1 0,-120 Z" fill="none" stroke="#ff1744" stroke-width="1.5" opacity="0.6"/>
+
+        <!-- Center circle -->
+        <circle cx="0" cy="0" r="56" fill="#080a10" opacity="0.95"/>
+        <circle cx="0" cy="0" r="56" fill="none" stroke="rgba(0,230,118,0.12)" stroke-width="1"/>
+
+        <!-- Center text: 能力环 -->
+        <text x="0" y="5" text-anchor="middle" font-size="15" fill="#4a8c6a" font-family="'Noto Sans SC',sans-serif" font-weight="900" letter-spacing="4">能力环</text>
+
+        <!-- === OUTER LABELS WITH CONNECTOR LINES === -->
+
+        <!-- 神秘客 → 右上方 (扇区中心约-41.4°) -->
+        <rect x="165" y="-108" width="140" height="48" rx="7" fill="rgba(0,230,118,0.10)" stroke="rgba(105,240,174,0.30)" stroke-width="1"/>
+        <line x1="94" y1="-83" x2="163" y2="-86" stroke="#69f0ae" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55"/>
+        <text x="235" y="-83" font-size="18" fill="#69f0ae" font-family="'Noto Sans SC',sans-serif" font-weight="900" text-anchor="middle">🔮 神秘客</text>
+        <text x="235" y="-65" font-size="15" fill="rgba(255,255,255,0.50)" font-family="'Noto Sans SC',sans-serif" text-anchor="middle">27% · 共情聚合</text>
+
+        <!-- 蚁人 → 右下方 (扇区中心约46.8°) -->
+        <rect x="165" y="62" width="128" height="48" rx="7" fill="rgba(211,47,47,0.10)" stroke="rgba(255,82,82,0.30)" stroke-width="1"/>
+        <line x1="85" y1="91" x2="163" y2="84" stroke="#ff5252" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55"/>
+        <text x="229" y="87" font-size="18" fill="#ff5252" font-family="'Noto Sans SC',sans-serif" font-weight="900" text-anchor="middle">⚙️ 蚁人</text>
+        <text x="229" y="105" font-size="15" fill="rgba(255,255,255,0.50)" font-family="'Noto Sans SC',sans-serif" text-anchor="middle">22% · 原型落地</text>
+
+        <!-- 星爵 → 左下方 (扇区中心约126°) -->
+        <rect x="-305" y="62" width="136" height="48" rx="7" fill="rgba(173,20,87,0.10)" stroke="rgba(255,171,64,0.28)" stroke-width="1"/>
+        <line x1="-74" y1="101" x2="-175" y2="84" stroke="#ffab40" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.45"/>
+        <text x="-237" y="87" font-size="18" fill="#ffab40" font-family="'Noto Sans SC',sans-serif" font-weight="900" text-anchor="middle">🎶 星爵</text>
+        <text x="-237" y="105" font-size="15" fill="rgba(255,255,255,0.50)" font-family="'Noto Sans SC',sans-serif" text-anchor="middle">22% · 创意驱动</text>
+
+        <!-- 模仿大师 → 左上方 (扇区中心约201.6°) -->
+        <rect x="-310" y="-60" width="142" height="48" rx="7" fill="rgba(66,66,66,0.16)" stroke="rgba(136,136,136,0.28)" stroke-width="1"/>
+        <line x1="-116" y1="-46" x2="-176" y2="-38" stroke="#999999" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.40"/>
+        <text x="-239" y="-35" font-size="17" fill="#c0c0c0" font-family="'Noto Sans SC',sans-serif" font-weight="900" text-anchor="middle">🔄 模仿大师</text>
+        <text x="-239" y="-17" font-size="14" fill="rgba(255,255,255,0.48)" font-family="'Noto Sans SC',sans-serif" text-anchor="middle">20% · 镜像学习</text>
+
+        <!-- 美国队长 → 正上方偏左 (扇区中心约253.8°) -->
+        <rect x="-100" y="-238" width="144" height="48" rx="7" fill="rgba(21,101,192,0.10)" stroke="rgba(255,23,68,0.28)" stroke-width="1"/>
+        <line x1="-35" y1="-120" x2="-30" y2="-232" stroke="#ff1744" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.40"/>
+        <text x="-28" y="-213" font-size="17" fill="#64b5f6" font-family="'Noto Sans SC',sans-serif" font-weight="900" text-anchor="middle">🛡️ 美国队长</text>
+        <text x="-28" y="-195" font-size="14" fill="rgba(255,255,255,0.48)" font-family="'Noto Sans SC',sans-serif" text-anchor="middle">9% · 价值锚点</text>
+      </svg>
+    </div>
+
+    <!-- === DETAIL CARDS === -->
+    <div class="details-panel">
+
+      <!-- Card 1: 美国队长 -->
+      <div class="detail-card card-l1">
+        <div class="card-body">
+          <div class="card-header">
+            <span class="card-icon">🛡️</span>
+            <div class="card-title-group">
+              <div class="card-name">美国队长 · 价值底层</div>
+              <div class="card-label">精神锚定</div>
+            </div>
+            <span class="card-pct-badge">9%</span>
+          </div>
+          <div class="trait-item">
+            <div class="t-name">信念锚点</div>
+            <div class="t-desc">拥有稳定的内在价值标尺</div>
+            <div class="t-src"><span class="bracket">【溯源：</span>核心内向情感，自带自我价值准则<span class="bracket">】</span></div>
+          </div>
+          <div class="trait-item">
+            <div class="t-name">利他本心</div>
+            <div class="t-desc">优先顾及他人感受、维护集体氛围</div>
+            <div class="t-src"><span class="bracket">【溯源：</span>关系类优势靠前，天生在意关系链接<span class="bracket">】</span></div>
+          </div>
+        </div>
+        <div class="card-emblem">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="shield-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#1565c0"/>
+                <stop offset="100%" stop-color="#ff1744"/>
+              </linearGradient>
+            </defs>
+            <!-- 盾牌外形 -->
+            <path d="M50 8 L88 24 L88 52 Q88 78 50 94 Q12 78 12 52 L12 24 Z" fill="none" stroke="url(#shield-grad)" stroke-width="3" opacity="0.8"/>
+            <!-- 内圈 -->
+            <circle cx="50" cy="48" r="20" fill="none" stroke="url(#shield-grad)" stroke-width="2" opacity="0.5"/>
+            <!-- 中心星 -->
+            <polygon points="50,32 54,42 64,42 56,48 59,58 50,52 41,58 44,48 36,42 46,42" fill="url(#shield-grad)" opacity="0.6"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Card 2: 模仿大师 -->
+      <div class="detail-card card-l2">
+        <div class="card-body">
+          <div class="card-header">
+            <span class="card-icon">🔄</span>
+            <div class="card-title-group">
+              <div class="card-name">模仿大师 · 天赋学习层</div>
+              <div class="card-label">镜像复刻</div>
+            </div>
+            <span class="card-pct-badge">20%</span>
+          </div>
+          <div class="trait-item">
+            <div class="t-name">情绪同步</div>
+            <div class="t-desc">快速感知他人的情绪状态并复刻角色的心智模式</div>
+            <div class="t-src"><span class="bracket">【溯源：</span>天生镜像神经元高度活跃，感知复刻力强<span class="bracket">】</span></div>
+          </div>
+          <div class="trait-item">
+            <div class="t-name">战术数据库</div>
+            <div class="t-desc">归类、理解各类人的行为模式</div>
+            <div class="t-src"><span class="bracket">【溯源：</span>概念化理解、归纳共性规律的能力<span class="bracket">】</span></div>
+          </div>
+          <div class="trait-item">
+            <div class="t-name">经验转化</div>
+            <div class="t-desc">把观察到的内容拆解、落地成可用方案</div>
+            <div class="t-src"><span class="bracket">【溯源：</span>来自游戏玩家的设计原型拆解能力<span class="bracket">】</span></div>
+          </div>
+        </div>
+        <div class="card-emblem">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="mask-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#424242"/>
+                <stop offset="100%" stop-color="#ffffff"/>
+              </linearGradient>
+            </defs>
+            <!-- 面具轮廓 -->
+            <path d="M50 12 Q82 12 82 42 Q82 62 50 88 Q18 62 18 42 Q18 12 50 12 Z" fill="none" stroke="url(#mask-grad)" stroke-width="3" opacity="0.7"/>
+            <!-- 左眼孔 -->
+            <path d="M32 36 Q38 30 48 36 Q42 44 32 36 Z" fill="url(#mask-grad)" opacity="0.5"/>
+            <!-- 右眼孔 -->
+            <path d="M52 36 Q62 30 68 36 Q58 44 52 36 Z" fill="url(#mask-grad)" opacity="0.5"/>
+            <!-- 额头纹路 -->
+            <line x1="36" y1="24" x2="50" y2="20" stroke="url(#mask-grad)" stroke-width="1.5" opacity="0.35"/>
+            <line x1="64" y1="24" x2="50" y2="20" stroke="url(#mask-grad)" stroke-width="1.5" opacity="0.35"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Card 3: 星爵 -->
+      <div class="detail-card card-l3">
+        <div class="card-body">
+          <div class="card-header">
+            <span class="card-icon">🎶</span>
+            <div class="card-title-group">
+              <div class="card-name">星爵 · 思维情绪驱动层</div>
+              <div class="card-label">灵感引擎</div>
+            </div>
+            <span class="card-pct-badge">22%</span>
+          </div>
+          <div class="trait-item">
+            <div class="t-name">情绪驱动</div>
+            <div class="t-desc">靠正向情绪激活超高效率创作状态</div>
+            <div class="t-src"><span class="bracket">【溯源：</span>天生高敏感带来的情绪驱动力<span class="bracket">】</span></div>
+          </div>
+          <div class="trait-item">
+            <div class="t-name">灵感创新</div>
+            <div class="t-desc">跨维度联想，持续产出创新脑洞</div>
+            <div class="t-src"><span class="bracket">【溯源：</span>高发散思维，导致联想串联能力突出<span class="bracket">】</span></div>
+          </div>
+        </div>
+        <div class="card-emblem">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="star-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ad1457"/>
+                <stop offset="100%" stop-color="#ffab40"/>
+              </linearGradient>
+            </defs>
+            <!-- 外圈光环 -->
+            <circle cx="50" cy="50" r="38" fill="none" stroke="url(#star-grad)" stroke-width="2" opacity="0.4"/>
+            <!-- 八角星 -->
+            <polygon points="50,14 55,38 78,28 62,46 86,50 62,54 78,72 55,62 50,86 45,62 22,72 38,54 14,50 38,46 22,28 45,38" fill="none" stroke="url(#star-grad)" stroke-width="2.5" opacity="0.7"/>
+            <!-- 中心点 -->
+            <circle cx="50" cy="50" r="5" fill="url(#star-grad)" opacity="0.6"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Card 4: 蚁人 -->
+      <div class="detail-card card-l4">
+        <div class="card-body">
+          <div class="card-header">
+            <span class="card-icon">⚙️</span>
+            <div class="card-title-group">
+              <div class="card-name">蚁人 · 落地实践执行层</div>
+              <div class="card-label">精密落地</div>
+            </div>
+            <span class="card-pct-badge">22%</span>
+          </div>
+          <div class="trait-item">
+            <div class="t-name">内容优化</div>
+            <div class="t-desc">沉浸细节打磨，极易进入深度心流状态</div>
+            <div class="t-src"><span class="bracket">【溯源：</span>专注内驱+精细化感知，耐得住细节深耕<span class="bracket">】</span></div>
+          </div>
+          <div class="trait-item">
+            <div class="t-name">原型速造</div>
+            <div class="t-desc">快速把抽象想法落地成可运行的原型</div>
+            <div class="t-src"><span class="bracket">【溯源：</span>设计思维的原型拆解+重构经验，擅长从0到1快速搭建<span class="bracket">】</span></div>
+          </div>
+          <div class="trait-item">
+            <div class="t-name">趣味设计</div>
+            <div class="t-desc">把枯燥任务游戏化、创意化降低执行阻力</div>
+            <div class="t-src"><span class="bracket">【溯源：</span>发散思维赋能，天生擅长优化体验、软化流程<span class="bracket">】</span></div>
+          </div>
+        </div>
+        <div class="card-emblem">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="ant-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#d32f2f"/>
+                <stop offset="100%" stop-color="#ff5252"/>
+              </linearGradient>
+            </defs>
+            <!-- 六角形外框 -->
+            <polygon points="50,12 84,30 84,70 50,88 16,70 16,30" fill="none" stroke="url(#ant-grad)" stroke-width="2.5" opacity="0.7"/>
+            <!-- 内六角 -->
+            <polygon points="50,28 68,38 68,62 50,72 32,62 32,38" fill="none" stroke="url(#ant-grad)" stroke-width="1.5" opacity="0.4"/>
+            <!-- 中心蚂蚁抽象符号 -->
+            <circle cx="50" cy="44" r="6" fill="url(#ant-grad)" opacity="0.5"/>
+            <ellipse cx="50" cy="60" rx="10" ry="14" fill="none" stroke="url(#ant-grad)" stroke-width="2" opacity="0.5"/>
+            <!-- 触角 -->
+            <line x1="46" y1="40" x2="38" y2="28" stroke="url(#ant-grad)" stroke-width="1.5" opacity="0.4"/>
+            <line x1="54" y1="40" x2="62" y2="28" stroke="url(#ant-grad)" stroke-width="1.5" opacity="0.4"/>
+            <circle cx="38" cy="27" r="2" fill="url(#ant-grad)" opacity="0.4"/>
+            <circle cx="62" cy="27" r="2" fill="url(#ant-grad)" opacity="0.4"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Card 5: 神秘客 -->
+      <div class="detail-card card-l5">
+        <div class="card-body">
+          <div class="card-header">
+            <span class="card-icon">🔮</span>
+            <div class="card-title-group">
+              <div class="card-name">神秘客 · 核心共情聚合层</div>
+              <div class="card-label">情感共振</div>
+            </div>
+            <span class="card-pct-badge">27%</span>
+          </div>
+          <div class="trait-item">
+            <div class="t-name">全息共情</div>
+            <div class="t-desc">天然搭建大范围、高浓度情绪共鸣氛围</div>
+            <div class="t-src"><span class="bracket">【溯源：</span>镜像神经元发达，精准捕捉所有人情绪频率并给出回应<span class="bracket">】</span></div>
+          </div>
+          <div class="trait-item">
+            <div class="t-name">愿景整合</div>
+            <div class="t-desc">融合多元想法，收拢零散诉求形成统一方向</div>
+            <div class="t-src"><span class="bracket">【溯源：</span>发散思维+情绪共振，能串联目标并放大情绪<span class="bracket">】</span></div>
+          </div>
+        </div>
+        <div class="card-emblem">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="mys-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#00e676"/>
+                <stop offset="100%" stop-color="#69f0ae"/>
+              </linearGradient>
+            </defs>
+            <!-- 鱼缸头盔 -->
+            <ellipse cx="50" cy="42" rx="28" ry="28" fill="none" stroke="url(#mys-grad)" stroke-width="2.5" opacity="0.6"/>
+            <!-- 护目镜横带 -->
+            <path d="M22 42 Q50 34 78 42" fill="none" stroke="url(#mys-grad)" stroke-width="2" opacity="0.5"/>
+            <!-- 下方披风暗示 -->
+            <path d="M28 62 Q50 72 72 62 L78 88 Q50 96 22 88 Z" fill="none" stroke="url(#mys-grad)" stroke-width="2" opacity="0.45"/>
+            <!-- 全息光点 -->
+            <circle cx="50" cy="38" r="4" fill="url(#mys-grad)" opacity="0.4"/>
+            <circle cx="38" cy="34" r="2" fill="url(#mys-grad)" opacity="0.3"/>
+            <circle cx="62" cy="34" r="2" fill="url(#mys-grad)" opacity="0.3"/>
+            <!-- 烟雾弧线 -->
+            <path d="M36 54 Q44 60 50 56 Q56 52 64 58" fill="none" stroke="url(#mys-grad)" stroke-width="1.5" opacity="0.3"/>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-area">
+    <div class="tagline">精信念<span class="dot">·</span>强复刻<span class="dot">·</span>活思维<span class="dot">·</span>实创造<span class="dot">·</span>聚人心</div>
+    <div class="footer-sub">漫威宇宙 · 能力矩阵</div>
+    <a class="back-home" href="https://shaorainfan.github.io/life-os-dashboard/about.html">← 回到主页</a>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('starfield');
+if (canvas && canvas.getContext) {
+  const ctx = canvas.getContext('2d');
+  const stars = [];
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  function initStars() {
+    stars.length = 0;
+    for (let i = 0; i < 160; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.2 + 0.3,
+        a: Math.random() * 0.7 + 0.1,
+        speed: Math.random() * 0.008 + 0.002,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+      s.a += Math.sin(Date.now() * s.speed + s.phase) * 0.01;
+      s.a = Math.max(0.04, Math.min(0.95, s.a));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(230,240,255,${s.a})`;
+      ctx.fill();
+      if (s.r > 1) {
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r*2.2, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(0,230,118,${s.a*0.06})`; ctx.fill();
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+  resize(); initStars(); draw();
+  window.addEventListener('resize', () => { resize(); initStars(); });
+}
+</script>
+</body>
+</html>
