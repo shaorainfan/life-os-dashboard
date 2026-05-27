@@ -915,18 +915,15 @@ a.product-card-link:hover {
   to { transform: rotate(360deg); }
 }
 
-/* Silhouette */
-.ability-ring-card .ar-silhouette-img {
+/* Silhouette — skill network graph */
+.ability-ring-card .ar-silhouette {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  z-index: 3; opacity: 0.75;
-  max-width: 90px; max-height: 100px;
-  width: auto; height: auto;
-  filter: drop-shadow(0 0 4px rgba(192,57,43,0.15));
+  z-index: 3; opacity: 0.7;
   transition: opacity 0.4s, filter 0.4s;
 }
-.ability-ring-card:hover .ar-silhouette-img {
+.ability-ring-card:hover .ar-silhouette {
   opacity: 0.92;
-  filter: drop-shadow(0 0 6px rgba(192,57,43,0.35)) drop-shadow(0 0 12px rgba(192,57,43,0.2));
+  filter: drop-shadow(0 0 8px rgba(192,57,43,0.3)) drop-shadow(0 0 16px rgba(192,57,43,0.15));
 }
 
 /* Text */
@@ -1264,7 +1261,58 @@ a.product-card-link:hover {
           <div class="ar-ring-runes"></div>
           <div class="ar-ring-core"></div>
           <div class="ar-ring-inner"></div>
-          <img class="ar-silhouette-img" src="hero-final.png" alt="英雄剪影">
+          <svg class="ar-silhouette" viewBox="0 0 64 64" width="64" height="64">
+            <defs>
+              <pattern id="hatch3" patternUnits="userSpaceOnUse" width="3" height="3" patternTransform="rotate(-35)">
+                <line x1="0" y1="0" x2="0" y2="3" stroke="var(--red)" stroke-width="0.3" opacity="0.35"/>
+              </pattern>
+            </defs>
+            <!-- Connection lines -->
+            <g stroke="var(--red)" stroke-width="0.5" opacity="0.5" stroke-linecap="round">
+              <!-- Central to primary nodes -->
+              <line x1="32" y1="32" x2="32" y2="7"/>
+              <line x1="32" y1="32" x2="52" y2="16"/>
+              <line x1="32" y1="32" x2="57" y2="35"/>
+              <line x1="32" y1="32" x2="52" y2="52"/>
+              <line x1="32" y1="32" x2="32" y2="57"/>
+              <line x1="32" y1="32" x2="12" y2="52"/>
+              <line x1="32" y1="32" x2="7" y2="35"/>
+              <line x1="32" y1="32" x2="12" y2="16"/>
+              <!-- Interconnects -->
+              <line x1="32" y1="7" x2="52" y2="16"/>
+              <line x1="52" y1="16" x2="57" y2="35"/>
+              <line x1="57" y1="35" x2="52" y2="52"/>
+              <line x1="52" y1="52" x2="32" y2="57"/>
+              <line x1="32" y1="57" x2="12" y2="52"/>
+              <line x1="12" y1="52" x2="7" y2="35"/>
+              <line x1="7" y1="35" x2="12" y2="16"/>
+              <line x1="12" y1="16" x2="32" y2="7"/>
+            </g>
+            <!-- Primary nodes (larger) -->
+            <g fill="var(--red)" opacity="0.7">
+              <circle cx="32" cy="7" r="2.5"/>
+              <circle cx="52" cy="16" r="2.5"/>
+              <circle cx="57" cy="35" r="2.5"/>
+              <circle cx="52" cy="52" r="2.5"/>
+              <circle cx="32" cy="57" r="2.5"/>
+              <circle cx="12" cy="52" r="2.5"/>
+              <circle cx="7" cy="35" r="2.5"/>
+              <circle cx="12" cy="16" r="2.5"/>
+            </g>
+            <!-- Central hub -->
+            <circle cx="32" cy="32" r="4.5" fill="url(#hatch3)" stroke="var(--red)" stroke-width="0.7" opacity="0.8"/>
+            <!-- Secondary nodes (smaller) -->
+            <g fill="var(--red)" opacity="0.4">
+              <circle cx="40" cy="11" r="1.2"/>
+              <circle cx="54" cy="25" r="1.2"/>
+              <circle cx="54" cy="45" r="1.2"/>
+              <circle cx="42" cy="55" r="1.2"/>
+              <circle cx="22" cy="55" r="1.2"/>
+              <circle cx="10" cy="45" r="1.2"/>
+              <circle cx="10" cy="25" r="1.2"/>
+              <circle cx="22" cy="11" r="1.2"/>
+            </g>
+          </svg>
         </div>
         <h3>沐阳个人能力环</h3>
         <p class="ar-sub">漫威宇宙版 · 多维能力雷达可视化</p>
