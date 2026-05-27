@@ -916,14 +916,17 @@ a.product-card-link:hover {
 }
 
 /* Silhouette */
-.ability-ring-card .ar-silhouette {
+.ability-ring-card .ar-silhouette-img {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  z-index: 3; opacity: 0.72;
+  z-index: 3; opacity: 0.75;
+  max-width: 90px; max-height: 100px;
+  width: auto; height: auto;
+  filter: drop-shadow(0 0 4px rgba(192,57,43,0.15));
   transition: opacity 0.4s, filter 0.4s;
 }
-.ability-ring-card:hover .ar-silhouette {
-  opacity: 0.9;
-  filter: drop-shadow(0 0 6px rgba(192,57,43,0.4)) drop-shadow(0 0 12px rgba(192,57,43,0.2));
+.ability-ring-card:hover .ar-silhouette-img {
+  opacity: 0.92;
+  filter: drop-shadow(0 0 6px rgba(192,57,43,0.35)) drop-shadow(0 0 12px rgba(192,57,43,0.2));
 }
 
 /* Text */
@@ -1261,34 +1264,7 @@ a.product-card-link:hover {
           <div class="ar-ring-runes"></div>
           <div class="ar-ring-core"></div>
           <div class="ar-ring-inner"></div>
-          <svg class="ar-silhouette" viewBox="0 0 56 64" width="56" height="64">
-            <defs>
-              <pattern id="hatch2" patternUnits="userSpaceOnUse" width="3" height="3" patternTransform="rotate(-35)">
-                <line x1="0" y1="0" x2="0" y2="3" stroke="var(--red)" stroke-width="0.35" opacity="0.4"/>
-              </pattern>
-            </defs>
-            <!-- Head: rounded rectangle -->
-            <rect x="21" y="1" width="14" height="14" rx="7" fill="url(#hatch2)" stroke="var(--red)" stroke-width="0.5"/>
-            <!-- Neck -->
-            <rect x="24" y="14" width="8" height="5" fill="url(#hatch2)" stroke="var(--red)" stroke-width="0.5"/>
-            <!-- Shoulders + Torso: hexagon/polygon -->
-            <polygon points="
-              18,18 38,18
-              43,24 45,30 44,38
-              42,46 39,52 36,56 33,59
-              28,62
-              23,59 20,56 17,52
-              14,46 12,38 11,30 13,24
-            " fill="url(#hatch2)" stroke="var(--red)" stroke-width="0.5" stroke-linejoin="round"/>
-            <!-- Nightwing chest emblem -->
-            <polygon points="
-              28,36
-              31,39 34,36 36,39 39,43
-              36,45 33,42 28,47
-              23,42 20,45 17,43
-              20,39 22,36 25,39
-            " fill="none" stroke="var(--red)" stroke-width="0.5" opacity="0.5" stroke-linejoin="round"/>
-          </svg>
+          <img class="ar-silhouette-img" src="hero-final.png" alt="英雄剪影">
         </div>
         <h3>沐阳个人能力环</h3>
         <p class="ar-sub">漫威宇宙版 · 多维能力雷达可视化</p>
