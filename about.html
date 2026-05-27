@@ -812,34 +812,88 @@ a.product-card-link:hover {
   box-shadow:
     0 8px 28px rgba(0,0,0,0.07),
     0 0 28px var(--red-glow),
+    0 0 60px rgba(120,80,200,0.12),
     inset 0 1px 0 rgba(255,255,255,0.5);
   transform: translateY(-3px);
 }
+
+/* 漫威宇宙元素 */
+.ability-ring-card .ar-cosmos {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+}
+.ability-ring-card .ar-star {
+  position: absolute; width: 3px; height: 3px;
+  background: rgba(180,160,220,0.5);
+  box-shadow: 0 0 6px rgba(160,120,220,0.4);
+  animation: ar-twinkle 3s ease-in-out infinite;
+}
+.ability-ring-card .ar-star-sm {
+  position: absolute; width: 1.5px; height: 1.5px;
+  background: rgba(180,160,220,0.35);
+  box-shadow: 0 0 3px rgba(160,120,220,0.25);
+  animation: ar-twinkle 3.5s ease-in-out infinite;
+}
+@keyframes ar-twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* 宇宙环 */
 .ability-ring-card .ar-ring {
   width: 72px; height: 72px; margin: 0 auto 20px;
-  border: 2px solid var(--red); border-radius: 50%;
-  position: relative;
+  border-radius: 50%; position: relative; z-index: 1;
+  border: 2px solid var(--red);
   box-shadow: 0 0 24px var(--red-glow), inset 0 0 18px rgba(192,57,43,0.12);
 }
-.ability-ring-card .ar-ring::after {
-  content: ''; position: absolute; top: -8px; left: -8px; right: -8px; bottom: -8px;
-  border: 1px solid rgba(192,57,43,0.25); border-radius: 50%;
+.cosmic-ring {
+  border-color: transparent !important;
+  background: 
+    linear-gradient(#fff, #fff) padding-box,
+    conic-gradient(from 0deg, var(--red), rgba(140,100,210,0.7), rgba(80,140,220,0.5), var(--red)) border-box;
+}
+.cosmic-ring::before {
+  content: ''; position: absolute; pointer-events: none;
+  inset: -4px; border-radius: 50%;
+  border: 1px solid rgba(140,100,210,0.2);
+  box-shadow: 0 0 14px rgba(140,100,210,0.15), 0 0 32px rgba(80,140,220,0.08);
+}
+.cosmic-ring::after {
+  content: ''; position: absolute; top: -14px; left: -14px; right: -14px; bottom: -14px;
+  border: 1px solid rgba(192,57,43,0.18); border-radius: 50%;
+  box-shadow: 0 0 20px rgba(140,100,210,0.1);
+  animation: ar-pulse 4s ease-in-out infinite;
+}
+@keyframes ar-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.06); opacity: 0.9; }
+}
+.ability-ring-card .ar-ring-inner {
+  position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px;
+  border-radius: 50%;
+  border: 1px dashed rgba(140,100,210,0.2);
+  animation: ar-spin 20s linear infinite;
+}
+@keyframes ar-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 .ability-ring-card .ar-ring-dot {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
   width: 10px; height: 10px; background: var(--red);
-  box-shadow: 0 0 16px var(--red-glow);
+  box-shadow: 0 0 16px var(--red-glow), 0 0 30px rgba(140,100,210,0.4);
+  z-index: 2;
 }
 .ability-ring-card h3 {
   font-size: 0.95rem; font-weight: 500; letter-spacing: 3px;
-  color: var(--gray-800); margin-bottom: 8px;
+  color: var(--gray-800); margin-bottom: 8px; position: relative; z-index: 1;
 }
 .ability-ring-card .ar-sub {
   font-size: 0.72rem; color: var(--gray-500); letter-spacing: 2px;
+  position: relative; z-index: 1;
 }
 .ability-ring-card .ar-hint {
   font-size: 0.68rem; color: var(--red); letter-spacing: 1px; margin-top: 16px;
-  opacity: 0; transition: opacity 0.3s;
+  opacity: 0; transition: opacity 0.3s; position: relative; z-index: 1;
 }
 .ability-ring-card:hover .ar-hint { opacity: 1; }
 
@@ -1090,6 +1144,49 @@ a.product-card-link:hover {
         <span class="gallup-stat"><span class="diamond"></span> 集中度：100%</span>
         <span class="gallup-stat"><span class="diamond"></span> 排名：Top 5</span>
       </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-bp"><div class="d-line"></div><div class="d-dia"></div><div class="d-line"></div></div>
+
+<!-- ====== 能力环 ====== -->
+<section class="section-animus">
+  <div class="container fade-in">
+    <div class="section-header">
+      <div class="sh-diamond diamond glow"></div>
+      <div class="sh-lines">
+        <div class="sh-line"></div>
+        <div class="sh-line"></div>
+      </div>
+    </div>
+    <h2 class="section-title">能力环</h2>
+    <p class="section-sub">ABILITY RING</p>
+
+    <div class="bp-panel corner-brackets ability-ring-panel">
+      <div class="cb-bottom"></div>
+      <a href="personality-pyramid.html" class="ability-ring-card cosmic-card" target="_blank">
+        <div class="ar-glass"></div>
+        <div class="ar-cosmos">
+          <span class="ar-star" style="top:12%;left:18%;animation-delay:0s;"></span>
+          <span class="ar-star" style="top:8%;left:72%;animation-delay:0.8s;"></span>
+          <span class="ar-star" style="top:78%;left:15%;animation-delay:1.6s;"></span>
+          <span class="ar-star" style="top:82%;left:80%;animation-delay:0.4s;"></span>
+          <span class="ar-star" style="top:45%;left:88%;animation-delay:1.2s;"></span>
+          <span class="ar-star" style="top:22%;left:35%;animation-delay:2.0s;"></span>
+          <span class="ar-star-sm" style="top:55%;left:8%;animation-delay:0.6s;"></span>
+          <span class="ar-star-sm" style="top:15%;left:55%;animation-delay:1.4s;"></span>
+          <span class="ar-star-sm" style="top:68%;left:70%;animation-delay:0.2s;"></span>
+          <span class="ar-star-sm" style="top:35%;left:62%;animation-delay:1.8s;"></span>
+        </div>
+        <div class="ar-ring cosmic-ring">
+          <div class="ar-ring-inner"></div>
+          <div class="ar-ring-dot"></div>
+        </div>
+        <h3>沐阳个人能力环</h3>
+        <p class="ar-sub">漫威宇宙版 · 多维能力雷达可视化</p>
+        <p class="ar-hint">🔮 点击查看完整能力环 →</p>
+      </a>
     </div>
   </div>
 </section>
@@ -1354,36 +1451,6 @@ a.product-card-link:hover {
     </div>
   </div>
 </section>
-
-<div class="divider-bp"><div class="d-line"></div><div class="d-dia"></div><div class="d-line"></div></div>
-
-<!-- ====== 能力环 ====== -->
-<section class="section-animus">
-  <div class="container fade-in">
-    <div class="section-header">
-      <div class="sh-diamond diamond glow"></div>
-      <div class="sh-lines">
-        <div class="sh-line"></div>
-        <div class="sh-line"></div>
-      </div>
-    </div>
-    <h2 class="section-title">能力环</h2>
-    <p class="section-sub">ABILITY RING</p>
-
-    <div class="bp-panel corner-brackets ability-ring-panel">
-      <div class="cb-bottom"></div>
-      <a href="personality-pyramid.html" class="ability-ring-card" target="_blank">
-        <div class="ar-glass"></div>
-        <div class="ar-ring"><div class="ar-ring-dot"></div></div>
-        <h3>沐阳个人能力环</h3>
-        <p class="ar-sub">漫威宇宙版 · 多维能力雷达可视化</p>
-        <p class="ar-hint">🔮 点击查看完整能力环 →</p>
-      </a>
-    </div>
-  </div>
-</section>
-
-<div class="divider-bp"><div class="d-line"></div><div class="d-dia"></div><div class="d-line"></div></div>
 
 <!-- ====== 心愿 ====== -->
 <section class="section-animus">
