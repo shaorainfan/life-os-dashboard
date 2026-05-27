@@ -1261,56 +1261,67 @@ a.product-card-link:hover {
           <div class="ar-ring-runes"></div>
           <div class="ar-ring-core"></div>
           <div class="ar-ring-inner"></div>
-          <svg class="ar-silhouette" viewBox="0 0 56 64" width="56" height="64">
+          <svg class="ar-silhouette" viewBox="0 0 60 68" width="60" height="68">
             <defs>
               <pattern id="hatch" patternUnits="userSpaceOnUse" width="3" height="3" patternTransform="rotate(-35)">
-                <line x1="0" y1="0" x2="0" y2="3" stroke="var(--red)" stroke-width="0.4" opacity="0.45"/>
+                <line x1="0" y1="0" x2="0" y2="3" stroke="var(--red)" stroke-width="0.35" opacity="0.4"/>
               </pattern>
               <filter id="silGlow">
-                <feGaussianBlur stdDeviation="0.8" result="blur"/>
+                <feGaussianBlur stdDeviation="0.6" result="blur"/>
                 <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
               </filter>
             </defs>
-            <!-- Front-facing hero bust — broad shoulders, V-taper, no face -->
+            <!-- Nightwing front-facing bust silhouette — traced from reference -->
+            <!-- Main body outline -->
             <path d="
-              M 28,2
-              C 31,2 34,3 36,5
-              C 38,7 38,9 37,10
-              C 36,11 34,12 32,13
-              C 30,14 29,15 28,16
-              C 27,15 26,14 24,13
-              C 22,12 20,11 19,10
-              C 18,9 18,7 20,5
-              C 22,3 25,2 28,2
+              M 30,1
+              C 33.5,1 37,1.6 39.8,3
+              C 41.3,3.8 42.3,5 42.5,6.5
+              C 42.4,7.8 41.8,8.8 40.5,9.5
+              C 39.5,10 39,10.8 39.5,11.5
+              C 40,12.2 40.8,13 41.8,14
+              C 42.5,15 42.5,16 41.5,17
+              C 40.5,18 39.5,19 38.5,20
+              C 36.5,21.5 34,23 31.8,24
+              C 31,24.5 30.5,25 30.2,25.8
+              C 30,26.5 29.8,27.5 29.8,28.5
+              C 30.5,29.2 31.5,30 33,31
+              C 35.5,33 38,35.5 40.5,38.5
+              C 43,41.5 45.5,45 47.5,49
+              C 49.5,53 51,57 52,61
+              L 52.8,65.5
+              L 53,67.5
+              L 45,67.8
+              C 43,64 40.5,61 37.8,58.5
+              C 35,56 32.5,54 30.5,52.8
+              C 30,52.5 29.5,52.5 29.5,52.8
+              C 27.5,54 25,56 22.2,58.5
+              C 19.5,61 17,64 15,67.8
+              L 7,67.5
+              L 7.2,65.5
+              C 8,61 9,57 11,53
+              C 12.5,49 14.5,45.5 17,41.5
+              C 19.5,38.5 22,35.5 24.5,33
+              C 26.5,31 28,29.5 29.5,28.5
+              C 29.5,27.5 29.3,26.5 29,25.8
+              C 28.8,25 28.2,24.5 27.5,24
+              C 25.2,23 23,21.5 21,20
+              C 20,19 19,18 18,17
+              C 17,16 17,15 18,14
+              C 18.8,13 19.5,12.2 20,11.5
+              C 20.2,10.8 19.8,10 19,9.5
+              C 18,8.8 17.5,7.8 17.2,6.5
+              C 17.3,5 18.3,3.8 19.8,3
+              C 22.5,1.6 26.5,1 30,1
               Z
-              M 28,16
-              C 29,17 29,18 28,19
-              L 25,20
-              C 22,21 19,22 16,23
-              L 8,25
-              L 3,30
-              L 1,36
-              L 2,44
-              L 3,50
-              L 5,55
-              L 8,58
-              L 12,60
-              L 22,62
-              L 28,62
-              L 34,62
-              L 44,60
-              L 48,58
-              L 51,55
-              L 53,50
-              L 54,44
-              L 55,36
-              L 53,30
-              L 48,25
-              L 40,23
-              C 37,22 34,21 31,20
-              L 28,19
+            " fill="url(#hatch)" stroke="var(--red)" stroke-width="0.5" opacity="0.78" filter="url(#silGlow)" stroke-linejoin="round"/>
+            <!-- Nightwing chest emblem — inverted V wings -->
+            <path d="
+              M 23,34 L 27,37 L 30,33 L 33,37 L 37,34
+              L 39,37 L 42,40 L 44,43 L 40,47 L 37,43 L 34,39 L 30,44
+              L 26,39 L 23,43 L 20,47 L 16,43 L 18,40 L 21,37
               Z
-            " fill="url(#hatch)" stroke="var(--red)" stroke-width="0.6" opacity="0.65" filter="url(#silGlow)" stroke-linejoin="round"/>
+            " fill="none" stroke="#e8dccb" stroke-width="0.6" opacity="0.3" stroke-linejoin="round"/>
           </svg>
         </div>
         <h3>沐阳个人能力环</h3>
